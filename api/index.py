@@ -17,9 +17,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(router, prefix="/api")
-
-
-@app.get("/api/health", tags=["Health"])
-def health_check():
-    return {"status": "ok"}
+# app.include_router(router, prefix="/api") # Removed redundant prefix if already in vercel.json or router
+app.include_router(router, prefix="/api") 
