@@ -88,6 +88,19 @@ O projeto usa o [Ruff](https://docs.astral.sh/ruff/) para lint e formatação de
 
 ---
 
+## Testes (Pytest)
+
+O projeto usa [Pytest](https://docs.pytest.org/) para testes automatizados.
+
+| Ação | Comando |
+|------|---------|
+| Rodar todos os testes | `poetry run pytest` |
+| Rodar com output detalhado | `poetry run pytest -v` |
+| Rodar um arquivo específico | `poetry run pytest tests/test_core.py` |
+| Rodar um teste específico | `poetry run pytest tests/test_core.py::test_health_check_retorna_200` |
+
+---
+
 ## Estrutura de Pastas
 
 ```
@@ -97,13 +110,17 @@ api/
 ├── poetry.lock        # Lockfile (commitar no git)
 ├── vercel.json        # Configuração do deploy
 ├── .env.example       # Template de variáveis de ambiente
+├── tests/             # Testes automatizados
+│   ├── conftest.py    # Fixtures compartilhadas (client de teste)
+│   └── test_core.py   # Testes do módulo core
 └── app/
     ├── config.py      # Configurações via pydantic-settings
     ├── routers/       # Roteadores por recurso
-    ├── models/        # Schemas Pydantic
+    ├── modules/       # Módulos da aplicação
     └── db/
         └── database.py  # Configuração do SQLAlchemy
 ```
+
 
 ## Deploy (Vercel)
 

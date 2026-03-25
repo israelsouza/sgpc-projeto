@@ -43,7 +43,13 @@ ignore = [
 quote-style = "double"
 indent-style = "space"
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
 [dependency-groups]
 dev = [
-    "ruff (>=0.15.7,<0.16.0)"
+    "ruff (>=0.15.7,<0.16.0)",
+    "pytest (>=9.0.2,<10.0.0)",
+    "httpx (>=0.28.1,<0.29.0)"
 ]
