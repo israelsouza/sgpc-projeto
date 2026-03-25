@@ -18,4 +18,4 @@ app.add_middleware(
 )
 
 # app.include_router(router, prefix="/api") # Removed redundant prefix if already in vercel.json or router
-app.include_router(router, prefix="/api") 
+app.include_router(router, prefix="/api")
