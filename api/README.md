@@ -75,6 +75,19 @@ Documentação Swagger: `http://localhost:8000/docs`
 
 ---
 
+## Qualidade de Código (Ruff)
+
+O projeto usa o [Ruff](https://docs.astral.sh/ruff/) para lint e formatação de código. Ele substitui `flake8`, `isort` e `black`.
+
+| Ação | Comando |
+|------|---------|
+| Verificar erros de lint | `poetry run ruff check .` |
+| Corrigir erros automáticos | `poetry run ruff check --fix .` |
+| Verificar formatação | `poetry run ruff format --check .` |
+| Aplicar formatação | `poetry run ruff format .` |
+
+---
+
 ## Estrutura de Pastas
 
 ```
