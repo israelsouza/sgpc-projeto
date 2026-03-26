@@ -38,7 +38,7 @@ export default function LoginScreen() {
         <TextInput
           style={styles.input}
           placeholder="email"
-          placeholderTextColor="#9AA5B4"
+          placeholderTextColor={colors.textMuted}
           keyboardType="email-address"
           autoCapitalize="none"
         />
@@ -47,7 +47,7 @@ export default function LoginScreen() {
         <TextInput
           style={styles.input}
           placeholder="Senha"
-          placeholderTextColor="#9AA5B4"
+          placeholderTextColor={colors.textMuted}
           secureTextEntry
         />
 
@@ -80,13 +80,11 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  /* ── Estrutura ── */
   container: {
     flex: 1,
-    backgroundColor: colors.darkBg,
+    backgroundColor: colors.background,
   },
 
-  /* ── Topo ── */
   topSection: {
     flex: 1,
     paddingHorizontal: 28,
@@ -97,7 +95,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 14,
-    backgroundColor: colors.accent,
+    backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
@@ -120,7 +118,6 @@ const styles = StyleSheet.create({
     maxWidth: 200,
   },
 
-  /* ── Bottom Sheet ── */
   bottomSheet: {
     backgroundColor: colors.sheetBg,
     borderTopLeftRadius: 28,
@@ -136,9 +133,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
 
-  /* ── Inputs ── */
   input: {
-    backgroundColor: colors.inputBg,
+    backgroundColor: colors.surface,
     color: colors.textLight,
     borderRadius: 10,
     paddingHorizontal: 16,
@@ -147,19 +143,17 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
 
-  /* ── Esqueci a senha ── */
   forgotWrapper: {
     alignItems: "flex-end",
     marginBottom: 24,
   },
   forgotText: {
-    color: colors.accent,
+    color: colors.primary,
     fontSize: 13,
   },
 
-  /* ── Botão primário ── */
   btnPrimary: {
-    backgroundColor: colors.accent,
+    backgroundColor: colors.primary,
     borderRadius: 10,
     paddingVertical: 15,
     alignItems: "center",
@@ -171,7 +165,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  /* ── Divisor ── */
   divider: {
     flexDirection: "row",
     alignItems: "center",
@@ -188,10 +181,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
 
-  /* ── Botão secundário ── */
   btnSecondary: {
     borderWidth: 1.5,
-    borderColor: "#C8B8AC",
+    borderColor: colors.accent,
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: "center",
@@ -199,12 +191,11 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   btnSecondaryText: {
-    color: colors.textDark,
+    color: colors.brown,
     fontSize: 15,
     fontWeight: "500",
   },
 
-  /* ── Termos ── */
   terms: {
     textAlign: "center",
     color: colors.textSubtle,
@@ -212,6 +203,6 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   termsLink: {
-    color: colors.accent,
+    color: colors.primary,
   },
 });
