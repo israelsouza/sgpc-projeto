@@ -1,42 +1,32 @@
 import { StyleSheet } from "react-native";
-
-export const colors = {
-  darkBg: "#2C3E50",
-  sheetBg: "#F5F0EB",
-  inputBg: "#3D5166",
-  accent: "#B5845A",
-  textLight: "#FFFFFF",
-  textDark: "#2C3E50",
-  textMuted: "#9AA5B4",
-  textSubtle: "#9A8F88",
-  divider: "#D5C9BE",
-}
+import { colors } from "@/theme/colors";
 
 export const styles = StyleSheet.create({
-  /* ── Estrutura ── */
+  // ── Estrutura ──────────────────────────────
   container: {
     flex: 1,
-    backgroundColor: colors.darkBg,
+    backgroundColor: colors.background,
   },
 
-  /* ── Topo ── */
+  // ── Topo ───────────────────────────────────
   topSection: {
     flex: 1,
     paddingHorizontal: 28,
-    paddingTop: 24,
-    justifyContent: "center",
+    paddingTop: 48,
+    justifyContent: "flex-end",
+    paddingBottom: 32,
   },
   appIcon: {
-    width: 60,
-    height: 60,
+    width: 56,
+    height: 56,
     borderRadius: 14,
-    backgroundColor: colors.accent,
+    backgroundColor: colors.primaryDark,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 16,
+    marginBottom: 20,
   },
   appIconText: {
-    fontSize: 28,
+    fontSize: 26,
   },
   appName: {
     color: colors.textLight,
@@ -48,26 +38,26 @@ export const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: 14,
     lineHeight: 20,
-    maxWidth: 200,
+    maxWidth: 220,
   },
 
-  /* ── Bottom Sheet ── */
+  // ── Bottom Sheet ───────────────────────────
   bottomSheet: {
     backgroundColor: colors.sheetBg,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     paddingHorizontal: 28,
     paddingTop: 32,
-    paddingBottom: 36,
+    paddingBottom: 40,
   },
-  title: {
-    fontSize: 18,
+  sheetTitle: {
+    fontSize: 17,
     fontWeight: "600",
     color: colors.textDark,
     marginBottom: 24,
   },
 
-  /* ── Inputs ── */
+  // ── Inputs ─────────────────────────────────
   input: {
     backgroundColor: colors.inputBg,
     color: colors.textLight,
@@ -78,19 +68,19 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
   },
 
-  /* ── Esqueci a senha ── */
+  // ── Esqueci a senha ────────────────────────
   forgotWrapper: {
     alignItems: "flex-end",
     marginBottom: 24,
   },
   forgotText: {
-    color: colors.accent,
+    color: colors.primary,
     fontSize: 13,
   },
 
-  /* ── Botão primário ── */
+  // ── Botão primário ─────────────────────────
   btnPrimary: {
-    backgroundColor: colors.accent,
+    backgroundColor: colors.primary,
     borderRadius: 10,
     paddingVertical: 15,
     alignItems: "center",
@@ -102,7 +92,7 @@ export const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  /* ── Divisor ── */
+  // ── Divisor ────────────────────────────────
   divider: {
     flexDirection: "row",
     alignItems: "center",
@@ -119,10 +109,10 @@ export const styles = StyleSheet.create({
     fontSize: 13,
   },
 
-  /* ── Botão secundário ── */
+  // ── Botão secundário ───────────────────────
   btnSecondary: {
     borderWidth: 1.5,
-    borderColor: "#C8B8AC",
+    borderColor: colors.divider,
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: "center",
@@ -135,7 +125,7 @@ export const styles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  /* ── Termos ── */
+  // ── Termos ─────────────────────────────────
   terms: {
     textAlign: "center",
     color: colors.textSubtle,
@@ -143,6 +133,7 @@ export const styles = StyleSheet.create({
     lineHeight: 18,
   },
   termsLink: {
-    color: colors.accent,
+    color: colors.primary,
+    textDecorationLine: "underline",
   },
 });

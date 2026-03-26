@@ -1,22 +1,30 @@
-export const colors = {
-  // Primary backgrounds
-  background: "#051822",
+export const palette = {
+  negro: "#2E2E2E",
+  darkBg: "#051822",
   surface: "#2D383E",
-  backgroundLight: "#F3F1EC",
-
-  // Accent colors
-  primary: "#F16A14",
-  accent: "#AA7452",
   brown: "#7C5841",
+  accent: "#AA7452",
+  gray: "#96999E",
+  subtle: "#D4C9C7",
+  offWhite: "#F4F1EC",
+} as const;
 
-  // Text colors
+export const colors = {
+  background: palette.darkBg,
+  sheetBg: palette.offWhite,
+  inputBg: palette.surface,
+
+  // Ação / destaque
+  primary: palette.accent,
+  primaryDark: palette.brown,
+
+  // Texto
   textLight: "#FFFFFF",
-  textDark: "#051822",
-  textMuted: "#969A9E",
-  textSubtle: "#D4C9C7",
+  textDark: palette.darkBg,
+  textMuted: palette.gray,
+  textSubtle: palette.subtle,
 
-  // UI elements
-  inputBg: "#2D383E",
-  divider: "#D4C9C7",
-  sheetBg: "#F3F1EC",
-};
+  // UI
+  divider: palette.subtle,
+  icon: palette.negro,
+} as const;
