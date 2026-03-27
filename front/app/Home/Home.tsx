@@ -9,11 +9,7 @@ import {
 import { useRouter } from "expo-router";
 import { colors } from "@/theme/colors";
 import { styles } from "@/screens/Home/home.styles";
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import Entypo from '@expo/vector-icons/Entypo';
-import Feather from '@expo/vector-icons/Feather';
-import AntDesign from '@expo/vector-icons/AntDesign';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { FontAwesome6, Entypo, Feather, AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 
 
 // ── Dados dos cards ──────────────────────────
