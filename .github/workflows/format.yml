@@ -1,4 +1,4 @@
-name: Code Lint (Ruff)
+name: Style Lint (Ruff)
 
 on:
   push:
@@ -9,8 +9,8 @@ on:
       - "api/**"
 
 jobs:
-  lint:
-    name: Ruff Code Lint
+  format:
+    name: Ruff Style Lint
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -31,5 +31,5 @@ jobs:
       - name: Install dependencies
         run: poetry install --only dev
 
-      - name: Ruff check (lint)
-        run: poetry run ruff check .
+      - name: Ruff format check
+        run: poetry run ruff format --check .
