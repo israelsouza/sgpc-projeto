@@ -1,47 +1,33 @@
-import { View, TouchableOpacity, Text } from "react-native";
+import { View, TouchableOpacity } from "react-native";
 import { FontAwesome6, Entypo, Feather } from "@expo/vector-icons";
 import { styles } from "@/screens/Home/home.styles";
-
-// Rodapé inferior do aplicativo
-
-interface NavItem {
-  icon: React.ReactNode;
-  active: boolean;
-}
+import { colors } from "@/theme/colors";
 
 interface BottomNavProps {
   activeIndex?: number;
 }
 
 export function BottomNav({ activeIndex = 0 }: BottomNavProps) {
-  const navItems: NavItem[] = [
-    {
-      icon: <FontAwesome6 name="house" size={24} color="black" />,
-      active: activeIndex === 0,
-    },
-    {
-      icon: <Entypo name="back-in-time" size={24} color="black" />,
-      active: activeIndex === 1,
-    },
-    {
-      icon: <Entypo name="megaphone" size={24} color="black" />,
-      active: activeIndex === 2,
-    },
-    {
-      icon: <Feather name="users" size={24} color="black" />,
-      active: activeIndex === 3,
-    },
-  ];
+  const inactiveColor = "#B8A89A";
+  const activeColor = colors.earthBrown;
+
+  const getColor = (index: number) =>
+    activeIndex === index ? activeColor : inactiveColor;
 
   return (
     <View style={styles.bottomNav}>
-      {navItems.map((item, index) => (
-        <TouchableOpacity key={index} style={styles.navItem}>
-          <Text style={item.active ? styles.navIconActive : styles.navIcon}>
-            {item.icon}
-          </Text>
-        </TouchableOpacity>
-      ))}
+      <TouchableOpacity style={styles.navItem}>
+        <FontAwesome6 name="house" size={24} color={getColor(0)} />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.navItem}>
+        <Entypo name="back-in-time" size={24} color={getColor(1)} />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.navItem}>
+        <Entypo name="megaphone" size={24} color={getColor(2)} />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.navItem}>
+        <Feather name="users" size={24} color={getColor(3)} />
+      </TouchableOpacity>
     </View>
   );
 }

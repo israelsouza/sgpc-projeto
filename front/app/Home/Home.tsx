@@ -122,7 +122,7 @@ export default function HomeScreen() {
       >
         {/* Boas-vindas */}
         <View style={styles.welcomeCard}>
-          <Text style={styles.welcomeText}>Seja bem vindo João 👋</Text>
+          <Text style={styles.welcomeText}>Seja bem vindo João</Text>
         </View>
 
         {/* Grid de cards */}

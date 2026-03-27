@@ -80,6 +80,8 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.textLight,
     borderRadius: 16,
     padding: 16,
+    borderWidth: 1,
+    borderColor: colors.earthAccent,
   },
   iconBox: {
     width: 44,
