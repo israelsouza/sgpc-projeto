@@ -9,75 +9,101 @@ import {
 import { useRouter } from "expo-router";
 import { colors } from "@/theme/colors";
 import { styles } from "@/screens/Home/home.styles";
-import { FontAwesome6, Entypo, Feather, AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Feather, AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Header } from "@/components/Header";
+import { BottomNav } from "@/components/BottomNav";
+import type { ComponentType } from "react";
 
+// ── Tipos dos ícones ──────────────────────────
+type IconLibrary = "Feather" | "AntDesign" | "MaterialCommunityIcons";
+
+interface MenuItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  icon: { name: string; library: IconLibrary };
+  iconBg: string;
+  iconColor: string;
+  route: string;
+}
 
 // ── Dados dos cards ──────────────────────────
-const menuItems = [
+const menuItems: MenuItem[] = [
   {
     id: "cadastrados",
     title: "Cadastrados",
     subtitle: "Moradores e veículos",
-    icon: <Feather name="users" size={24} color="black" />,
+    icon: { name: "users", library: "Feather" },
     iconBg: "#D6E8F7",
+    iconColor: "#5B9BC4",
     route: "/cadastrados",
   },
   {
     id: "convidar",
     title: "Convidar alguém",
     subtitle: "Avisar a portaria",
-    icon: <AntDesign name="user-add" size={24} color="black" />,
+    icon: { name: "user-add", library: "AntDesign" },
     iconBg: "#D6F5E3",
+    iconColor: "#4CAF73",
     route: "/convidar",
   },
   {
     id: "agendamentos",
     title: "Agendamentos",
     subtitle: "Espaços e serviços",
-    icon: <Feather name="calendar" size={24} color="black" />,
+    icon: { name: "calendar", library: "Feather" },
     iconBg: "#F5E6D6",
+    iconColor: "#B87C4A",
     route: "/agendamentos",
   },
   {
     id: "entregas",
     title: "Entregas",
     subtitle: "Cartas e pacotes",
-    icon: <Feather name="box" size={24} color="black" />,
+    icon: { name: "box", library: "Feather" },
     iconBg: "#EDD6F5",
+    iconColor: "#9B6BB6",
     route: "/entregas",
   },
   {
     id: "manifestacao",
     title: "Manifestação",
     subtitle: "Reclamações e sugestões",
-    icon: <Feather name="message-square" size={24} color="black" />,
+    icon: { name: "message-square", library: "Feather" },
     iconBg: "#F5F0D6",
+    iconColor: "#B8A44A",
     route: "/manifestacao",
   },
   {
     id: "documentos",
     title: "Documentos",
     subtitle: "Atas e regulamentos",
-    icon: <MaterialCommunityIcons name="book-open-page-variant" size={24} color="black" />,
+    icon: { name: "book-open-page-variant", library: "MaterialCommunityIcons" },
     iconBg: "#D6E8F7",
+    iconColor: "#5B9BC4",
     route: "/documentos",
   },
   {
     id: "bilhetes",
     title: "Bilhetes",
     subtitle: "Avisos para a portaria",
-    icon: <Feather name="send" size={24} color="black" />,
+    icon: { name: "send", library: "Feather" },
     iconBg: "#EDD6F5",
+    iconColor: "#9B6BB6",
     route: "/bilhetes",
   },
 ];
 
-const navItems = [
-  { icon: <FontAwesome6 name="house" size={24} color="black" />, active: true },
-  { icon: <Entypo name="back-in-time" size={24} color="black" />, active: false },
-  { icon: <Entypo name="megaphone" size={24} color="black" />, active: false },
-  { icon: <Feather name="users" size={24} color="black" />, active: false },
-];
+// ── Renderizador de ícones ──────────────────────────
+function renderIcon(icon: MenuItem["icon"], color: string) {
+  const IconComponent = {
+    Feather,
+    AntDesign,
+    MaterialCommunityIcons,
+  }[icon.library] as ComponentType<{ name: string; size: number; color: string }>;
+
+  return <IconComponent name={icon.name} size={22} color={color} />;
+}
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -87,17 +113,7 @@ export default function HomeScreen() {
       <StatusBar barStyle="light-content" backgroundColor={colors.primaryDark} />
 
       {/* ── Header ── */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>IB</Text>
-          </View>
-          <View>
-            <Text style={styles.headerTitle}>Itaim Bibi</Text>
-            <Text style={styles.headerSubtitle}>Unidade 056</Text>
-          </View>
-        </View>
-      </View>
+      <Header />
 
       {/* ── Conteúdo ── */}
       <ScrollView
@@ -119,7 +135,7 @@ export default function HomeScreen() {
               activeOpacity={0.7}
             >
               <View style={[styles.iconBox, { backgroundColor: item.iconBg }]}>
-                <Text style={{ fontSize: 22 }}>{item.icon}</Text>
+                {renderIcon(item.icon, item.iconColor)}
               </View>
               <Text style={styles.cardTitle}>{item.title}</Text>
               <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
@@ -132,15 +148,7 @@ export default function HomeScreen() {
       </ScrollView>
 
       {/*  Bottom Nav  */}
-      <View style={styles.bottomNav}>
-        {navItems.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.navItem}>
-            <Text style={item.active ? styles.navIconActive : styles.navIcon}>
-              {item.icon}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <BottomNav activeIndex={0} />
     </SafeAreaView>
   );
 }

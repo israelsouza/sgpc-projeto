@@ -86,6 +86,7 @@ export const styles = StyleSheet.create({
     height: 44,
     borderRadius: 12,
     alignItems: "center",
+    justifyContent: "center",
     marginBottom: 12,
   },
   cardTitle: {
@@ -95,7 +96,7 @@ export const styles = StyleSheet.create({
     marginBottom: 4,
   },
   cardSubtitle: {
-    color: colors.textMuted,
+    color: colors.earthBrown,
     fontSize: 12,
     lineHeight: 16,
   },
