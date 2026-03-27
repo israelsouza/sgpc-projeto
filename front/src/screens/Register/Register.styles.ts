@@ -117,20 +117,21 @@ export const styles = StyleSheet.create({
     borderColor: colors.primaryDark,
     borderRadius: 14,
     padding: 14,
-    gap: 10,
+    
   },
   identRow: {
     flexDirection: "row",
-    gap: 10,
+    marginBottom: 10, 
+    
   },
   inputHalf: {
-    flex: 1,
-    backgroundColor: colors.inputBg,
-    color: colors.textLight,
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 15,
+  flex: 1,
+  backgroundColor: colors.inputBg,
+  color: colors.textLight,
+  borderRadius: 10,
+  paddingHorizontal: 16,
+  paddingVertical: 14,
+  fontSize: 15,
   },
   inputFull: {
     backgroundColor: colors.inputBg,

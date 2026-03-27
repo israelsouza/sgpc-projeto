@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { colors } from "@/theme/colors";
-import { styles } from "@/screens/Register/Register.styles"; 
+import { styles } from "@/screens/Register/Register.styles";
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -79,22 +79,20 @@ export default function RegisterScreen() {
         <Text style={styles.sectionLabelSpaced}>Identificação</Text>
 
         <View style={styles.identBox}>
-          <View style={styles.identRow}>
-            <TextInput
-              style={styles.inputHalf}
-              placeholder="RG"
-              placeholderTextColor={colors.textMuted}
-              keyboardType="numeric"
-            />
-            <TextInput
-              style={styles.inputHalf}
-              placeholder="CPF"
-              placeholderTextColor={colors.textMuted}
-              keyboardType="numeric"
-            />
-          </View>
+          <TextInput
+            style={[styles.inputFull, { marginBottom: 10 }]}
+            placeholder="RG"
+            placeholderTextColor={colors.textMuted}
+            keyboardType="numeric"
+          />
           <TextInput
             style={styles.inputFull}
+            placeholder="CPF"
+            placeholderTextColor={colors.textMuted}
+            keyboardType="numeric"
+          />
+          <TextInput
+            style={[styles.inputFull, { marginTop: 10 }]}
             placeholder="Data de nascimento"
             placeholderTextColor={colors.textMuted}
             keyboardType="numeric"
