@@ -56,3 +56,4 @@ pi/
 - Schemas de validação devem usar Pydantic em `api/app/models/`
 - Alterações no banco requerem migration via Alembic
 - Nunca commitar o arquivo `.env`
+- Para decisões de deploy, consultar `/vercel-best-practices`
