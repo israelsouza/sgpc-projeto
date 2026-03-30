@@ -23,6 +23,8 @@ export function Header({
           <Text style={styles.headerSubtitle}>{subtitle}</Text>
         </View>
       </View>
+
+      <View style={styles.headerCurve} />
     </View>
   );
 }

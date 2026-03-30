@@ -4,7 +4,7 @@ import { colors } from "@/theme/colors";
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.sheetBg,
+     backgroundColor: colors.primaryDark,
   },
 
   // header
@@ -12,7 +12,7 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.primaryDark,
     paddingHorizontal: 20,
     paddingTop: 52,
-    paddingBottom: 20,
+    paddingBottom: 36,  
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -46,11 +46,23 @@ export const styles = StyleSheet.create({
     marginTop: 2,
   },
 
+headerCurve: {
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  right: 0,
+  height: 15,              
+  backgroundColor: colors.sheetBg,
+  borderTopLeftRadius: 20,
+  borderTopRightRadius: 20,
+},
+
   //  Conteúdo
   content: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 16,
+   flex: 1,
+  paddingHorizontal: 16,
+  paddingTop: 16,
+  backgroundColor: colors.sheetBg, 
   },
 
   // Boas vindas
