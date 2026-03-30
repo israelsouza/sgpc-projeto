@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, status
 
@@ -30,7 +30,7 @@ async def login(dados: LoginSchema, db: Prisma = Depends(get_prisma)):
         )
 
     # 2. Validar Hash da Senha
-    if not verificar_senha(dados.senha, usuario.senha_hash):
+    if not verificar_senha(dados.senha, usuario.senha):
         raise ValidationError(
             nome="login_invalido",
             mensagem="E-mail ou senha incorretos.",
@@ -63,7 +63,7 @@ async def gerar_chave_acesso(
     Gera uma chave de acesso UUID única e temporária.
     (Futuramente restrita a Síndicos/Admins).
     """
-    validade = datetime.now() + timedelta(hours=dados.validade_em_horas)
+    validade = datetime.now(UTC) + timedelta(hours=dados.validade_em_horas)
 
     nova_chave = await db.chaveacesso.create(
         data={"validade": validade, "usada": False}

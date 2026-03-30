@@ -37,7 +37,7 @@ async def registrar_morador(dados: MoradorCreate, db: Prisma = Depends(get_prism
             acao="Se você já se cadastrou, tente fazer login. Caso contrário, peça uma nova chave.",
         )
 
-    if chave_acesso.validade < datetime.now():
+    if chave_acesso.validade < datetime.now(chave_acesso.validade.tzinfo):
         raise ValidationError(
             nome="chave_expirada",
             mensagem="Esta chave de acesso expirou.",
