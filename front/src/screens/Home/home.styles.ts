@@ -48,6 +48,8 @@ export const styles = StyleSheet.create({
 
 headerCurve: {
   position: "absolute",
+  marginLeft: "2.5%",
+  width: "95%",
   bottom: 0,
   left: 0,
   right: 0,
