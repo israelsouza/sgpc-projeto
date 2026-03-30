@@ -134,3 +134,25 @@ Passos para conectar:
 1. Conectar o repositório no [Vercel](https://vercel.com)
 2. Configurar as variáveis de ambiente no painel da Vercel
 3. O deploy acontece automaticamente a cada push na branch `main`
+
+---
+
+#### 🛠️ Mini Tutorial: PostgreSQL com Docker (WSL/Desktop)
+Para subir o banco rapidamente, execute no seu terminal:
+
+1. **Subir o container:**
+   ```bash
+   docker run --name sgpc-db -e POSTGRES_PASSWORD=senha_forte -p 5432:5432 -d postgres
+   ```
+
+2. **Configurar o `.env` em `api/.env`:**
+   ```env
+   DATABASE_URL="postgresql://postgres:senha_forte@localhost:5432/postgres"
+   SECRET_KEY="sua_chave_secreta_aqui"
+   ACCESS_TOKEN_EXPIRE_MINUTES=60
+   ```
+
+3. **Rodar as migrações (dentro da pasta `api/`):**
+   ```bash
+   poetry run prisma migrate dev --name init_db
+   ```
