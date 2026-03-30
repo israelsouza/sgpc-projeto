@@ -11,7 +11,7 @@
 |------------|-----------------------------------|
 | Backend    | Python 3.12, FastAPI, Uvicorn     |
 | Banco      | PostgreSQL                        |
-| ORM        | SQLAlchemy + Alembic (migrações)  |
+| ORM        | Prisma ORM (Python)               |
 | Deploy API | Vercel (Serverless Functions)     |
 | Frontend   | React Native, Expo, TypeScript    |
 
@@ -24,7 +24,8 @@ pi/
 │   ├── app/
 │   │   ├── routers/  # Roteadores organizados por recurso
 │   │   ├── models/   # Modelos Pydantic (schemas)
-│   │   └── db/       # Configuração do banco de dados
+│   │   └── db/       # Configuração do cliente Prisma
+│   ├── prisma/       # Schema e migrações do Prisma
 │   ├── index.py      # Entry point da aplicação
 │   ├── requirements.txt
 │   └── vercel.json
@@ -40,8 +41,9 @@ pi/
 ### Backend (Python)
 - Nomenclatura de arquivos: `snake_case`
 - Nomenclatura de classes: `PascalCase`
-- Rotas agrupadas por recurso em `app/routers/<recurso>.py`
-- Schemas Pydantic em `app/models/<recurso>.py`
+- Rotas agrupadas por recurso em `api/app/routers/`
+- Schemas Pydantic em `api/app/models/`
+- Banco de dados gerenciado pelo Prisma (`api/prisma/schema.prisma`)
 - Variáveis de ambiente via `python-dotenv` (`api/.env`)
 
 ### Frontend (TypeScript)
@@ -54,6 +56,11 @@ pi/
 - Sempre respeitar a separação entre `api/` e `front/`
 - Novas rotas da API devem ser criadas em `api/app/routers/`
 - Schemas de validação devem usar Pydantic em `api/app/models/`
-- Alterações no banco requerem migration via Alembic
+- Alterações no banco requerem atualização do `schema.prisma` e geração do cliente
 - Nunca commitar o arquivo `.env`
 - Para decisões de deploy, consultar `/vercel-best-practices`
+- O nome das tabelas do banco de dados no Prisma deve usar `@@map("NOME_TABELA")` em MAIÚSCULO e plural
+- O nome dos campos no Prisma deve usar `@map("nome_campo")` em snake_case e português
+- Use nomes de modelos em PascalCase no Prisma (ex: `Usuario`) para manter o padrão do cliente Python
+- O nome das pastas dentro de `/modules` na `API` deve ser em português e no singular (ex: `usuario`, `unidade`, etc)
+- Sempre rode o  script de lint e formatação após cada fase concluída para garantir a consistência do código

@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-py"
+  recursive_type_depth = 5
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Unidade {
+  id                Int       @id @default(autoincrement())
+  unidade           String    @map("unidade")
+  bloco             String?   @map("bloco")
+  andar             Int?      @map("andar")
+  
+  // Auditoria
+  criado_em         DateTime  @default(now()) @map("criado_em")
+  atualizado_em     DateTime  @updatedAt @map("atualizado_em")
+  quem_criou        Int?      @map("quem_criou")
+  quem_atualizou    Int?      @map("quem_atualizou")
+
+  // Relacionamentos
+  moradores         Morador[]
+
+  @@map("UNIDADES")
+}
+
+model Perfil {
+  id    Int    @id @default(autoincrement())
+  nome  String @unique @map("nome")
+  
+  // Relacionamentos
+  usuarios Usuario[]
+
+  @@map("PERFIS")
+}
+
+model Usuario {
+  id             Int       @id @default(autoincrement())
+  email          String    @unique @map("email")
+  senha          String    @map("senha")
+  status         String    @default("ATIVO") @map("status")
+  
+  // Auditoria
+  criado_em      DateTime  @default(now()) @map("criado_em")
+  atualizado_em  DateTime  @updatedAt @map("atualizado_em")
+  quem_criou     Int?      @map("quem_criou")
+  quem_atualizou Int?      @map("quem_atualizou")
+
+  // Relacionamentos
+  perfis         Perfil[]
+  morador        Morador?
+
+  @@map("USUARIOS")
+}
+
+model Morador {
+  id              Int       @id @default(autoincrement())
+  nome_completo   String    @map("nome_completo")
+  celular         String    @map("celular")
+  rg              String?   @map("rg")
+  cpf             String    @unique @map("cpf")
+  data_nascimento DateTime? @map("data_nascimento")
+  status          String    @default("PENDENTE") @map("status") // PENDENTE, ATIVO, REJEITADO
+  
+  // Auditoria
+  criado_em       DateTime  @default(now()) @map("criado_em")
+  atualizado_em   DateTime  @updatedAt @map("atualizado_em")
+  quem_criou      Int?      @map("quem_criou")
+  quem_atualizou  Int?      @map("quem_atualizou")
+
+  // Chaves estrangeiras
+  usuario_id      Int?      @unique @map("usuario_id")
+  unidade_id      Int?      @map("unidade_id")
+
+  // Relacionamentos
+  usuario         Usuario?  @relation(fields: [usuario_id], references: [id])
+  unidade         Unidade?  @relation(fields: [unidade_id], references: [id])
+
+  @@map("MORADORES")
+}
+
+model ChaveAcesso {
+  id              String    @id @default(uuid()) @map("id")
+  chave           String    @unique @default(uuid()) @map("chave")
+  validade        DateTime  @map("validade")
+  usada           Boolean   @default(false) @map("usada")
+  
+  // Auditoria
+  criado_em       DateTime  @default(now()) @map("criado_em")
+  atualizado_em   DateTime  @updatedAt @map("atualizado_em")
+  quem_criou      Int?      @map("quem_criou")
+
+  @@map("CHAVES_ACESSO")
+}
