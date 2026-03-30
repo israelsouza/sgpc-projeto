@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.db.prisma_client import connect_db, disconnect_db
-from app.modules.core.exceptions import ValidationError
+from app.modules.core.core_exception import ValidationError
 from app.routers import router
 
 

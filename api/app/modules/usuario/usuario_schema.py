@@ -11,7 +11,6 @@ class ChaveAcessoBase(BaseModel):
 
 
 class ChaveAcessoCreate(BaseModel):
-    # O síndico só define a validade (ou usamos um padrão)
     validade_em_horas: int = 24
 
 
@@ -35,11 +34,10 @@ class MoradorBase(BaseModel):
 
 
 class MoradorCreate(MoradorBase):
-    # Dados de acesso (Usuário)
     email: EmailStr
     senha: str
     confirmacao_senha: str
-    chave_acesso: str  # O UUID gerado pelo síndico
+    chave_acesso: str
 
     @field_validator("confirmacao_senha")
     @classmethod

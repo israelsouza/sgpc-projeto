@@ -45,6 +45,9 @@ pi/
 - Schemas Pydantic em `api/app/models/`
 - Banco de dados gerenciado pelo Prisma (`api/prisma/schema.prisma`)
 - Variáveis de ambiente via `python-dotenv` (`api/.env`)
+- Será usado a arquitetura MVC
+- Os arquivos devem ser organizados por modulos e conterem o sufixo do tipo
+ex: no diretorio `/api/app/modules/usuario` teremos o modulo de usuario, e dentro dele teremos os arquivos `usuario_model.py`, `usuario_controller.py` e `usuario_service.py` por exemplo
 
 ### Frontend (TypeScript)
 - Nomenclatura de componentes: `PascalCase`
