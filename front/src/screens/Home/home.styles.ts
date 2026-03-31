@@ -16,6 +16,7 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    overflow: "visible",
   },
   headerLeft: {
     flexDirection: "row",
@@ -50,7 +51,7 @@ headerCurve: {
   position: "absolute",
   marginLeft: "2.5%",
   width: "95%",
-  bottom: 0,
+  bottom: -1,
   left: 0,
   right: 0,
   height: 15,              
