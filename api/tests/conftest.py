@@ -1,14 +1,43 @@
 import pytest
 from httpx import ASGITransport, AsyncClient
 
-from app.db.prisma_client import connect_db, disconnect_db
+from app.db.prisma_client import connect_db, disconnect_db, db
 from index import app
 
 
 @pytest.fixture(autouse=True)
 async def setup_db():
-    """Conecta ao banco de dados antes de cada teste e desconecta depois."""
+    """Conecta ao banco de dados, prepara perfis e condomínio de teste."""
     await connect_db()
+    
+    # 1. Limpeza global (opcional dependendo da estratégia)
+    # await db.chaveacesso.delete_many()
+    # await db.morador.delete_many()
+    
+    # 2. Criar Perfis Padrão se não existirem
+    perfis = ["ADMIN", "SINDICO", "MORADOR", "PORTEIRO"]
+    for nome in perfis:
+        await db.perfil.upsert(
+            where={"nome": nome},
+            data={
+                "create": {"nome": nome},
+                "update": {"nome": nome}
+            }
+        )
+    
+    # 3. Criar Condomínio de Teste se não existir
+    await db.condominio.upsert(
+        where={"cnpj": "00.000.000/0001-99"},
+        data={
+            "create": {
+                "nome": "Condomínio de Teste",
+                "cnpj": "00.000.000/0001-99",
+                "endereco": "Rua de Teste, 123"
+            },
+            "update": {"nome": "Condomínio de Teste"}
+        }
+    )
+    
     yield
     await disconnect_db()
 
