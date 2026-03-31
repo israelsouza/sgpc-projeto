@@ -118,14 +118,18 @@ function AvisoCard({ aviso }: { aviso: Aviso }) {
 export default function AvisosScreen() {
   return (
     <View style={styles.container}>
-      <Header title="Itaim Bibi" subtitle="Unidade 056" initials="IB" />
+      <Header
+        title="Mural de avisos"
+        subtitle="Itaim Bibi"
+        icon={<Entypo name="megaphone" size={24} color={colors.textLight} />}
+      />
 
       <ScrollView
         style={styles.content}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.list}
       >
-        <Text style={styles.sectionTitle}>Mural de Avisos</Text>
+        <Text style={styles.sectionTitle}>Mural de avisos</Text>
 
         {avisos.map((aviso) => (
           <AvisoCard key={aviso.id} aviso={aviso} />
