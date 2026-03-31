@@ -3,11 +3,15 @@ import subprocess
 import sys
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request, status
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, Request, status  # type: ignore
+from fastapi.middleware.cors import CORSMiddleware  # type: ignore
+from fastapi.responses import JSONResponse  # type: ignore
 
-# Lógica para garantir que o Prisma Client seja gerado no Vercel/Produção
+from app.db.prisma_client import connect_db, disconnect_db
+from app.modules.core.core_exception import ValidationError
+from app.routers import router
+
+
 def generate_prisma_client():
     """Gera o Prisma Client se estiver em ambiente Vercel/Produção."""
     try:
@@ -18,20 +22,15 @@ def generate_prisma_client():
     except Exception as e:
         print(f"Erro ao gerar Prisma Client: {e}")
 
-# Executa a geração antes de importar o prisma_client.py
+
 generate_prisma_client()
 
-from app.db.prisma_client import connect_db, disconnect_db
-from app.modules.core.core_exception import ValidationError
-from app.routers import router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: conectar ao banco
     await connect_db()
     yield
-    # Shutdown: desconectar do banco
     await disconnect_db()
 
 
@@ -63,5 +62,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# app.include_router(router, prefix="/api") # Removed redundant prefix if already in vercel.json or router
 app.include_router(router, prefix="/api")
