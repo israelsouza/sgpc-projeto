@@ -1,7 +1,7 @@
 import pytest
 from httpx import ASGITransport, AsyncClient
 
-from app.db.prisma_client import connect_db, disconnect_db, db
+from app.db.prisma_client import connect_db, db, disconnect_db
 from index import app
 
 
@@ -9,11 +9,11 @@ from index import app
 async def setup_db():
     """Conecta ao banco de dados, prepara perfis e condomínio de teste."""
     await connect_db()
-    
+
     # 1. Limpeza global (opcional dependendo da estratégia)
     # await db.chaveacesso.delete_many()
     # await db.morador.delete_many()
-    
+
     # 2. Criar Perfis Padrão se não existirem
     perfis = ["ADMIN", "SINDICO", "MORADOR", "PORTEIRO"]
     for nome in perfis:
@@ -24,7 +24,7 @@ async def setup_db():
                 "update": {"nome": nome}
             }
         )
-    
+
     # 3. Criar Condomínio de Teste se não existir
     await db.condominio.upsert(
         where={"cnpj": "00.000.000/0001-99"},
@@ -37,8 +37,25 @@ async def setup_db():
             "update": {"nome": "Condomínio de Teste"}
         }
     )
-    
+
+    # 4. Criar Usuário Admin de Teste (ID 1) para o Controller
+    perfil_admin = await db.perfil.find_unique(where={"nome": "ADMIN"})
+    await db.usuario.upsert(
+        where={"id": 1},
+        data={
+            "create": {
+                "id": 1,
+                "email": "admin@teste.com",
+                "senha": "senha",
+                "status": "ATIVO",
+                "perfis": {"connect": [{"id": perfil_admin.id}]}
+            },
+            "update": {"email": "admin@teste.com"}
+        }
+    )
+
     yield
+
     await disconnect_db()
 
 

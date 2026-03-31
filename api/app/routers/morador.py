@@ -21,10 +21,11 @@ async def registrar_morador(dados: MoradorCreate, db: Prisma = Depends(get_prism
 
 @router.patch("/{id_morador}/aprovar", status_code=status.HTTP_200_OK)
 async def aprovar_morador(
-    id_morador: int, id_unidade: int | None = None, db: Prisma = Depends(get_prisma)
+    id_morador: int, db: Prisma = Depends(get_prisma)
 ):
     """
-    Aprova um cadastro de morador pendente e opcionalmente o vincula a uma unidade.
+    Aprova um cadastro de morador pendente.
+    A unidade e o perfil já são vinculados automaticamente no ato do registro via chave.
     (Futuramente restrita a Síndicos/Admins).
     """
-    return await UsuarioController.aprovar_morador(id_morador, id_unidade, db)
+    return await UsuarioController.aprovar_morador(id_morador, db)

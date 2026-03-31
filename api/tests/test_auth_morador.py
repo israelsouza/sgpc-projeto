@@ -26,7 +26,7 @@ async def test_fluxo_registro_morador_completo(client):
     perfil = await db.perfil.find_unique(where={"nome": "MORADOR"})
 
     resp_chave = await client.post(
-        "/api/auth/chave-acesso", 
+        "/api/auth/chave-acesso",
         json={
             "validade_em_horas": 1,
             "perfil_id": perfil.id,
