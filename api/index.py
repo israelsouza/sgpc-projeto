@@ -1,3 +1,6 @@
+import os
+import subprocess
+import sys
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, status
@@ -9,12 +12,39 @@ from app.modules.core.core_exception import ValidationError
 from app.routers import router
 
 
+# Lógica para garantir que o Prisma Client seja gerado no Vercel/Produção
+def generate_prisma_client():
+    """Gera o Prisma Client se estiver em ambiente Vercel/Produção."""
+    try:
+        # Se estiver na Vercel, o diretório de cache do Prisma pode sumir, então geramos no startup
+        if os.environ.get("VERCEL"):
+            print("Ambiente Vercel detectado. Gerando Prisma Client...")
+            subprocess.run([sys.executable, "-m", "prisma", "generate"], check=True)
+    except Exception as e:
+        print(f"Erro ao gerar Prisma Client: {e}")
+
+
+generate_prisma_client()
+
+
+def generate_prisma_client():
+    """Gera o Prisma Client se estiver em ambiente Vercel/Produção."""
+    try:
+        # Se estiver na Vercel, o diretório de cache do Prisma pode sumir, então geramos no startup
+        if os.environ.get("VERCEL"):
+            print("Ambiente Vercel detectado. Gerando Prisma Client...")
+            subprocess.run([sys.executable, "-m", "prisma", "generate"], check=True)
+    except Exception as e:
+        print(f"Erro ao gerar Prisma Client: {e}")
+
+
+generate_prisma_client()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: conectar ao banco
     await connect_db()
     yield
-    # Shutdown: desconectar do banco
     await disconnect_db()
 
 
@@ -46,5 +76,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# app.include_router(router, prefix="/api") # Removed redundant prefix if already in vercel.json or router
 app.include_router(router, prefix="/api")

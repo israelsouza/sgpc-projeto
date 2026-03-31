@@ -52,9 +52,11 @@ jobs:
         run: poetry run prisma db push --skip-generate
         env:
           DATABASE_URL: postgresql://user:password@localhost:5432/sgpc_test
+          DIRECT_URL: postgresql://user:password@localhost:5432/sgpc_test
 
       - name: Run tests
         run: poetry run pytest -v
         env:
           DATABASE_URL: postgresql://user:password@localhost:5432/sgpc_test
+          DIRECT_URL: postgresql://user:password@localhost:5432/sgpc_test
           SECRET_KEY: test_secret_key_123
