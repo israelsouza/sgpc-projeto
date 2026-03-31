@@ -1,8 +1,25 @@
+import os
+import subprocess
+import sys
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+
+# Lógica para garantir que o Prisma Client seja gerado no Vercel/Produção
+def generate_prisma_client():
+    """Gera o Prisma Client se estiver em ambiente Vercel/Produção."""
+    try:
+        # Se estiver na Vercel, o diretório de cache do Prisma pode sumir, então geramos no startup
+        if os.environ.get("VERCEL"):
+            print("Ambiente Vercel detectado. Gerando Prisma Client...")
+            subprocess.run([sys.executable, "-m", "prisma", "generate"], check=True)
+    except Exception as e:
+        print(f"Erro ao gerar Prisma Client: {e}")
+
+# Executa a geração antes de importar o prisma_client.py
+generate_prisma_client()
 
 from app.db.prisma_client import connect_db, disconnect_db
 from app.modules.core.core_exception import ValidationError
