@@ -107,9 +107,11 @@ class UsuarioService:
 
                 return novo_morador
         except Exception as e:
+            # Imprime o erro no console do servidor/CI para debug
+            print(f"ERRO CRÍTICO NO REGISTRO: {str(e)}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Erro ao processar o cadastro: {str(e)}",
+                detail=f"Erro interno ao processar o cadastro: {str(e)}",
             )
 
     @staticmethod

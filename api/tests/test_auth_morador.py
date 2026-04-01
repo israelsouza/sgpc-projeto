@@ -22,7 +22,7 @@ async def test_fluxo_registro_morador_completo(client):
 
     # --- 1. Gerar Chave de Acesso ---
     # Precisamos buscar o condomínio e o perfil criados no conftest
-    condo = await db.condominio.find_first()
+    condo = await db.condominio.find_unique(where={"cnpj": "00.000.000/0001-99"})
     perfil = await db.perfil.find_unique(where={"nome": "MORADOR"})
 
     resp_chave = await client.post(
