@@ -1,5 +1,7 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, SafeAreaView, StatusBar } from 'react-native';
+import React from 'react-native';
+import {Text, View, TouchableOpacity, ScrollView, StatusBar, Feather, StandardHeader } from 'react-native';
+import { styles } from "c:/Users/CLIENTE/Documents/GitHub/sgpc-projeto/front/src/screens/Documentos/documentos.styles"
+import { footerStyles } from './Footer_padrao';
 
 
 // =========================================================================================
@@ -86,7 +88,7 @@ const StandardFooter = () => {
 export default function App() {
   return (
     // SafeAreaView garante que o conteúdo não fique sob o "notch" ou barra de tarefas
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Configuração da barra de status (hora, bateria, etc.) */}
       <StatusBar barStyle="light-content" backgroundColor="#A07050" />
       
@@ -99,7 +101,7 @@ export default function App() {
       {/* Footer Fixo na Base */}
       <StandardFooter />
       
-    </SafeAreaView>
+    </View>
   );
 }
 
