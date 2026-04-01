@@ -32,7 +32,7 @@ jobs:
         run: poetry install --only dev
 
       - name: Generate Prisma Client
-        run: poetry run prisma generate
+        run: poetry run python -m prisma generate
 
       - name: Ruff check (lint)
         run: poetry run ruff check .
