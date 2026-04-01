@@ -22,10 +22,10 @@ async def login(dados: LoginSchema, db: Prisma = Depends(get_prisma)):
 
 @router.post("/chave-acesso", status_code=status.HTTP_201_CREATED)
 async def gerar_chave_acesso(
-    dados: ChaveAcessoCreate, db: Prisma = Depends(get_prisma)
+    dados: ChaveAcessoCreate, db: Prisma = Depends(get_prisma), usuario_id: int = 1
 ):
     """
     Gera uma chave de acesso UUID única e temporária.
-    (Futuramente restrita a Síndicos/Admins).
+    Restrita a Síndicos/Admins via Controller.
     """
-    return await UsuarioController.gerar_chave_acesso(dados, db)
+    return await UsuarioController.gerar_chave_acesso(dados, db, usuario_id)

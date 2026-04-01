@@ -18,7 +18,7 @@ class UsuarioService:
     async def registrar_morador(dados: MoradorCreate, db: Prisma):
         # 1. Validar Chave de Acesso
         chave_acesso = await db.chaveacesso.find_unique(
-            where={"chave": dados.chave_acesso}
+            where={"chave": dados.chave_acesso}, include={"perfil": True}
         )
 
         if not chave_acesso:
@@ -62,38 +62,55 @@ class UsuarioService:
         # 3. Criar Transação
         try:
             async with db.tx() as transaction:
-                # 3.1 Criar o Usuário
+                # 3.1 Criar o Usuário com o Perfil da Chave
                 novo_usuario = await transaction.usuario.create(
                     data={
                         "email": dados.email,
                         "senha": hash_senha(dados.senha),
                         "status": "ATIVO",
+                        "perfis": {"connect": [{"id": chave_acesso.perfil_id}]},
                     }
                 )
 
-                # 3.2 Criar o Morador
-                novo_morador = await transaction.morador.create(
-                    data={
-                        "nome_completo": dados.nome_completo,
-                        "celular": dados.celular,
-                        "rg": dados.rg,
-                        "cpf": dados.cpf,
-                        "data_nascimento": dados.data_nascimento,
-                        "status": "PENDENTE",
-                        "usuario_id": novo_usuario.id,
-                    }
-                )
+                # 3.2 Criar o Morador (vinculado à unidade da chave se houver)
+                morador_data = {
+                    "nome_completo": dados.nome_completo,
+                    "celular": dados.celular,
+                    "rg": dados.rg,
+                    "cpf": dados.cpf,
+                    "data_nascimento": dados.data_nascimento,
+                    "status": "PENDENTE",
+                    "usuario_id": novo_usuario.id,
+                }
 
-                # 3.3 Marcar a chave como usada
+                if chave_acesso.unidade_id:
+                    morador_data["unidade_id"] = chave_acesso.unidade_id
+
+                novo_morador = await transaction.morador.create(data=morador_data)
+
+                # 3.3 Se for perfil de funcionário (SINDICO, PORTEIRO, ADMIN), cria o vínculo
+                if chave_acesso.perfil.nome in ["SINDICO", "PORTEIRO", "ADMIN"]:
+                    await transaction.funcionario.create(
+                        data={
+                            "usuario_id": novo_usuario.id,
+                            "condominio_id": chave_acesso.condominio_id,
+                            "cargo": chave_acesso.perfil.nome,
+                            "status": "ATIVO",
+                        }
+                    )
+
+                # 3.4 Marcar a chave como usada
                 await transaction.chaveacesso.update(
                     where={"id": chave_acesso.id}, data={"usada": True}
                 )
 
                 return novo_morador
         except Exception as e:
+            # Imprime o erro no console do servidor/CI para debug
+            print(f"ERRO CRÍTICO NO REGISTRO: {str(e)}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Erro ao processar o cadastro: {str(e)}",
+                detail=f"Erro interno ao processar o cadastro: {str(e)}",
             )
 
     @staticmethod
@@ -124,24 +141,31 @@ class UsuarioService:
         return {"access_token": access_token, "token_type": "bearer"}
 
     @staticmethod
-    async def gerar_chave_acesso(dados: ChaveAcessoCreate, db: Prisma):
+    async def gerar_chave_acesso(
+        dados: ChaveAcessoCreate, db: Prisma, usuario_criador_id: int | None = None
+    ):
         validade = datetime.now(UTC) + timedelta(hours=dados.validade_em_horas)
 
         nova_chave = await db.chaveacesso.create(
-            data={"validade": validade, "usada": False}
+            data={
+                "validade": validade,
+                "usada": False,
+                "perfil_id": dados.perfil_id,
+                "condominio_id": dados.condominio_id,
+                "unidade_id": dados.unidade_id,
+                "quem_criou": usuario_criador_id,
+            }
         )
 
         return {
             "chave": nova_chave.chave,
             "validade": nova_chave.validade,
-            "mensagem": "Chave gerada com sucesso. Compartilhe o UUID acima com o morador.",
+            "mensagem": "Chave gerada com sucesso. Compartilhe o UUID acima com o usuário.",
         }
 
     @staticmethod
-    async def aprovar_morador(id_morador: int, id_unidade: int | None, db: Prisma):
-        morador = await db.morador.find_unique(
-            where={"id": id_morador}, include={"usuario": True}
-        )
+    async def aprovar_morador(id_morador: int, db: Prisma):
+        morador = await db.morador.find_unique(where={"id": id_morador})
 
         if not morador:
             raise ValidationError(
@@ -157,36 +181,9 @@ class UsuarioService:
                 acao="Não é possível aprovar um cadastro que não esteja pendente.",
             )
 
-        if id_unidade:
-            unidade = await db.unidade.find_unique(where={"id": id_unidade})
-            if not unidade:
-                raise ValidationError(
-                    nome="unidade_invalida",
-                    mensagem="A unidade informada não existe.",
-                    acao="Cadastre a unidade primeiro ou verifique o ID.",
-                )
-
         try:
-            async with db.tx() as transaction:
-                update_data = {"status": "ATIVO"}
-                if id_unidade:
-                    update_data["unidade_id"] = id_unidade
-
-                await transaction.morador.update(
-                    where={"id": id_morador}, data=update_data
-                )
-
-                perfil_morador = await transaction.perfil.find_unique(
-                    where={"nome": "MORADOR"}
-                )
-
-                if perfil_morador:
-                    await transaction.usuario.update(
-                        where={"id": morador.usuario_id},
-                        data={"perfis": {"connect": [{"id": perfil_morador.id}]}},
-                    )
-
-                return {"message": "Cadastro aprovado com sucesso."}
+            await db.morador.update(where={"id": id_morador}, data={"status": "ATIVO"})
+            return {"message": "Cadastro aprovado com sucesso."}
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
