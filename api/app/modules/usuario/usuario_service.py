@@ -18,8 +18,7 @@ class UsuarioService:
     async def registrar_morador(dados: MoradorCreate, db: Prisma):
         # 1. Validar Chave de Acesso
         chave_acesso = await db.chaveacesso.find_unique(
-            where={"chave": dados.chave_acesso},
-            include={"perfil": True}
+            where={"chave": dados.chave_acesso}, include={"perfil": True}
         )
 
         if not chave_acesso:
@@ -69,7 +68,7 @@ class UsuarioService:
                         "email": dados.email,
                         "senha": hash_senha(dados.senha),
                         "status": "ATIVO",
-                        "perfis": {"connect": [{"id": chave_acesso.perfil_id}]}
+                        "perfis": {"connect": [{"id": chave_acesso.perfil_id}]},
                     }
                 )
 
@@ -96,7 +95,7 @@ class UsuarioService:
                             "usuario_id": novo_usuario.id,
                             "condominio_id": chave_acesso.condominio_id,
                             "cargo": chave_acesso.perfil.nome,
-                            "status": "ATIVO"
+                            "status": "ATIVO",
                         }
                     )
 
@@ -142,7 +141,9 @@ class UsuarioService:
         return {"access_token": access_token, "token_type": "bearer"}
 
     @staticmethod
-    async def gerar_chave_acesso(dados: ChaveAcessoCreate, db: Prisma, usuario_criador_id: int | None = None):
+    async def gerar_chave_acesso(
+        dados: ChaveAcessoCreate, db: Prisma, usuario_criador_id: int | None = None
+    ):
         validade = datetime.now(UTC) + timedelta(hours=dados.validade_em_horas)
 
         nova_chave = await db.chaveacesso.create(
@@ -152,7 +153,7 @@ class UsuarioService:
                 "perfil_id": dados.perfil_id,
                 "condominio_id": dados.condominio_id,
                 "unidade_id": dados.unidade_id,
-                "quem_criou": usuario_criador_id
+                "quem_criou": usuario_criador_id,
             }
         )
 
@@ -164,9 +165,7 @@ class UsuarioService:
 
     @staticmethod
     async def aprovar_morador(id_morador: int, db: Prisma):
-        morador = await db.morador.find_unique(
-            where={"id": id_morador}
-        )
+        morador = await db.morador.find_unique(where={"id": id_morador})
 
         if not morador:
             raise ValidationError(
@@ -183,9 +182,7 @@ class UsuarioService:
             )
 
         try:
-            await db.morador.update(
-                where={"id": id_morador}, data={"status": "ATIVO"}
-            )
+            await db.morador.update(where={"id": id_morador}, data={"status": "ATIVO"})
             return {"message": "Cadastro aprovado com sucesso."}
         except Exception as e:
             raise HTTPException(

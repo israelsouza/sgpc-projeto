@@ -18,7 +18,9 @@ class UsuarioController:
         return await UsuarioService.login(dados, db)
 
     @staticmethod
-    async def gerar_chave_acesso(dados: ChaveAcessoCreate, db: Prisma, usuario_atual_id: int):
+    async def gerar_chave_acesso(
+        dados: ChaveAcessoCreate, db: Prisma, usuario_atual_id: int
+    ):
         """
         Gera uma chave de acesso com validações de hierarquia.
         ADMIN: Pode gerar para qualquer condomínio e qualquer perfil.
@@ -28,14 +30,14 @@ class UsuarioController:
         # 1. Buscar dados do usuário que está criando a chave
         usuario_criador = await db.usuario.find_unique(
             where={"id": usuario_atual_id},
-            include={"perfis": True, "funcionario": True}
+            include={"perfis": True, "funcionario": True},
         )
 
         if not usuario_criador:
             raise ValidationError(
                 nome="usuario_nao_encontrado",
                 mensagem="Usuário criador não localizado.",
-                acao="Verifique se você está logado corretamente."
+                acao="Verifique se você está logado corretamente.",
             )
 
         perfis_criador = [p.nome for p in usuario_criador.perfis]
@@ -43,11 +45,14 @@ class UsuarioController:
         # 2. Se for SINDICO, aplicar as travas
         if "SINDICO" in perfis_criador and "ADMIN" not in perfis_criador:
             # Trava de Condomínio: Deve ser o mesmo onde trabalha
-            if not usuario_criador.funcionario or usuario_criador.funcionario.condominio_id != dados.condominio_id:
+            if (
+                not usuario_criador.funcionario
+                or usuario_criador.funcionario.condominio_id != dados.condominio_id
+            ):
                 raise ValidationError(
                     nome="permissao_negada",
                     mensagem="Você só pode gerar chaves para o condomínio onde atua como síndico.",
-                    acao="Verifique o condomínio selecionado."
+                    acao="Verifique o condomínio selecionado.",
                 )
 
             # Trava de Perfil: Não pode gerar chave para ADMIN ou outro SINDICO
@@ -56,7 +61,7 @@ class UsuarioController:
                 raise ValidationError(
                     nome="permissao_negada",
                     mensagem="Você não tem permissão para gerar chaves para perfis administrativos.",
-                    acao="Contate o administrador do sistema se precisar de mais privilégios."
+                    acao="Contate o administrador do sistema se precisar de mais privilégios.",
                 )
 
         # 3. Chamar o Service

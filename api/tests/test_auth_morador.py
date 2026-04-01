@@ -30,8 +30,8 @@ async def test_fluxo_registro_morador_completo(client):
         json={
             "validade_em_horas": 1,
             "perfil_id": perfil.id,
-            "condominio_id": condo.id
-        }
+            "condominio_id": condo.id,
+        },
     )
     assert resp_chave.status_code == 201
     chave_data = resp_chave.json()

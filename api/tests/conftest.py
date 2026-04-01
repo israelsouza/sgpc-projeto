@@ -19,10 +19,7 @@ async def setup_db():
     for nome in perfis:
         await db.perfil.upsert(
             where={"nome": nome},
-            data={
-                "create": {"nome": nome},
-                "update": {"nome": nome}
-            }
+            data={"create": {"nome": nome}, "update": {"nome": nome}},
         )
 
     # 3. Criar Condomínio de Teste se não existir
@@ -32,26 +29,25 @@ async def setup_db():
             "create": {
                 "nome": "Condomínio de Teste",
                 "cnpj": "00.000.000/0001-99",
-                "endereco": "Rua de Teste, 123"
+                "endereco": "Rua de Teste, 123",
             },
-            "update": {"nome": "Condomínio de Teste"}
-        }
+            "update": {"nome": "Condomínio de Teste"},
+        },
     )
 
-    # 4. Criar Usuário Admin de Teste (ID 1) para o Controller
+    # 4. Criar Usuário Admin de Teste para o Controller
     perfil_admin = await db.perfil.find_unique(where={"nome": "ADMIN"})
     await db.usuario.upsert(
-        where={"id": 1},
+        where={"email": "admin@teste.com"},
         data={
             "create": {
-                "id": 1,
                 "email": "admin@teste.com",
                 "senha": "senha",
                 "status": "ATIVO",
-                "perfis": {"connect": [{"id": perfil_admin.id}]}
+                "perfis": {"connect": [{"id": perfil_admin.id}]},
             },
-            "update": {"email": "admin@teste.com"}
-        }
+            "update": {"email": "admin@teste.com"},
+        },
     )
 
     yield
