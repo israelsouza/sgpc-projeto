@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
 
 # --- Chave de Acesso ---
 
@@ -11,15 +11,20 @@ class ChaveAcessoBase(BaseModel):
 
 
 class ChaveAcessoCreate(BaseModel):
-    validade_em_horas: int = 24
+    perfil_id: int
+    condominio_id: int
+    unidade_id: int | None = None
+    validade_em_horas: int = 48
 
 
 class ChaveAcessoResponse(ChaveAcessoBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     usada: bool = False
-
-    class Config:
-        from_attributes = True
+    perfil_id: int
+    condominio_id: int
+    unidade_id: int | None = None
 
 
 # --- Morador ---
@@ -48,12 +53,32 @@ class MoradorCreate(MoradorBase):
 
 
 class MoradorResponse(MoradorBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     status: str
     criado_em: datetime
 
-    class Config:
-        from_attributes = True
+
+# --- Funcionário ---
+
+
+class FuncionarioBase(BaseModel):
+    cargo: str
+    status: str = "ATIVO"
+
+
+class FuncionarioCreate(FuncionarioBase):
+    usuario_id: int
+    condominio_id: int
+
+
+class FuncionarioResponse(FuncionarioBase):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    usuario_id: int
+    condominio_id: int
 
 
 # --- Usuário ---
@@ -68,12 +93,11 @@ class UsuarioCreate(UsuarioBase):
 
 
 class UsuarioResponse(UsuarioBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     status: str
     perfis: list[str] = []
-
-    class Config:
-        from_attributes = True
 
 
 # --- Autenticação ---

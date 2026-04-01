@@ -66,4 +66,6 @@ ex: no diretorio `/api/app/modules/usuario` teremos o modulo de usuario, e dentr
 - O nome dos campos no Prisma deve usar `@map("nome_campo")` em snake_case e português
 - Use nomes de modelos em PascalCase no Prisma (ex: `Usuario`) para manter o padrão do cliente Python
 - O nome das pastas dentro de `/modules` na `API` deve ser em português e no singular (ex: `usuario`, `unidade`, etc)
-- Sempre rode o  script de lint e formatação após cada fase concluída para garantir a consistência do código
+- Sempre rode o script de lint, formatação e testes automatizados após cada fase concluída para garantir a consistência e integridade do código.
+- Após a conclusão de cada fase de um planejamento (Research, Strategy, Execution ou fases de um documento de plano), você deve obrigatoriamente solicitar ao usuário se deseja realizar o commit das alterações antes de prosseguir para a próxima fase.
+
