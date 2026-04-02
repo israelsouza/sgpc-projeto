@@ -100,7 +100,17 @@ export default function App() {
 
       {/* Footer Fixo na Base */}
       <StandardFooter />
-      
+      <View style={styles.centerContainer}>
+        <MainContent />
+         <TouchableOpacity 
+          style={styles.fab} 
+          onPress={handleDownloadPress}
+          activeOpacity={0.7} // Efeito visual ao tocar
+        >
+          <Feather name="download" size={24} color="white" />
+          <Text style={styles.fabText}>Baixar</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
