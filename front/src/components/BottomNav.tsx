@@ -22,7 +22,7 @@ export function BottomNav({ activeIndex = 0 }: BottomNavProps) {
           <FontAwesome6 name="house" size={24} color={getColor(0)} />
         </TouchableOpacity>
       </Link>
-      <Link href="/Historico" asChild>
+      <Link href="/Historico/historico" asChild>
         <TouchableOpacity style={styles.navItem}>
           <Entypo name="back-in-time" size={24} color={getColor(1)} />
         </TouchableOpacity>
