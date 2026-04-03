@@ -59,8 +59,20 @@ model Perfil {
   // Relacionamentos
   usuarios      Usuario[]
   chaves_acesso ChaveAcesso[]
+  permissoes    Permissao[]
 
   @@map("PERFIS")
+}
+
+model Permissao {
+  id        Int       @id @default(autoincrement())
+  nome      String    @unique @map("nome")
+  descricao String?   @map("descricao")
+
+  // Relacionamentos
+  perfis    Perfil[]
+
+  @@map("PERMISSOES")
 }
 
 model Usuario {
