@@ -1,6 +1,6 @@
 import React from 'react-native';
 import {Text, View, TouchableOpacity, ScrollView, StatusBar, Feather, StandardHeader } from 'react-native';
-import { styles } from "c:/Users/CLIENTE/Documents/GitHub/sgpc-projeto/front/src/screens/Documentos/documentos.styles"
+import { styles } from './documentos.styles';
 import { footerStyles } from './Footer_padrao';
 
 
