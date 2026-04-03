@@ -69,4 +69,5 @@ ex: no diretorio `/api/app/modules/usuario` teremos o modulo de usuario, e dentr
 - Padrão de Permissões (RBAC): As permissões no banco de dados devem seguir o formato `<acao>:<funcionalidade>` (ex: `criar:veiculo`, `ler:usuario`, `atualizar:morador`, `deletar:unidade`). As ações padrão são: `criar`, `ler`, `atualizar`, `deletar`.
 - Sempre rode o script de lint, formatação e testes automatizados após cada fase concluída para garantir a consistência e integridade do código.
 - Após a conclusão de cada fase de um planejamento (Research, Strategy, Execution ou fases de um documento de plano), você deve obrigatoriamente solicitar ao usuário se deseja realizar o commit das alterações antes de prosseguir para a próxima fase.
+- O terminal utilizado no projeto é o PowerShell. Nunca utilize `&&` para encadear comandos; utilize o ponto e vírgula `;` no lugar.
 

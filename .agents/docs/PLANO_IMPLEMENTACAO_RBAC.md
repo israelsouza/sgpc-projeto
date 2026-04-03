@@ -11,13 +11,13 @@ Implementar um controle de acesso granular e seguro baseado no padrão `<acao>:<
 **Arquivo:** `api/prisma/schema.prisma`
 
 ### Tarefas:
-1. [ ] **Criar modelo `Permissao`**:
+1. [x] **Criar modelo `Permissao`**:
    - `id` (Int)
    - `nome` (String, Unique) - Padrão `<acao>:<funcionalidade>` (ex: `criar:morador`, `ler:aviso`).
    - `descricao` (String, Opcional).
-2. [ ] **Atualizar modelo `Perfil`**:
+2. [x] **Atualizar modelo `Perfil`**:
    - Adicionar relacionamento N:N com `Permissao` (`permissoes`).
-3. [ ] **Sincronização**:
+3. [x] **Sincronização**:
    - Rodar `poetry run prisma db push` e `poetry run prisma generate`.
 
 ---
@@ -26,9 +26,9 @@ Implementar um controle de acesso granular e seguro baseado no padrão `<acao>:<
 **Objetivo:** Garantir que o banco de dados nasça com os perfis e permissões essenciais configurados.
 
 ### Tarefas:
-1. [ ] **Definir Matriz de Permissões**: Mapear quais permissões pertencem a `ADMIN`, `SINDICO`, `PORTEIRO` e `MORADOR`.
-2. [ ] **Criar Script de Seed**: Criar um script (ex: `api/prisma/seed.py`) para popular automaticamente as tabelas `PERFIS`, `PERMISSOES` e seus vínculos N:N.
-3. [ ] **Atualizar Testes**: Ajustar o `conftest.py` para usar essa matriz padrão nos ambientes de teste.
+1. [x] **Definir Matriz de Permissões**: Mapear quais permissões pertencem a `ADMIN`, `SINDICO`, `PORTEIRO` e `MORADOR`.
+2. [x] **Criar Script de Seed**: Criar um script (ex: `api/prisma/seed.py`) para popular automaticamente as tabelas `PERFIS`, `PERMISSOES` e seus vínculos N:N.
+3. [x] **Atualizar Testes**: Ajustar o `conftest.py` para usar essa matriz padrão nos ambientes de teste.
 
 ---
 

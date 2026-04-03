@@ -14,12 +14,58 @@ async def setup_db():
     # await db.chaveacesso.delete_many()
     # await db.morador.delete_many()
 
-    # 2. Criar Perfis Padrão se não existirem
-    perfis = ["ADMIN", "SINDICO", "MORADOR", "PORTEIRO"]
-    for nome in perfis:
+    # 2. Criar Permissões e Perfis Padrão
+    funcionalidades = [
+        "condominio",
+        "unidade",
+        "morador",
+        "funcionario",
+        "chave_acesso",
+        "veiculo",
+        "aviso",
+    ]
+    acoes = ["criar", "ler", "atualizar", "deletar"]
+
+    for func in funcionalidades:
+        for acao in acoes:
+            nome_perm = f"{acao}:{func}"
+            await db.permissao.upsert(
+                where={"nome": nome_perm},
+                data={"create": {"nome": nome_perm}, "update": {"nome": nome_perm}},
+            )
+
+    perfis_config = {
+        "ADMIN": [f"{a}:{f}" for f in funcionalidades for a in acoes],
+        "SINDICO": [
+            "ler:condominio",
+            "atualizar:condominio",
+            "criar:unidade",
+            "ler:unidade",
+            "atualizar:unidade",
+            "deletar:unidade",
+        ],
+        "MORADOR": ["ler:condominio", "ler:unidade", "ler:morador"],
+        "PORTEIRO": [
+            "ler:condominio",
+            "ler:unidade",
+            "ler:morador",
+            "criar:chave_acesso",
+        ],
+    }
+
+    for nome, perms in perfis_config.items():
+        permissoes_objs = await db.permissao.find_many(where={"nome": {"in": perms}})
         await db.perfil.upsert(
             where={"nome": nome},
-            data={"create": {"nome": nome}, "update": {"nome": nome}},
+            data={
+                "create": {
+                    "nome": nome,
+                    "permissoes": {"connect": [{"id": p.id} for p in permissoes_objs]},
+                },
+                "update": {
+                    "permissoes": {"set": [{"id": p.id} for p in permissoes_objs]}
+                },
+            },
         )
 
     # 3. Criar Condomínio de Teste se não existir
