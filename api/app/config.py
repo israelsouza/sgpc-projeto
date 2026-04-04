@@ -2,6 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    ENVIRONMENT: str = "development"
     DATABASE_URL: str = "postgresql://user:password@localhost:5432/sgpc"
     DIRECT_URL: str | None = None
     SECRET_KEY: str = "changeme"

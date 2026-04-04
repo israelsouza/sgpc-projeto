@@ -1,6 +1,7 @@
 from app.modules.core.core_exception import ValidationError
 from app.modules.usuario.usuario_schema import (
     ChaveAcessoCreate,
+    FuncionarioRegistroCreate,
     LoginSchema,
     MoradorCreate,
 )
@@ -12,6 +13,10 @@ class UsuarioController:
     @staticmethod
     async def registrar_morador(dados: MoradorCreate, db: Prisma):
         return await UsuarioService.registrar_morador(dados, db)
+
+    @staticmethod
+    async def registrar_funcionario(dados: FuncionarioRegistroCreate, db: Prisma):
+        return await UsuarioService.registrar_funcionario(dados, db)
 
     @staticmethod
     async def login(dados: LoginSchema, db: Prisma):

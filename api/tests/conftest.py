@@ -2,6 +2,7 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 
 from app.db.prisma_client import connect_db, db, disconnect_db
+from app.modules.core.auth import create_access_token
 from index import app
 
 
@@ -14,16 +15,63 @@ async def setup_db():
     # await db.chaveacesso.delete_many()
     # await db.morador.delete_many()
 
-    # 2. Criar Perfis Padrão se não existirem
-    perfis = ["ADMIN", "SINDICO", "MORADOR", "PORTEIRO"]
-    for nome in perfis:
+    # 2. Criar Permissões e Perfis Padrão
+    funcionalidades = [
+        "condominio",
+        "unidade",
+        "morador",
+        "funcionario",
+        "chave_acesso",
+        "veiculo",
+        "aviso",
+    ]
+    acoes = ["criar", "ler", "atualizar", "deletar"]
+
+    for func in funcionalidades:
+        for acao in acoes:
+            nome_perm = f"{acao}:{func}"
+            await db.permissao.upsert(
+                where={"nome": nome_perm},
+                data={"create": {"nome": nome_perm}, "update": {"nome": nome_perm}},
+            )
+
+    perfis_config = {
+        "ADMIN": [f"{a}:{f}" for f in funcionalidades for a in acoes],
+        "SINDICO": [
+            "ler:condominio",
+            "atualizar:condominio",
+            "criar:unidade",
+            "ler:unidade",
+            "atualizar:unidade",
+            "deletar:unidade",
+            "criar:chave_acesso",
+        ],
+        "MORADOR": ["ler:condominio", "ler:unidade", "ler:morador"],
+        "PORTEIRO": [
+            "ler:condominio",
+            "ler:unidade",
+            "ler:morador",
+            "criar:chave_acesso",
+        ],
+    }
+
+    for nome, perms in perfis_config.items():
+        permissoes_objs = await db.permissao.find_many(where={"nome": {"in": perms}})
         await db.perfil.upsert(
             where={"nome": nome},
-            data={"create": {"nome": nome}, "update": {"nome": nome}},
+            data={
+                "create": {
+                    "nome": nome,
+                    "permissoes": {"connect": [{"id": p.id} for p in permissoes_objs]},
+                },
+                "update": {
+                    "permissoes": {"set": [{"id": p.id} for p in permissoes_objs]}
+                },
+            },
         )
 
     # 3. Criar Condomínio de Teste se não existir
-    await db.condominio.upsert(
+    condo = await db.condominio.upsert(
         where={"cnpj": "00.000.000/0001-99"},
         data={
             "create": {
@@ -32,6 +80,20 @@ async def setup_db():
                 "endereco": "Rua de Teste, 123",
             },
             "update": {"nome": "Condomínio de Teste"},
+        },
+    )
+
+    # 3.1 Criar Unidade de Teste
+    await db.unidade.upsert(
+        where={"id": 1},
+        data={
+            "create": {
+                "id": 1,
+                "unidade": "101",
+                "bloco": "A",
+                "condominio_id": condo.id,
+            },
+            "update": {"unidade": "101"},
         },
     )
 
@@ -62,3 +124,16 @@ async def client():
         transport=ASGITransport(app=app), base_url="http://test", timeout=60.0
     ) as ac:
         yield ac
+
+
+@pytest.fixture()
+async def admin_token():
+    """Gera um token de acesso para o usuário admin de teste."""
+    admin = await db.usuario.find_unique(
+        where={"email": "admin@teste.com"}, include={"perfis": True}
+    )
+    roles = [p.nome for p in admin.perfis]
+    token = create_access_token(
+        data={"sub": str(admin.id), "email": admin.email, "roles": roles}
+    )
+    return token
