@@ -27,4 +27,8 @@ export const colors = {
   // UI
   divider: palette.subtle,
   icon: palette.negro,
+
+  // Tons terrosos
+  earthBrown: palette.brown,
+  earthAccent: palette.accent,
 } as const;

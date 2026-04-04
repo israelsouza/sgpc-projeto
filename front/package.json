@@ -10,7 +10,11 @@
     "export:web": "expo export --platform web"
   },
   "dependencies": {
+
+    "@expo/vector-icons": "^15.0.2",
+
     "@expo/metro-runtime": "~6.1.2",
+
     "axios": "^1.13.6",
     "expo": "~54.0.0",
     "expo-asset": "~12.0.12",
