@@ -30,7 +30,7 @@ async def test_registro_porteiro_completo(client, admin_token):
         },
         headers={"Authorization": f"Bearer {admin_token}"},
     )
-    chave_uuid = resp_chave.json()["chave"]
+    chave_uuid = resp_chave.json()["data"]["chave"]
 
     # 3. Registrar Funcionário
     dados_porteiro = {
@@ -49,6 +49,7 @@ async def test_registro_porteiro_completo(client, admin_token):
         "/api/funcionarios/registrar", json=dados_porteiro
     )
     assert resp_registro.status_code == 201
+    assert resp_registro.json()["data"]["status"] == "PENDENTE"
 
     # 4. Validações no Banco
     usuario_criado = await db.usuario.find_unique(

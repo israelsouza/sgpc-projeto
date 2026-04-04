@@ -1,4 +1,7 @@
+from fastapi import status
+
 from app.modules.core.core_exception import ValidationError
+from app.modules.core.core_schema import StandardResponse
 from app.modules.usuario.usuario_schema import (
     ChaveAcessoCreate,
     FuncionarioRegistroCreate,
@@ -12,15 +15,30 @@ from prisma import Prisma
 class UsuarioController:
     @staticmethod
     async def registrar_morador(dados: MoradorCreate, db: Prisma):
-        return await UsuarioService.registrar_morador(dados, db)
+        morador = await UsuarioService.registrar_morador(dados, db)
+        return StandardResponse(
+            message="Cadastro de morador realizado com sucesso. Aguarde aprovação.",
+            status_code=status.HTTP_201_CREATED,
+            data=morador,
+        )
 
     @staticmethod
     async def registrar_funcionario(dados: FuncionarioRegistroCreate, db: Prisma):
-        return await UsuarioService.registrar_funcionario(dados, db)
+        funcionario = await UsuarioService.registrar_funcionario(dados, db)
+        return StandardResponse(
+            message="Cadastro de funcionário realizado com sucesso. Aguarde aprovação.",
+            status_code=status.HTTP_201_CREATED,
+            data=funcionario,
+        )
 
     @staticmethod
     async def login(dados: LoginSchema, db: Prisma):
-        return await UsuarioService.login(dados, db)
+        token_data = await UsuarioService.login(dados, db)
+        return StandardResponse(
+            message="Login realizado com sucesso.",
+            status_code=status.HTTP_200_OK,
+            data=token_data,
+        )
 
     @staticmethod
     async def gerar_chave_acesso(
@@ -28,10 +46,7 @@ class UsuarioController:
     ):
         """
         Gera uma chave de acesso com validações de hierarquia.
-        ADMIN: Pode gerar para qualquer condomínio e qualquer perfil.
-        SINDICO: Só pode gerar para o seu condomínio e perfis operacionais (MORADOR, PORTEIRO, etc).
         """
-
         # 1. Buscar dados do usuário que está criando a chave
         usuario_criador = await db.usuario.find_unique(
             where={"id": usuario_atual_id},
@@ -49,7 +64,6 @@ class UsuarioController:
 
         # 2. Se for SINDICO, aplicar as travas
         if "SINDICO" in perfis_criador and "ADMIN" not in perfis_criador:
-            # Trava de Condomínio: Deve ser o mesmo onde trabalha
             if (
                 not usuario_criador.funcionario
                 or usuario_criador.funcionario.condominio_id != dados.condominio_id
@@ -60,7 +74,6 @@ class UsuarioController:
                     acao="Verifique o condomínio selecionado.",
                 )
 
-            # Trava de Perfil: Não pode gerar chave para ADMIN ou outro SINDICO
             perfil_alvo = await db.perfil.find_unique(where={"id": dados.perfil_id})
             if not perfil_alvo or perfil_alvo.nome in ["ADMIN", "SINDICO"]:
                 raise ValidationError(
@@ -70,8 +83,18 @@ class UsuarioController:
                 )
 
         # 3. Chamar o Service
-        return await UsuarioService.gerar_chave_acesso(dados, db, usuario_atual_id)
+        chave_res = await UsuarioService.gerar_chave_acesso(dados, db, usuario_atual_id)
+        return StandardResponse(
+            message="Chave de acesso gerada com sucesso.",
+            status_code=status.HTTP_201_CREATED,
+            data=chave_res,
+        )
 
     @staticmethod
     async def aprovar_morador(id_morador: int, db: Prisma):
-        return await UsuarioService.aprovar_morador(id_morador, db)
+        resultado = await UsuarioService.aprovar_morador(id_morador, db)
+        return StandardResponse(
+            message="Cadastro aprovado com sucesso.",
+            status_code=status.HTTP_200_OK,
+            data=resultado,
+        )

@@ -37,9 +37,8 @@ async def test_fluxo_registro_morador_completo(client, admin_token):
     )
     assert resp_chave.status_code == 201
     chave_data = resp_chave.json()
-    chave_uuid = chave_data["chave"]
+    chave_uuid = chave_data["data"]["chave"]
     assert chave_uuid is not None
-
     # --- 2. Registrar Morador ---
     dados_morador = {
         "nome_completo": "Morador de Teste Silva",
@@ -56,7 +55,7 @@ async def test_fluxo_registro_morador_completo(client, admin_token):
     resp_registro = await client.post("/api/moradores/registrar", json=dados_morador)
     assert resp_registro.status_code == 201
     registro_data = resp_registro.json()
-    assert registro_data["status"] == "PENDENTE"
+    assert registro_data["data"]["status"] == "PENDENTE"
 
     # --- 3. Tentar registrar com a mesma chave (deve falhar por chave_usada) ---
     # Usamos outros dados para garantir que o erro seja na chave
@@ -73,7 +72,7 @@ async def test_fluxo_registro_morador_completo(client, admin_token):
     resp_login = await client.post("/api/auth/login", json=login_data)
     assert resp_login.status_code == 200
     token_data = resp_login.json()
-    assert "access_token" in token_data
+    assert "access_token" in token_data["data"]
 
 
 @pytest.mark.anyio
