@@ -2,6 +2,7 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 
 from app.db.prisma_client import connect_db, db, disconnect_db
+from app.modules.core.auth import create_access_token
 from index import app
 
 
@@ -43,6 +44,7 @@ async def setup_db():
             "ler:unidade",
             "atualizar:unidade",
             "deletar:unidade",
+            "criar:chave_acesso",
         ],
         "MORADOR": ["ler:condominio", "ler:unidade", "ler:morador"],
         "PORTEIRO": [
@@ -108,3 +110,16 @@ async def client():
         transport=ASGITransport(app=app), base_url="http://test", timeout=60.0
     ) as ac:
         yield ac
+
+
+@pytest.fixture()
+async def admin_token():
+    """Gera um token de acesso para o usuário admin de teste."""
+    admin = await db.usuario.find_unique(
+        where={"email": "admin@teste.com"}, include={"perfis": True}
+    )
+    roles = [p.nome for p in admin.perfis]
+    token = create_access_token(
+        data={"sub": str(admin.id), "email": admin.email, "roles": roles}
+    )
+    return token

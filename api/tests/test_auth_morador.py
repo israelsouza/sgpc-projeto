@@ -4,7 +4,7 @@ from app.db.prisma_client import db
 
 
 @pytest.mark.anyio
-async def test_fluxo_registro_morador_completo(client):
+async def test_fluxo_registro_morador_completo(client, admin_token):
     """
     Testa o fluxo completo de registro de um morador:
     1. Geração de chave de acesso (Síndico)
@@ -32,6 +32,7 @@ async def test_fluxo_registro_morador_completo(client):
             "perfil_id": perfil.id,
             "condominio_id": condo.id,
         },
+        headers={"Authorization": f"Bearer {admin_token}"},
     )
     assert resp_chave.status_code == 201
     chave_data = resp_chave.json()

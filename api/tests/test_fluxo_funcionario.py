@@ -4,7 +4,7 @@ from app.db.prisma_client import db
 
 
 @pytest.mark.anyio
-async def test_registro_porteiro_completo(client):
+async def test_registro_porteiro_completo(client, admin_token):
     """
     Verifica se o uso de uma chave de PORTEIRO cria o vínculo
     correto na tabela FUNCIONARIOS (e não na MORADORES).
@@ -29,6 +29,7 @@ async def test_registro_porteiro_completo(client):
             "perfil_id": perfil_porteiro.id,
             "condominio_id": condo.id,
         },
+        headers={"Authorization": f"Bearer {admin_token}"},
     )
     assert resp_chave.status_code == 201
     chave_uuid = resp_chave.json()["chave"]
