@@ -122,6 +122,11 @@ model Morador {
 
 model Funcionario {
   id              Int       @id @default(autoincrement())
+  nome_completo   String   @map("nome_completo")
+  celular         String   @map("celular")
+  rg              String   @map("rg")
+  cpf             String   @unique @map("cpf")
+  data_nascimento DateTime @map("data_nascimento")
   cargo           String    @map("cargo") // SINDICO, PORTEIRO, ZELADOR, etc.
   status          String    @default("ATIVO") @map("status")
   

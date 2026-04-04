@@ -7,6 +7,7 @@ from app.modules.core.core_exception import ValidationError
 from app.modules.core.security import hash_senha, verificar_senha
 from app.modules.usuario.usuario_schema import (
     ChaveAcessoCreate,
+    FuncionarioRegistroCreate,
     LoginSchema,
     MoradorCreate,
 )
@@ -15,10 +16,14 @@ from prisma import Prisma
 
 class UsuarioService:
     @staticmethod
-    async def registrar_morador(dados: MoradorCreate, db: Prisma):
-        # 1. Validar Chave de Acesso
+    async def _validar_e_consumir_chave(
+        chave_str: str, db: Prisma, perfis_permitidos: list[str]
+    ):
+        """
+        Método interno para validar e marcar uma chave como usada.
+        """
         chave_acesso = await db.chaveacesso.find_unique(
-            where={"chave": dados.chave_acesso}, include={"perfil": True}
+            where={"chave": chave_str}, include={"perfil": True}
         )
 
         if not chave_acesso:
@@ -31,86 +36,155 @@ class UsuarioService:
         if chave_acesso.usada:
             raise ValidationError(
                 nome="chave_usada",
-                mensagem="Esta chave de acesso já foi utilizada para um cadastro.",
-                acao="Se você já se cadastrou, tente fazer login. Caso contrário, peça uma nova chave.",
+                mensagem="Esta chave de acesso já foi utilizada.",
+                acao="Solicite uma nova chave.",
             )
 
         if chave_acesso.validade < datetime.now(chave_acesso.validade.tzinfo):
             raise ValidationError(
                 nome="chave_expirada",
                 mensagem="Esta chave de acesso expirou.",
-                acao="Peça ao síndico para gerar uma nova chave de acesso.",
+                acao="Peça ao síndico para gerar uma nova chave.",
             )
 
-        # 2. Verificar se o e-mail ou CPF já estão em uso
+        if chave_acesso.perfil.nome not in perfis_permitidos:
+            raise ValidationError(
+                nome="perfil_invalido",
+                mensagem=f"Esta chave é para o perfil {chave_acesso.perfil.nome} e não pode ser usada aqui.",
+                acao="Use o endpoint correto para seu tipo de perfil.",
+            )
+
+        return chave_acesso
+
+    @staticmethod
+    async def registrar_morador(dados: MoradorCreate, db: Prisma):
+        # 1. Validar Chave (específica para Morador)
+        chave = await UsuarioService._validar_e_consumir_chave(
+            dados.chave_acesso, db, ["MORADOR"]
+        )
+
+        if not chave.unidade_id:
+            raise ValidationError(
+                nome="unidade_obrigatoria",
+                mensagem="Esta chave de morador não possui uma unidade vinculada.",
+                acao="Peça ao síndico para gerar uma chave vinculada a uma unidade.",
+            )
+
+        # 2. Verificar duplicidade de Usuário/CPF
         usuario_existente = await db.usuario.find_unique(where={"email": dados.email})
         if usuario_existente:
             raise ValidationError(
                 nome="email_em_uso",
-                mensagem="Este e-mail já está cadastrado no sistema.",
-                acao="Tente recuperar sua senha ou use outro e-mail.",
+                mensagem="E-mail já cadastrado.",
+                acao="Recupere sua senha.",
             )
 
         morador_existente = await db.morador.find_unique(where={"cpf": dados.cpf})
         if morador_existente:
             raise ValidationError(
                 nome="cpf_em_uso",
-                mensagem="Este CPF já está cadastrado no sistema.",
-                acao="Caso não reconheça este cadastro, procure a administração do condomínio.",
+                mensagem="CPF já cadastrado.",
+                acao="Procure a administração.",
             )
 
-        # 3. Criar Transação
+        # 3. Transação
         try:
             async with db.tx() as transaction:
-                # 3.1 Criar o Usuário com o Perfil da Chave
                 novo_usuario = await transaction.usuario.create(
                     data={
                         "email": dados.email,
                         "senha": hash_senha(dados.senha),
                         "status": "ATIVO",
-                        "perfis": {"connect": [{"id": chave_acesso.perfil_id}]},
+                        "perfis": {"connect": [{"id": chave.perfil_id}]},
                     }
                 )
 
-                # 3.2 Criar o Morador (vinculado à unidade da chave se houver)
-                morador_data = {
-                    "nome_completo": dados.nome_completo,
-                    "celular": dados.celular,
-                    "rg": dados.rg,
-                    "cpf": dados.cpf,
-                    "data_nascimento": dados.data_nascimento,
-                    "status": "PENDENTE",
-                    "usuario_id": novo_usuario.id,
-                }
+                novo_morador = await transaction.morador.create(
+                    data={
+                        "nome_completo": dados.nome_completo,
+                        "celular": dados.celular,
+                        "rg": dados.rg,
+                        "cpf": dados.cpf,
+                        "data_nascimento": dados.data_nascimento,
+                        "status": "PENDENTE",
+                        "usuario_id": novo_usuario.id,
+                        "unidade_id": chave.unidade_id,
+                    }
+                )
 
-                if chave_acesso.unidade_id:
-                    morador_data["unidade_id"] = chave_acesso.unidade_id
-
-                novo_morador = await transaction.morador.create(data=morador_data)
-
-                # 3.3 Se for perfil de funcionário (SINDICO, PORTEIRO, ADMIN), cria o vínculo
-                if chave_acesso.perfil.nome in ["SINDICO", "PORTEIRO", "ADMIN"]:
-                    await transaction.funcionario.create(
-                        data={
-                            "usuario_id": novo_usuario.id,
-                            "condominio_id": chave_acesso.condominio_id,
-                            "cargo": chave_acesso.perfil.nome,
-                            "status": "ATIVO",
-                        }
-                    )
-
-                # 3.4 Marcar a chave como usada
                 await transaction.chaveacesso.update(
-                    where={"id": chave_acesso.id}, data={"usada": True}
+                    where={"id": chave.id}, data={"usada": True}
                 )
 
                 return novo_morador
         except Exception as e:
-            # Imprime o erro no console do servidor/CI para debug
-            print(f"ERRO CRÍTICO NO REGISTRO: {str(e)}")
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Erro interno ao processar o cadastro: {str(e)}",
+                status_code=500, detail=f"Erro no registro de morador: {str(e)}"
+            )
+
+    @staticmethod
+    async def registrar_funcionario(dados: FuncionarioRegistroCreate, db: Prisma):
+        # 1. Validar Chave (específica para Funcionários)
+        chave = await UsuarioService._validar_e_consumir_chave(
+            dados.chave_acesso, db, ["SINDICO", "PORTEIRO", "ADMIN"]
+        )
+
+        # 2. Verificar duplicidade de Usuário/CPF
+        usuario_existente = await db.usuario.find_unique(where={"email": dados.email})
+        if usuario_existente:
+            raise ValidationError(
+                nome="email_em_uso",
+                mensagem="E-mail já cadastrado.",
+                acao="Recupere sua senha.",
+            )
+
+        funcionario_existente = await db.funcionario.find_unique(
+            where={"cpf": dados.cpf}
+        )
+        if funcionario_existente:
+            raise ValidationError(
+                nome="cpf_em_uso",
+                mensagem="Este CPF já está cadastrado para um funcionário.",
+                acao="Procure a administração.",
+            )
+
+        # 3. Transação
+        try:
+            async with db.tx() as transaction:
+                # 3.1 Criar Usuário
+                novo_usuario = await transaction.usuario.create(
+                    data={
+                        "email": dados.email,
+                        "senha": hash_senha(dados.senha),
+                        "status": "ATIVO",
+                        "perfis": {"connect": [{"id": chave.perfil_id}]},
+                    }
+                )
+
+                # 3.2 Criar Funcionário com seus próprios dados (conforme modelagem)
+                novo_funcionario = await transaction.funcionario.create(
+                    data={
+                        "nome_completo": dados.nome_completo,
+                        "celular": dados.celular,
+                        "rg": dados.rg,
+                        "cpf": dados.cpf,
+                        "data_nascimento": dados.data_nascimento,
+                        "cargo": chave.perfil.nome,
+                        "status": "PENDENTE",
+                        "usuario_id": novo_usuario.id,
+                        "condominio_id": chave.condominio_id,
+                    }
+                )
+
+                # 3.3 Queimar Chave
+                await transaction.chaveacesso.update(
+                    where={"id": chave.id}, data={"usada": True}
+                )
+
+                return novo_funcionario
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Erro no registro de funcionário: {str(e)}"
             )
 
     @staticmethod
@@ -149,7 +223,6 @@ class UsuarioService:
         nova_chave = await db.chaveacesso.create(
             data={
                 "validade": validade,
-                "usada": False,
                 "perfil_id": dados.perfil_id,
                 "condominio_id": dados.condominio_id,
                 "unidade_id": dados.unidade_id,

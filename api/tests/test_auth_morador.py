@@ -31,6 +31,7 @@ async def test_fluxo_registro_morador_completo(client, admin_token):
             "validade_em_horas": 1,
             "perfil_id": perfil.id,
             "condominio_id": condo.id,
+            "unidade_id": 1,
         },
         headers={"Authorization": f"Bearer {admin_token}"},
     )

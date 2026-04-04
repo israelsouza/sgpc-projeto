@@ -71,7 +71,7 @@ async def setup_db():
         )
 
     # 3. Criar Condomínio de Teste se não existir
-    await db.condominio.upsert(
+    condo = await db.condominio.upsert(
         where={"cnpj": "00.000.000/0001-99"},
         data={
             "create": {
@@ -80,6 +80,20 @@ async def setup_db():
                 "endereco": "Rua de Teste, 123",
             },
             "update": {"nome": "Condomínio de Teste"},
+        },
+    )
+
+    # 3.1 Criar Unidade de Teste
+    await db.unidade.upsert(
+        where={"id": 1},
+        data={
+            "create": {
+                "id": 1,
+                "unidade": "101",
+                "bloco": "A",
+                "condominio_id": condo.id,
+            },
+            "update": {"unidade": "101"},
         },
     )
 

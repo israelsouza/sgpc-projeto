@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 import pytest
 
 from app.db.prisma_client import db
@@ -29,17 +31,23 @@ async def test_sindico_nao_pode_gerar_chave_admin(client):
         },
     )
 
-    # Vincular o Síndico ao Condomínio
+    # Vincular o Síndico ao Condomínio com DADOS OBRIGATÓRIOS
     await db.funcionario.upsert(
         where={"usuario_id": sindico_user.id},
         data={
             "create": {
-                "usuario_id": sindico_user.id,
-                "condominio_id": condo.id,
+                "usuario": {"connect": {"id": sindico_user.id}},
+                "condominio": {"connect": {"id": condo.id}},
+                "nome_completo": "Síndico de Teste",
+                "cpf": "000.111.222-33",
+                "rg": "123456",
+                "data_nascimento": datetime(1980, 5, 5, tzinfo=UTC),
                 "cargo": "SINDICO",
                 "status": "ATIVO",
             },
-            "update": {"condominio_id": condo.id},
+            "update": {
+                "nome_completo": "Síndico de Teste",
+            },
         },
     )
 
@@ -112,12 +120,18 @@ async def test_sindico_nao_pode_gerar_chave_outro_condominio(client):
         where={"usuario_id": sindico_user.id},
         data={
             "create": {
-                "usuario_id": sindico_user.id,
-                "condominio_id": condo_base.id,
+                "usuario": {"connect": {"id": sindico_user.id}},
+                "condominio": {"connect": {"id": condo_base.id}},
+                "nome_completo": "Síndico Base",
+                "cpf": "444.555.666-77",
+                "rg": "654321",
+                "data_nascimento": datetime(1975, 8, 10, tzinfo=UTC),
                 "cargo": "SINDICO",
                 "status": "ATIVO",
             },
-            "update": {"condominio_id": condo_base.id},
+            "update": {
+                "nome_completo": "Síndico Base",
+            },
         },
     )
 
