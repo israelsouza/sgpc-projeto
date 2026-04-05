@@ -45,7 +45,7 @@ Transformar o backend em uma arquitetura escalável, onde as responsabilidades s
 - [x] **UsuarioService**: Reduzir para atuar apenas como provedor de credenciais básicas.
 
 ### 2.4 Módulo de Escopo (Multi-Tenant)
-- [ ] Abstrair utilitários para garantir que usuários acessem apenas dados do seu próprio `condominio_id`.
+- [x] Abstrair utilitários para garantir que usuários acessem apenas dados do seu próprio `condominio_id`.
 
 ### 2.5 Inspeção de Chaves (Orquestração de Onboarding)
 - [ ] **Endpoint de Consulta**: Criar `GET /chaves/validar/{uuid}` (Público).

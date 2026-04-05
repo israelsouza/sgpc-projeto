@@ -82,3 +82,27 @@ class RequirePermission:
             )
 
         return True
+
+
+def validar_escopo_condominio(usuario, condominio_id_alvo: int):
+    """
+    Verifica se o usuário tem permissão para acessar o condomínio alvo.
+    Levanta ForbiddenError se o escopo for inválido.
+    """
+    # 1. Verificar Condomínio via Funcionário
+    if usuario.funcionario and usuario.funcionario.condominio_id == condominio_id_alvo:
+        return True
+
+    # 3. Verificar Condomínio via Morador (através da Unidade)
+    if (
+        usuario.morador
+        and usuario.morador.unidade
+        and usuario.morador.unidade.condominio_id == condominio_id_alvo
+    ):
+        return True
+
+    # 4. Se chegou aqui, o usuário está tentando acessar um condomínio que não é dele
+    raise ForbiddenError(
+        mensagem="Acesso negado: Este recurso não pertence ao seu condomínio.",
+        acao="Certifique-se de que você está no contexto correto do seu condomínio.",
+    )

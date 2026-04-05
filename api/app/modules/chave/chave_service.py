@@ -2,6 +2,7 @@ from datetime import UTC, datetime, timedelta
 
 from app.modules.chave.chave_schema import ChaveAcessoCreate
 from app.modules.core.core_exception import ValidationError
+from app.modules.core.security import validar_escopo_condominio
 from prisma import Prisma
 
 
@@ -57,7 +58,11 @@ class ChaveService:
         # 1. Buscar dados do criador
         usuario_criador = await db.usuario.find_unique(
             where={"id": usuario_atual_id},
-            include={"perfis": True, "funcionario": True},
+            include={
+                "perfis": True,
+                "funcionario": True,
+                "morador": {"include": {"unidade": True}},
+            },
         )
 
         if not usuario_criador:
@@ -67,21 +72,12 @@ class ChaveService:
                 acao="Verifique sua autenticação.",
             )
 
+        # 2. Validar Escopo (Multi-tenancy) via utilitário centralizado
+        validar_escopo_condominio(usuario_criador, dados.condominio_id)
+
+        # 3. Travas de Regra de Negócio (Hierarquia de Perfis)
         perfis_criador = [p.nome for p in usuario_criador.perfis]
-
-        # 2. Travas de Regra de Negócio (Hierarquia e Escopo)
         if "SINDICO" in perfis_criador and "ADMIN" not in perfis_criador:
-            # Escopo: Só gera para o seu prédio
-            if (
-                not usuario_criador.funcionario
-                or usuario_criador.funcionario.condominio_id != dados.condominio_id
-            ):
-                raise ValidationError(
-                    nome="permissao_negada",
-                    mensagem="Você só pode gerar chaves para o condomínio onde atua.",
-                    acao="Verifique o condomínio selecionado.",
-                )
-
             # Hierarquia: Não gera para ADMIN ou outro SINDICO
             perfil_alvo = await db.perfil.find_unique(where={"id": dados.perfil_id})
             if not perfil_alvo or perfil_alvo.nome in ["ADMIN", "SINDICO"]:
@@ -91,7 +87,7 @@ class ChaveService:
                     acao="Contate o suporte se precisar de mais privilégios.",
                 )
 
-        # 3. Gerar a Chave
+        # 4. Gerar a Chave
         validade = datetime.now(UTC) + timedelta(hours=dados.validade_em_horas)
 
         nova_chave = await db.chaveacesso.create(

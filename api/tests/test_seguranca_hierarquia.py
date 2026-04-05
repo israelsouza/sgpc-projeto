@@ -159,7 +159,7 @@ async def test_sindico_nao_pode_gerar_chave_outro_condominio(client):
         headers={"Authorization": f"Bearer {token}"},
     )
 
-    # 3. Validar que foi bloqueado
-    assert resp.status_code == 400
-    assert resp.json()["nome"] == "permissao_negada"
-    assert "só pode gerar chaves para o condomínio onde atua" in resp.json()["mensagem"]
+    # 3. Validar que foi bloqueado (403 Forbidden para erro de escopo)
+    assert resp.status_code == 403
+    assert resp.json()["nome"] == "acesso_negado"
+    assert "recurso não pertence ao seu condomínio" in resp.json()["mensagem"]
