@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends, status
 
 from app.db.prisma_client import get_prisma
+from app.modules.chave.chave_controller import ChaveController
+from app.modules.chave.chave_schema import ChaveAcessoCreate
 from app.modules.core.core_schema import StandardResponse
 from app.modules.core.security import RequirePermission, get_current_user
 from app.modules.usuario.usuario_controller import UsuarioController
 from app.modules.usuario.usuario_schema import (
-    ChaveAcessoCreate,
     LoginSchema,
 )
 from prisma import Prisma, models
@@ -36,4 +37,4 @@ async def gerar_chave_acesso(
     Gera uma chave de acesso UUID única e temporária.
     Restrita a usuários com permissão 'criar:chave_acesso'.
     """
-    return await UsuarioController.gerar_chave_acesso(dados, db, usuario.id)
+    return await ChaveController.gerar_chave_acesso(dados, db, usuario.id)

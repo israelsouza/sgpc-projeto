@@ -1,12 +1,10 @@
-from datetime import UTC, datetime, timedelta
-
 from fastapi import HTTPException, status
 
+from app.modules.chave.chave_service import ChaveService
 from app.modules.core.auth import create_access_token
 from app.modules.core.core_exception import ValidationError
 from app.modules.core.security import hash_senha, verificar_senha
 from app.modules.usuario.usuario_schema import (
-    ChaveAcessoCreate,
     FuncionarioRegistroCreate,
     LoginSchema,
     MoradorCreate,
@@ -16,50 +14,9 @@ from prisma import Prisma
 
 class UsuarioService:
     @staticmethod
-    async def _validar_e_consumir_chave(
-        chave_str: str, db: Prisma, perfis_permitidos: list[str]
-    ):
-        """
-        Método interno para validar e marcar uma chave como usada.
-        """
-        chave_acesso = await db.chaveacesso.find_unique(
-            where={"chave": chave_str}, include={"perfil": True}
-        )
-
-        if not chave_acesso:
-            raise ValidationError(
-                nome="chave_invalida",
-                mensagem="A chave de acesso fornecida não existe.",
-                acao="Solicite uma nova chave ao seu síndico.",
-            )
-
-        if chave_acesso.usada:
-            raise ValidationError(
-                nome="chave_usada",
-                mensagem="Esta chave de acesso já foi utilizada.",
-                acao="Solicite uma nova chave.",
-            )
-
-        if chave_acesso.validade < datetime.now(chave_acesso.validade.tzinfo):
-            raise ValidationError(
-                nome="chave_expirada",
-                mensagem="Esta chave de acesso expirou.",
-                acao="Peça ao síndico para gerar uma nova chave.",
-            )
-
-        if chave_acesso.perfil.nome not in perfis_permitidos:
-            raise ValidationError(
-                nome="perfil_invalido",
-                mensagem=f"Esta chave é para o perfil {chave_acesso.perfil.nome} e não pode ser usada aqui.",
-                acao="Use o endpoint correto para seu tipo de perfil.",
-            )
-
-        return chave_acesso
-
-    @staticmethod
     async def registrar_morador(dados: MoradorCreate, db: Prisma):
-        # 1. Validar Chave (específica para Morador)
-        chave = await UsuarioService._validar_e_consumir_chave(
+        # 1. Validar Chave (específica para Morador) - Agora via ChaveService
+        chave = await ChaveService.validar_e_consumir_chave(
             dados.chave_acesso, db, ["MORADOR"]
         )
 
@@ -112,9 +69,8 @@ class UsuarioService:
                     }
                 )
 
-                await transaction.chaveacesso.update(
-                    where={"id": chave.id}, data={"usada": True}
-                )
+                # Queimar Chave via transação
+                await ChaveService.marcar_como_usada(chave.id, transaction)
 
                 return novo_morador
         except Exception as e:
@@ -125,7 +81,7 @@ class UsuarioService:
     @staticmethod
     async def registrar_funcionario(dados: FuncionarioRegistroCreate, db: Prisma):
         # 1. Validar Chave (específica para Funcionários)
-        chave = await UsuarioService._validar_e_consumir_chave(
+        chave = await ChaveService.validar_e_consumir_chave(
             dados.chave_acesso, db, ["SINDICO", "PORTEIRO", "ADMIN"]
         )
 
@@ -176,10 +132,8 @@ class UsuarioService:
                     }
                 )
 
-                # 3.3 Queimar Chave
-                await transaction.chaveacesso.update(
-                    where={"id": chave.id}, data={"usada": True}
-                )
+                # 3.3 Queimar Chave via transação
+                await ChaveService.marcar_como_usada(chave.id, transaction)
 
                 return novo_funcionario
         except Exception as e:
@@ -213,28 +167,6 @@ class UsuarioService:
         )
 
         return {"access_token": access_token, "token_type": "bearer"}
-
-    @staticmethod
-    async def gerar_chave_acesso(
-        dados: ChaveAcessoCreate, db: Prisma, usuario_criador_id: int | None = None
-    ):
-        validade = datetime.now(UTC) + timedelta(hours=dados.validade_em_horas)
-
-        nova_chave = await db.chaveacesso.create(
-            data={
-                "validade": validade,
-                "perfil_id": dados.perfil_id,
-                "condominio_id": dados.condominio_id,
-                "unidade_id": dados.unidade_id,
-                "quem_criou": usuario_criador_id,
-            }
-        )
-
-        return {
-            "chave": nova_chave.chave,
-            "validade": nova_chave.validade,
-            "mensagem": "Chave gerada com sucesso. Compartilhe o UUID acima com o usuário.",
-        }
 
     @staticmethod
     async def aprovar_morador(id_morador: int, db: Prisma):

@@ -31,9 +31,9 @@ Transformar o backend em uma arquitetura escalável, onde as responsabilidades s
 **Objetivo:** Aplicar os princípios SOLID para evitar "God Classes" no Service e na Controller.
 
 ### 2.1 Módulo de Acessos (Chaves)
-- [ ] Criar módulo `chave`.
-- [ ] Isolar lógica de geração de UUID e regras de expiração.
-- [ ] Implementar **Validador de Hierarquia** (Síndico não gera Admin, etc).
+- [x] Criar módulo `chave`.
+- [x] Isolar lógica de geração de UUID e regras de expiração.
+- [x] Implementar **Validador de Hierarquia** (Síndico não gera Admin, etc).
 
 ### 2.2 Módulo de Autenticação
 - [ ] Isolar lógica de login e geração de JWT do `UsuarioService`.
@@ -46,6 +46,11 @@ Transformar o backend em uma arquitetura escalável, onde as responsabilidades s
 
 ### 2.4 Módulo de Escopo (Multi-Tenant)
 - [ ] Abstrair utilitários para garantir que usuários acessem apenas dados do seu próprio `condominio_id`.
+
+### 2.5 Inspeção de Chaves (Orquestração de Onboarding)
+- [ ] **Endpoint de Consulta**: Criar `GET /chaves/validar/{uuid}` (Público).
+- [ ] **Lógica de Identificação**: Retornar o Perfil (Morador vs Funcionário) e dados do Condomínio/Unidade sem consumir a chave.
+- [ ] **Orientação do App**: Permitir que o Frontend identifique dinamicamente qual formulário exibir e para qual endpoint de registro submeter os dados finais.
 
 ---
 
