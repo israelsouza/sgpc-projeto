@@ -69,7 +69,7 @@ async def test_sindico_nao_pode_gerar_chave_admin(client):
     }
 
     resp = await client.post(
-        "/api/auth/chave-acesso",
+        "/api/chaves/gerar",
         json=payload,
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -154,7 +154,7 @@ async def test_sindico_nao_pode_gerar_chave_outro_condominio(client):
     }
 
     resp = await client.post(
-        "/api/auth/chave-acesso",
+        "/api/chaves/gerar",
         json=payload,
         headers={"Authorization": f"Bearer {token}"},
     )

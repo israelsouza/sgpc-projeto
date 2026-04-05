@@ -48,17 +48,31 @@ Transformar o backend em uma arquitetura escalável, onde as responsabilidades s
 - [x] Abstrair utilitários para garantir que usuários acessem apenas dados do seu próprio `condominio_id`.
 
 ### 2.5 Inspeção de Chaves (Orquestração de Onboarding)
-- [ ] **Endpoint de Consulta**: Criar `GET /chaves/validar/{uuid}` (Público).
-- [ ] **Lógica de Identificação**: Retornar o Perfil (Morador vs Funcionário) e dados do Condomínio/Unidade sem consumir a chave.
+- [x] **Endpoint de Consulta**: Criar `GET /chaves/validar/{uuid}` (Público).
+- [x] **Lógica de Identificação**: Retornar o Perfil (Morador vs Funcionário) e dados do Condomínio/Unidade sem consumir a chave.
 
 ### 2.6 Camada de Model (Persistência)
 - [ ] **Extração de Banco**: Mover todas as chamadas diretas ao `db` (Prisma) dos Services para arquivos `*_model.py`.
 - [ ] **Responsabilidade**: O Model cuida exclusivamente de queries, comandos e transações. O Service consome o Model e aplica as regras de negócio.
 - [ ] **Soft Delete**: Centralizar o filtro `deletado_em is None` dentro das chamadas dos Models.
 
+### 2.7 Roteamento Modular (Vertical Slicing)
+- [ ] **Migração de Routers**: Mover arquivos de `api/app/routers/` para suas respectivas pastas em `api/app/modules/` (ex: `morador_router.py`).
+- [ ] **Encapsulamento**: Cada módulo passa a ser o ponto focal completo de sua funcionalidade.
+- [ ] **Agregação Central**: Simplificar o `api/app/routers/__init__.py` para apenas importar e registrar os roteadores vindos dos módulos.
+
 ---
 
-## 🧪 Fase 3: Qualidade e Validação
+## 🚀 Fase 3: Funcionalidades Avançadas de Perfil
+**Objetivo:** Evoluir o sistema para lidar com jornadas de vida real do usuário no condomínio.
+
+### 3.1 Acúmulo de Perfis (Role Accumulation)
+- [ ] **Cenário**: Permitir que um usuário existente (ex: Morador Carlos) adicione um novo perfil (ex: Síndico) via chave de acesso.
+- [ ] **Fluxo**: Implementar lógica para detectar conta existente e apenas vincular novos papéis e registros profissionais (Funcionario/Morador) ao `Usuario` atual, sem criar novas credenciais.
+
+---
+
+## 🧪 Fase 4: Qualidade e Validação
 - [x] Manter suíte de testes de integração 100% verde durante a refatoração.
 - [x] Ciclo contínuo de Lint (Ruff) e Formatação.
 - [ ] Implementar Logs Estruturados (JSON) para observabilidade.

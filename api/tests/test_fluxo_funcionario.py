@@ -22,7 +22,7 @@ async def test_registro_porteiro_completo(client, admin_token):
 
     # 2. Gerar Chave
     resp_chave = await client.post(
-        "/api/auth/chave-acesso",
+        "/api/chaves/gerar",
         json={
             "validade_em_horas": 24,
             "perfil_id": perfil_porteiro.id,

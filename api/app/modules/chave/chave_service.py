@@ -111,3 +111,45 @@ class ChaveService:
         await transaction.chaveacesso.update(
             where={"id": chave_id}, data={"usada": True}
         )
+
+    @staticmethod
+    async def inspecionar_chave(chave_str: str, db: Prisma):
+        """
+        Busca detalhes de uma chave (perfil, condomínio, unidade) sem consumi-la.
+        """
+        chave = await db.chaveacesso.find_unique(
+            where={"chave": chave_str},
+            include={
+                "perfil": True,
+                "condominio": True,
+                "unidade": True,
+            },
+        )
+
+        if not chave:
+            raise ValidationError(
+                nome="chave_invalida",
+                mensagem="A chave de acesso fornecida não existe.",
+                acao="Verifique o código ou solicite uma nova chave ao síndico.",
+            )
+
+        if chave.usada:
+            raise ValidationError(
+                nome="chave_usada",
+                mensagem="Esta chave de acesso já foi utilizada.",
+                acao="Solicite uma nova chave.",
+            )
+
+        if chave.validade < datetime.now(chave.validade.tzinfo):
+            raise ValidationError(
+                nome="chave_expirada",
+                mensagem="Esta chave de acesso expirou.",
+                acao="Peça ao síndico para gerar uma nova chave.",
+            )
+
+        return {
+            "perfil": chave.perfil.nome,
+            "condominio": chave.condominio.nome,
+            "unidade": chave.unidade.unidade if chave.unidade else None,
+            "bloco": chave.unidade.bloco if chave.unidade else None,
+        }

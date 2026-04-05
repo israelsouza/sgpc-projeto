@@ -23,3 +23,10 @@ class ChaveAcessoResponse(ChaveAcessoBase):
     perfil_id: int
     condominio_id: int
     unidade_id: int | None = None
+
+
+class ChaveValidacaoResponse(BaseModel):
+    perfil: str
+    condominio: str
+    unidade: str | None = None
+    bloco: str | None = None
