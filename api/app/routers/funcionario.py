@@ -2,8 +2,9 @@ from fastapi import APIRouter, Depends, status
 
 from app.db.prisma_client import get_prisma
 from app.modules.core.core_schema import StandardResponse
-from app.modules.usuario.usuario_controller import UsuarioController
-from app.modules.usuario.usuario_schema import (
+from app.modules.core.security import RequirePermission
+from app.modules.funcionario.funcionario_controller import FuncionarioController
+from app.modules.funcionario.funcionario_schema import (
     FuncionarioRegistroCreate,
 )
 from prisma import Prisma
@@ -20,4 +21,18 @@ async def registrar_funcionario(
     """
     Realiza o registro de um funcionário (Porteiro, Síndico, etc) usando uma chave de acesso.
     """
-    return await UsuarioController.registrar_funcionario(dados, db)
+    return await FuncionarioController.registrar_funcionario(dados, db)
+
+
+@router.patch(
+    "/{id_funcionario}/aprovar",
+    status_code=status.HTTP_200_OK,
+    response_model=StandardResponse,
+    dependencies=[Depends(RequirePermission("atualizar:funcionario"))],
+)
+async def aprovar_funcionario(id_funcionario: int, db: Prisma = Depends(get_prisma)):
+    """
+    Aprova o cadastro de um funcionário pendente.
+    Restrito a usuários com permissão 'atualizar:funcionario'.
+    """
+    return await FuncionarioController.aprovar_funcionario(id_funcionario, db)

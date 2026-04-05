@@ -40,9 +40,9 @@ Transformar o backend em uma arquitetura escalável, onde as responsabilidades s
 - [x] Centralizar validação de tokens e segurança.
 
 ### 2.3 Módulo de Domínios Especializados
-- [ ] **FuncionarioService**: Gestão exclusiva de colaboradores, cargos e permissões profissionais.
-- [ ] **MoradorService**: Gestão exclusiva de residentes e vínculos com unidades.
-- [ ] **UsuarioService**: Reduzir para atuar apenas como provedor de credenciais básicas.
+- [x] **FuncionarioService**: Gestão exclusiva de colaboradores e cargos.
+- [x] **MoradorService**: Gestão exclusiva de residentes e vínculos com unidades.
+- [x] **UsuarioService**: Reduzir para atuar apenas como provedor de credenciais básicas.
 
 ### 2.4 Módulo de Escopo (Multi-Tenant)
 - [ ] Abstrair utilitários para garantir que usuários acessem apenas dados do seu próprio `condominio_id`.
@@ -50,23 +50,15 @@ Transformar o backend em uma arquitetura escalável, onde as responsabilidades s
 ### 2.5 Inspeção de Chaves (Orquestração de Onboarding)
 - [ ] **Endpoint de Consulta**: Criar `GET /chaves/validar/{uuid}` (Público).
 - [ ] **Lógica de Identificação**: Retornar o Perfil (Morador vs Funcionário) e dados do Condomínio/Unidade sem consumir a chave.
-- [ ] **Orientação do App**: Permitir que o Frontend identifique dinamicamente qual formulário exibir e para qual endpoint de registro submeter os dados finais.
+
+### 2.6 Camada de Model (Persistência)
+- [ ] **Extração de Banco**: Mover todas as chamadas diretas ao `db` (Prisma) dos Services para arquivos `*_model.py`.
+- [ ] **Responsabilidade**: O Model cuida exclusivamente de queries, comandos e transações. O Service consome o Model e aplica as regras de negócio.
+- [ ] **Soft Delete**: Centralizar o filtro `deletado_em is None` dentro das chamadas dos Models.
 
 ---
 
-## 🏗️ Fase 4: Camada de Persistência (Repositories)
-**Objetivo:** Isolar o Prisma do restante da aplicação e centralizar regras de infraestrutura (Soft Delete e Multi-tenancy).
-
-### 4.1 Repository Pattern
-- [ ] Criar `BaseRepository` com métodos comuns (`find_by_id`, `delete`).
-- [ ] Centralizar filtro de **Soft Delete** (`deletado_em is None`) em todas as consultas.
-
-### 4.2 Multi-Tenant Helper
-- [ ] Implementar validador automático de escopo por `condominio_id`.
-
----
-
-## 🧪 Fase 5: Qualidade e Validação
+## 🧪 Fase 3: Qualidade e Validação
 - [x] Manter suíte de testes de integração 100% verde durante a refatoração.
 - [x] Ciclo contínuo de Lint (Ruff) e Formatação.
 - [ ] Implementar Logs Estruturados (JSON) para observabilidade.

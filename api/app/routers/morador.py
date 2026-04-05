@@ -3,8 +3,8 @@ from fastapi import APIRouter, Depends, status
 from app.db.prisma_client import get_prisma
 from app.modules.core.core_schema import StandardResponse
 from app.modules.core.security import RequirePermission
-from app.modules.usuario.usuario_controller import UsuarioController
-from app.modules.usuario.usuario_schema import MoradorCreate
+from app.modules.morador.morador_controller import MoradorController
+from app.modules.morador.morador_schema import MoradorCreate
 from prisma import Prisma
 
 router = APIRouter(prefix="/moradores", tags=["Moradores"])
@@ -18,7 +18,7 @@ async def registrar_morador(dados: MoradorCreate, db: Prisma = Depends(get_prism
     Realiza o pré-cadastro de um morador usando uma chave de acesso UUID.
     O morador fica com status PENDENTE até a aprovação do síndico.
     """
-    return await UsuarioController.registrar_morador(dados, db)
+    return await MoradorController.registrar_morador(dados, db)
 
 
 @router.patch(
@@ -33,4 +33,4 @@ async def aprovar_morador(id_morador: int, db: Prisma = Depends(get_prisma)):
     A unidade e o perfil já são vinculados automaticamente no ato do registro via chave.
     Restrito a usuários com permissão 'atualizar:morador'.
     """
-    return await UsuarioController.aprovar_morador(id_morador, db)
+    return await MoradorController.aprovar_morador(id_morador, db)
