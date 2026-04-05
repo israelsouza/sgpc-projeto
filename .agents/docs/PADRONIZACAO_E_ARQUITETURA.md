@@ -57,9 +57,9 @@ Transformar o backend em uma arquitetura escalável, onde as responsabilidades s
 - [x] **Soft Delete**: Centralizar o filtro `deletado_em is None` dentro das chamadas dos Models.
 
 ### 2.7 Roteamento Modular (Vertical Slicing)
-- [ ] **Migração de Routers**: Mover arquivos de `api/app/routers/` para suas respectivas pastas em `api/app/modules/` (ex: `morador_router.py`).
-- [ ] **Encapsulamento**: Cada módulo passa a ser o ponto focal completo de sua funcionalidade.
-- [ ] **Agregação Central**: Simplificar o `api/app/routers/__init__.py` para apenas importar e registrar os roteadores vindos dos módulos.
+- [x] **Migração de Routers**: Mover arquivos de `api/app/routers/` para suas respectivas pastas em `api/app/modules/` (ex: `morador_router.py`).
+- [x] **Encapsulamento**: Cada módulo passa a ser o ponto focal completo de sua funcionalidade.
+- [x] **Agregação Central**: Simplificar o `api/app/routers/__init__.py` para apenas importar e registrar os roteadores vindos dos módulos.
 
 ---
 
