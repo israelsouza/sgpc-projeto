@@ -1,12 +1,10 @@
 from fastapi import HTTPException, status
 
 from app.modules.chave.chave_service import ChaveService
-from app.modules.core.auth import create_access_token
 from app.modules.core.core_exception import ValidationError
-from app.modules.core.security import hash_senha, verificar_senha
+from app.modules.core.security import hash_senha
 from app.modules.usuario.usuario_schema import (
     FuncionarioRegistroCreate,
-    LoginSchema,
     MoradorCreate,
 )
 from prisma import Prisma
@@ -140,33 +138,6 @@ class UsuarioService:
             raise HTTPException(
                 status_code=500, detail=f"Erro no registro de funcionário: {str(e)}"
             )
-
-    @staticmethod
-    async def login(dados: LoginSchema, db: Prisma):
-        usuario = await db.usuario.find_unique(
-            where={"email": dados.email}, include={"perfis": True, "morador": True}
-        )
-
-        if not usuario or not verificar_senha(dados.senha, usuario.senha):
-            raise ValidationError(
-                nome="login_invalido",
-                mensagem="E-mail ou senha incorretos.",
-                acao="Verifique os dados ou tente recuperar sua senha.",
-            )
-
-        roles = [p.nome for p in usuario.perfis]
-        status_morador = usuario.morador.status if usuario.morador else "N/A"
-
-        access_token = create_access_token(
-            data={
-                "sub": str(usuario.id),
-                "email": usuario.email,
-                "roles": roles,
-                "morador_status": status_morador,
-            }
-        )
-
-        return {"access_token": access_token, "token_type": "bearer"}
 
     @staticmethod
     async def aprovar_morador(id_morador: int, db: Prisma):

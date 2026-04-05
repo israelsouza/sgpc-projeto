@@ -36,8 +36,8 @@ Transformar o backend em uma arquitetura escalável, onde as responsabilidades s
 - [x] Implementar **Validador de Hierarquia** (Síndico não gera Admin, etc).
 
 ### 2.2 Módulo de Autenticação
-- [ ] Isolar lógica de login e geração de JWT do `UsuarioService`.
-- [ ] Centralizar validação de tokens e segurança.
+- [x] Isolar lógica de login e geração de JWT do `UsuarioService`.
+- [x] Centralizar validação de tokens e segurança.
 
 ### 2.3 Módulo de Domínios Especializados
 - [ ] **FuncionarioService**: Gestão exclusiva de colaboradores, cargos e permissões profissionais.

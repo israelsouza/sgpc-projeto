@@ -1,14 +1,12 @@
 from fastapi import APIRouter, Depends, status
 
 from app.db.prisma_client import get_prisma
+from app.modules.autenticacao.autenticacao_controller import AutenticacaoController
+from app.modules.autenticacao.autenticacao_schema import LoginSchema
 from app.modules.chave.chave_controller import ChaveController
 from app.modules.chave.chave_schema import ChaveAcessoCreate
 from app.modules.core.core_schema import StandardResponse
 from app.modules.core.security import RequirePermission, get_current_user
-from app.modules.usuario.usuario_controller import UsuarioController
-from app.modules.usuario.usuario_schema import (
-    LoginSchema,
-)
 from prisma import Prisma, models
 
 router = APIRouter(prefix="/auth", tags=["Autenticação"])
@@ -19,7 +17,7 @@ async def login(dados: LoginSchema, db: Prisma = Depends(get_prisma)):
     """
     Realiza o login e gera um token JWT.
     """
-    return await UsuarioController.login(dados, db)
+    return await AutenticacaoController.login(dados, db)
 
 
 @router.post(

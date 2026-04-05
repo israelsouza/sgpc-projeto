@@ -3,7 +3,6 @@ from fastapi import status
 from app.modules.core.core_schema import StandardResponse
 from app.modules.usuario.usuario_schema import (
     FuncionarioRegistroCreate,
-    LoginSchema,
     MoradorCreate,
 )
 from app.modules.usuario.usuario_service import UsuarioService
@@ -27,15 +26,6 @@ class UsuarioController:
             message="Cadastro de funcionário realizado com sucesso. Aguarde aprovação.",
             status_code=status.HTTP_201_CREATED,
             data=funcionario,
-        )
-
-    @staticmethod
-    async def login(dados: LoginSchema, db: Prisma):
-        token_data = await UsuarioService.login(dados, db)
-        return StandardResponse(
-            message="Login realizado com sucesso.",
-            status_code=status.HTTP_200_OK,
-            data=token_data,
         )
 
     @staticmethod
