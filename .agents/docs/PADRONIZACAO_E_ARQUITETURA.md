@@ -52,9 +52,9 @@ Transformar o backend em uma arquitetura escalável, onde as responsabilidades s
 - [x] **Lógica de Identificação**: Retornar o Perfil (Morador vs Funcionário) e dados do Condomínio/Unidade sem consumir a chave.
 
 ### 2.6 Camada de Model (Persistência)
-- [ ] **Extração de Banco**: Mover todas as chamadas diretas ao `db` (Prisma) dos Services para arquivos `*_model.py`.
-- [ ] **Responsabilidade**: O Model cuida exclusivamente de queries, comandos e transações. O Service consome o Model e aplica as regras de negócio.
-- [ ] **Soft Delete**: Centralizar o filtro `deletado_em is None` dentro das chamadas dos Models.
+- [x] **Extração de Banco**: Mover todas as chamadas diretas ao `db` (Prisma) dos Services para arquivos `*_model.py`.
+- [x] **Responsabilidade**: O Model cuida exclusivamente de queries, comandos e transações. O Service consome o Model e aplica as regras de negócio.
+- [x] **Soft Delete**: Centralizar o filtro `deletado_em is None` dentro das chamadas dos Models.
 
 ### 2.7 Roteamento Modular (Vertical Slicing)
 - [ ] **Migração de Routers**: Mover arquivos de `api/app/routers/` para suas respectivas pastas em `api/app/modules/` (ex: `morador_router.py`).

@@ -3,20 +3,22 @@ from fastapi import HTTPException
 from app.modules.chave.chave_service import ChaveService
 from app.modules.core.core_exception import ValidationError
 from app.modules.core.security import hash_senha
+from app.modules.funcionario.funcionario_model import FuncionarioModel
 from app.modules.funcionario.funcionario_schema import FuncionarioRegistroCreate
+from app.modules.usuario.usuario_model import UsuarioModel
 from prisma import Prisma
 
 
 class FuncionarioService:
     @staticmethod
     async def registrar_funcionario(dados: FuncionarioRegistroCreate, db: Prisma):
-        # 1. Validar Chave (específica para Funcionários)
+        # 1. Validar Chave via ChaveService
         chave = await ChaveService.validar_e_consumir_chave(
             dados.chave_acesso, db, ["SINDICO", "PORTEIRO", "ADMIN"]
         )
 
-        # 2. Verificar duplicidade de Usuário/CPF
-        usuario_existente = await db.usuario.find_unique(where={"email": dados.email})
+        # 2. Verificar duplicidade via Models
+        usuario_existente = await UsuarioModel.buscar_por_email(dados.email, db)
         if usuario_existente:
             raise ValidationError(
                 nome="email_em_uso",
@@ -24,9 +26,7 @@ class FuncionarioService:
                 acao="Recupere sua senha.",
             )
 
-        funcionario_existente = await db.funcionario.find_unique(
-            where={"cpf": dados.cpf}
-        )
+        funcionario_existente = await FuncionarioModel.buscar_por_cpf(dados.cpf, db)
         if funcionario_existente:
             raise ValidationError(
                 nome="cpf_em_uso",
@@ -38,17 +38,18 @@ class FuncionarioService:
         try:
             async with db.tx() as transaction:
                 # 3.1 Criar Usuário
-                novo_usuario = await transaction.usuario.create(
+                novo_usuario = await UsuarioModel.criar(
                     data={
                         "email": dados.email,
                         "senha": hash_senha(dados.senha),
                         "status": "ATIVO",
                         "perfis": {"connect": [{"id": chave.perfil_id}]},
-                    }
+                    },
+                    db=transaction,
                 )
 
-                # 3.2 Criar Funcionário com seus próprios dados (conforme modelagem)
-                novo_funcionario = await transaction.funcionario.create(
+                # 3.2 Criar Funcionário com seus próprios dados
+                novo_funcionario = await FuncionarioModel.criar(
                     data={
                         "nome_completo": dados.nome_completo,
                         "celular": dados.celular,
@@ -59,7 +60,8 @@ class FuncionarioService:
                         "status": "PENDENTE",
                         "usuario_id": novo_usuario.id,
                         "condominio_id": chave.condominio_id,
-                    }
+                    },
+                    db=transaction,
                 )
 
                 # 3.3 Queimar Chave via transação
@@ -76,7 +78,7 @@ class FuncionarioService:
         """
         Aprova um funcionário pendente no sistema.
         """
-        funcionario = await db.funcionario.find_unique(where={"id": id_funcionario})
+        funcionario = await FuncionarioModel.buscar_por_id(id_funcionario, db)
 
         if not funcionario:
             raise ValidationError(
@@ -93,9 +95,7 @@ class FuncionarioService:
             )
 
         try:
-            await db.funcionario.update(
-                where={"id": id_funcionario}, data={"status": "ATIVO"}
-            )
+            await FuncionarioModel.atualizar_status(id_funcionario, "ATIVO", db)
             return {"message": "Cadastro de funcionário aprovado com sucesso."}
         except Exception as e:
             raise HTTPException(

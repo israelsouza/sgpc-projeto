@@ -1,8 +1,10 @@
 from datetime import UTC, datetime, timedelta
 
+from app.modules.chave.chave_model import ChaveModel
 from app.modules.chave.chave_schema import ChaveAcessoCreate
 from app.modules.core.core_exception import ValidationError
 from app.modules.core.security import validar_escopo_condominio
+from app.modules.usuario.usuario_model import UsuarioModel
 from prisma import Prisma
 
 
@@ -14,8 +16,8 @@ class ChaveService:
         """
         Valida a existência, uso, validade e perfil da chave. Marca como usada se válida.
         """
-        chave_acesso = await db.chaveacesso.find_unique(
-            where={"chave": chave_str}, include={"perfil": True}
+        chave_acesso = await ChaveModel.buscar_por_codigo(
+            chave_str, db, includes={"perfil": True}
         )
 
         if not chave_acesso:
@@ -55,10 +57,11 @@ class ChaveService:
         """
         Gera uma nova chave UUID no banco com validações de hierarquia e escopo.
         """
-        # 1. Buscar dados do criador
-        usuario_criador = await db.usuario.find_unique(
-            where={"id": usuario_atual_id},
-            include={
+        # 1. Buscar dados do criador via Model
+        usuario_criador = await UsuarioModel.buscar_por_id(
+            usuario_atual_id,
+            db,
+            includes={
                 "perfis": True,
                 "funcionario": True,
                 "morador": {"include": {"unidade": True}},
@@ -79,7 +82,7 @@ class ChaveService:
         perfis_criador = [p.nome for p in usuario_criador.perfis]
         if "SINDICO" in perfis_criador and "ADMIN" not in perfis_criador:
             # Hierarquia: Não gera para ADMIN ou outro SINDICO
-            perfil_alvo = await db.perfil.find_unique(where={"id": dados.perfil_id})
+            perfil_alvo = await ChaveModel.buscar_perfil_por_id(dados.perfil_id, db)
             if not perfil_alvo or perfil_alvo.nome in ["ADMIN", "SINDICO"]:
                 raise ValidationError(
                     nome="permissao_negada",
@@ -87,17 +90,18 @@ class ChaveService:
                     acao="Contate o suporte se precisar de mais privilégios.",
                 )
 
-        # 4. Gerar a Chave
+        # 4. Gerar a Chave via Model
         validade = datetime.now(UTC) + timedelta(hours=dados.validade_em_horas)
 
-        nova_chave = await db.chaveacesso.create(
+        nova_chave = await ChaveModel.criar(
             data={
                 "validade": validade,
                 "perfil_id": dados.perfil_id,
                 "condominio_id": dados.condominio_id,
                 "unidade_id": dados.unidade_id,
                 "quem_criou": usuario_atual_id,
-            }
+            },
+            db=db,
         )
 
         return {
@@ -106,20 +110,19 @@ class ChaveService:
         }
 
     @staticmethod
-    async def marcar_como_usada(chave_id: str, transaction: Prisma):
-        # Marca uma chave como utilizada dentro de uma transação.
-        await transaction.chaveacesso.update(
-            where={"id": chave_id}, data={"usada": True}
-        )
+    async def marcar_como_usada(chave_id: str, db: Prisma):
+        # Marca uma chave como utilizada via Model.
+        await ChaveModel.marcar_como_usada(chave_id, db)
 
     @staticmethod
     async def inspecionar_chave(chave_str: str, db: Prisma):
         """
         Busca detalhes de uma chave (perfil, condomínio, unidade) sem consumi-la.
         """
-        chave = await db.chaveacesso.find_unique(
-            where={"chave": chave_str},
-            include={
+        chave = await ChaveModel.buscar_por_codigo(
+            chave_str,
+            db,
+            includes={
                 "perfil": True,
                 "condominio": True,
                 "unidade": True,

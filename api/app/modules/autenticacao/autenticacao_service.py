@@ -2,6 +2,7 @@ from app.modules.autenticacao.autenticacao_schema import LoginSchema
 from app.modules.core.auth import create_access_token
 from app.modules.core.core_exception import ValidationError
 from app.modules.core.security import verificar_senha
+from app.modules.usuario.usuario_model import UsuarioModel
 from prisma import Prisma
 
 
@@ -11,8 +12,8 @@ class AutenticacaoService:
         """
         Realiza o login do usuário, validando credenciais e gerando token JWT.
         """
-        usuario = await db.usuario.find_unique(
-            where={"email": dados.email}, include={"perfis": True, "morador": True}
+        usuario = await UsuarioModel.buscar_por_email(
+            dados.email, db, includes={"perfis": True, "morador": True}
         )
 
         if not usuario or not verificar_senha(dados.senha, usuario.senha):
