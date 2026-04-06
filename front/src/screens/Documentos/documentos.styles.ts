@@ -1,54 +1,52 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7F6F1', 
+    backgroundColor: "#F7F6F1", 
   },
-  
-  //Header
+  centerContainer: {
+    flex: 1,
+    position: 'relative',
+  },
+  // --- HEADER ---
   header: {
-    height: 120, 
-    backgroundColor: '#A07050',
+    height: 120,
+    backgroundColor: "#A07050", 
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 10, 
+    paddingTop: Platform.OS === 'ios' ? 0 : 10,
   },
   headerIconContainer: {
-    width: 60,
-    height: 60,
-    backgroundColor: 'rgba(255,255,255,0.2)', 
-    borderRadius: 15,
+    width: 50,
+    height: 50,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
   headerTitleContainer: {
-    alignItems: 'center', 
+    alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 26,
+    fontSize: 22,
     fontWeight: 'bold',
     color: 'white',
-    letterSpacing: 0.5,
   },
   headerUnderline: {
     height: 3,
-    backgroundColor: '#0090FF', 
+    backgroundColor: '#0090FF',
     width: '100%',
-    marginTop: 4,
+    marginTop: 2,
   },
-  headerMoreButton: {
-    padding: 5,
-  },
-
-  //Conteúdo Principal 
+  // --- LISTA ---
   content: {
-    flex: 1, 
+    flex: 1,
   },
   contentContainer: {
-    padding: 20, 
+    padding: 20,
   },
   listItem: {
     backgroundColor: 'white',
@@ -56,9 +54,9 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     height: 70,
-    borderRadius: 15, 
+    borderRadius: 15,
     paddingHorizontal: 15,
-    marginBottom: 15, 
+    marginBottom: 12,
     elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -69,31 +67,29 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  folderIcon: {
-    marginRight: 15, 
-  },
   listItemText: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'black',
+    color: '#333',
+    marginLeft: 15,
   },
+  // --- BOTÃO FLUTUANTE (FAB) ---
   fab: {
-    position: 'absolute', 
-    bottom: 20, 
-    right: 20,  
-    backgroundColor: '#0090FF', 
-    flexDirection: 'row', 
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#0090FF',
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 15,
+    paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 30, 
-    elevation: 5, 
-    shadowColor: '#000', 
+    borderRadius: 30,
+    elevation: 5,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    zIndex: 10, 
+    zIndex: 10,
   },
   fabText: {
     color: 'white',

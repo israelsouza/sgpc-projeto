@@ -31,7 +31,6 @@ export default function DocumentsScreen() {
         </View>
         <View style={styles.headerTitleContainer}>
           <Text style={styles.headerTitle}>Documentos</Text>
-          <View style={styles.headerUnderline} />
         </View>
         <TouchableOpacity>
           <Feather name="more-horizontal" size={30} color="white" />
