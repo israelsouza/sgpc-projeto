@@ -203,7 +203,7 @@ export default function EntregasScreen() {
           shadowRadius: 8,
           elevation: 6,
         }}
-        onPress={() => router.push("/Entregas/nova-entrega")}
+        onPress={() => router.push("/Entregas/NovaEntrega")}
         activeOpacity={0.8}
       >
         <Feather name="plus" size={24} color="#FFFFFF" />
