@@ -15,7 +15,7 @@ export default function InviteScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#A07050" />
 
-      {/* ── HEADER COM VOLTAR ── */}
+      {/* ── HEADER ── */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton}>
           <MaterialIcons name="arrow-back" size={28} color="white" />
@@ -31,20 +31,18 @@ export default function InviteScreen() {
       {/* ── CONTEÚDO PRINCIPAL ── */}
       <View style={styles.content}>
         
-        {/* Card de Expiração */}
         <View style={styles.whiteCard}>
           <Text style={styles.infoText}>Este link de convite expira em</Text>
           <Text style={styles.timerText}>10m59s</Text>
         </View>
 
-        {/* Botão Enviar Link */}
         <TouchableOpacity style={styles.btnInvite} activeOpacity={0.8}>
           <Text style={styles.btnInviteText}>Enviar link ao convidado</Text>
         </TouchableOpacity>
 
       </View>
 
-      {/* ── FOOTER PADRONIZADO (REUTILIZADO) ── */}
+      {/* ── FOOTER PADRONIZADO ── */}
       <View style={footerStyles.footer}>
         <TouchableOpacity style={footerStyles.footerItem}>
           <Feather name="home" size={26} color="black" />

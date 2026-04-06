@@ -3,7 +3,7 @@ import { StyleSheet, Platform } from "react-native";
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F7F6F1", // Fundo bege claro
+    backgroundColor: "#F7F6F1", 
   },
   // --- HEADER ---
   header: {
@@ -73,7 +73,7 @@ export const styles = StyleSheet.create({
   },
   // --- BOTÃO ---
   btnInvite: {
-    backgroundColor: '#A07050', // Marrom do tema
+    backgroundColor: '#A07050', 
     width: '100%',
     height: 55,
     borderRadius: 12,
