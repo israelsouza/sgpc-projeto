@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-py"
+  interface = "asyncio"
   recursive_type_depth = 5
 }
 
@@ -31,10 +32,10 @@ model Condominio {
 
 model Unidade {
   id                Int       @id @default(autoincrement())
-  unidade           String    @map("unidade")
+  unidade           String    @unique @map("unidade")
   bloco             String?   @map("bloco")
   andar             Int?      @map("andar")
-  
+
   // FKs
   condominio_id     Int       @map("condominio_id")
   
