@@ -21,10 +21,19 @@ def generate_prisma_client():
     """Gera o Prisma Client se estiver em ambiente Vercel/Produção."""
     try:
         if os.environ.get("VERCEL"):
-            logger.info("Ambiente Vercel detectado. Gerando Prisma Client...", module="CORE", action="generate_prisma_client")
+            logger.info(
+                "Ambiente Vercel detectado. Gerando Prisma Client...",
+                module="CORE",
+                action="generate_prisma_client",
+            )
             subprocess.run([sys.executable, "-m", "prisma", "generate"], check=True)
     except Exception as e:
-        logger.error(f"Erro ao gerar Prisma Client: {e}", module="CORE", action="generate_prisma_client", exc_info=True)
+        logger.error(
+            f"Erro ao gerar Prisma Client: {e}",
+            module="CORE",
+            action="generate_prisma_client",
+            exc_info=True,
+        )
 
 
 generate_prisma_client()
@@ -51,10 +60,10 @@ app = FastAPI(
 async def logging_middleware(request: Request, call_next):
     """Middleware para logar tempo de resposta e metadados de cada requisição."""
     start_time = time.perf_counter()
-    
+
     # Geramos um ID único para a requisição para rastrear no Axiom
     request_id = str(uuid.uuid4())
-    
+
     # "Amarramos" o ID e o contexto básico a todos os logs gerados nesta request
     structlog.contextvars.clear_contextvars()
     structlog.contextvars.bind_contextvars(
@@ -66,19 +75,19 @@ async def logging_middleware(request: Request, call_next):
 
     try:
         response = await call_next(request)
-        
+
         process_time = time.perf_counter() - start_time
         duration_ms = round(process_time * 1000, 2)
-        
+
         # Log de sucesso da requisição
         logger.info(
             "HTTP Request Processed",
             status_code=response.status_code,
             duration_ms=duration_ms,
             module="HTTP_MIDDLEWARE",
-            action="request_finished"
+            action="request_finished",
         )
-        
+
         # Adicionamos o request_id no header da resposta (útil para suporte)
         response.headers["X-Request-ID"] = request_id
         return response
@@ -92,7 +101,7 @@ async def logging_middleware(request: Request, call_next):
             duration_ms=round(process_time * 1000, 2),
             module="HTTP_MIDDLEWARE",
             action="request_error",
-            exc_info=True
+            exc_info=True,
         )
         raise e
 
@@ -105,9 +114,9 @@ async def app_error_handler(request: Request, exc: AppError):
         nome=exc.nome,
         status_code=exc.status_code,
         module="EXCEPTION_HANDLER",
-        action="app_error"
+        action="app_error",
     )
-    
+
     return JSONResponse(
         status_code=exc.status_code,
         content={
@@ -130,7 +139,7 @@ async def general_exception_handler(request: Request, exc: Exception):
         error=str(exc),
         module="EXCEPTION_HANDLER",
         action="general_error",
-        exc_info=True
+        exc_info=True,
     )
 
     return JSONResponse(

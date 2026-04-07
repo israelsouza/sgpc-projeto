@@ -1,8 +1,10 @@
 import os
+from typing import Any
+
 import structlog
 from axiom_py import Client
 from axiom_py.structlog import AxiomProcessor
-from typing import Any
+
 
 def setup_logger():
     """
@@ -10,7 +12,7 @@ def setup_logger():
     - Desenvolvimento: Console colorido e legível.
     - Produção (Vercel + Axiom): JSON estruturado enviado via HTTP.
     """
-    
+
     is_production = os.getenv("VERCEL") is not None
     axiom_token = os.getenv("AXIOM_TOKEN")
     axiom_dataset = os.getenv("AXIOM_DATASET")
@@ -47,6 +49,7 @@ def setup_logger():
         logger_factory=structlog.PrintLoggerFactory(),
         cache_logger_on_first_use=True,
     )
+
 
 # Inicializa as configurações ao importar o módulo
 setup_logger()

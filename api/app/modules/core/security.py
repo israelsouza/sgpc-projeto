@@ -33,7 +33,7 @@ async def get_current_user(
     Retorna o objeto Usuario com perfis e permissões carregados.
     """
     log = logger.bind(module="SECURITY", action="get_current_user")
-    
+
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         usuario_id: str = payload.get("sub")
@@ -71,10 +71,10 @@ class RequirePermission:
 
     async def __call__(self, usuario=Depends(get_current_user)):
         log = logger.bind(
-            module="SECURITY", 
-            action="check_permission", 
+            module="SECURITY",
+            action="check_permission",
             permissao_requerida=self.permissao,
-            usuario_id=usuario.id
+            usuario_id=usuario.id,
         )
 
         # 1. Bypass para ADMIN (Sistema)
@@ -104,10 +104,10 @@ def validar_escopo_condominio(usuario, condominio_id_alvo: int):
     Levanta ForbiddenError se o escopo for inválido.
     """
     log = logger.bind(
-        module="SECURITY", 
-        action="validate_scope", 
+        module="SECURITY",
+        action="validate_scope",
         condominio_alvo=condominio_id_alvo,
-        usuario_id=usuario.id
+        usuario_id=usuario.id,
     )
 
     # 1. Verificar Condomínio via Funcionário

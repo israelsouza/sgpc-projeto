@@ -1,9 +1,9 @@
 from app.modules.autenticacao.autenticacao_schema import LoginSchema
 from app.modules.core.auth import create_access_token
 from app.modules.core.core_exception import ValidationError
+from app.modules.core.logger import logger
 from app.modules.core.security import verificar_senha
 from app.modules.usuario.usuario_model import UsuarioModel
-from app.modules.core.logger import logger
 from prisma import Prisma
 
 
@@ -14,7 +14,7 @@ class AutenticacaoService:
         Realiza o login do usuário, validando credenciais e gerando token JWT.
         """
         log = logger.bind(module="AUTENTICACAO", action="login", email=dados.email)
-        
+
         usuario = await UsuarioModel.buscar_por_email(
             dados.email, db, includes={"perfis": True, "morador": True}
         )
