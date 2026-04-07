@@ -1,6 +1,9 @@
+from datetime import UTC, datetime
+
 import pytest
 
 from app.db.prisma_client import db
+from app.modules.core.auth import create_access_token
 
 
 @pytest.mark.anyio
@@ -28,18 +31,37 @@ async def test_sindico_nao_pode_gerar_chave_admin(client):
         },
     )
 
-    # Vincular o Síndico ao Condomínio
-    await db.funcionario.create(
+    # Vincular o Síndico ao Condomínio com DADOS OBRIGATÓRIOS
+    await db.funcionario.upsert(
+        where={"usuario_id": sindico_user.id},
         data={
-            "usuario_id": sindico_user.id,
-            "condominio_id": condo.id,
-            "cargo": "SINDICO",
-            "status": "ATIVO",
+            "create": {
+                "usuario": {"connect": {"id": sindico_user.id}},
+                "condominio": {"connect": {"id": condo.id}},
+                "nome_completo": "Síndico de Teste",
+                "celular": "(11) 91111-2222",
+                "cpf": "000.111.222-33",
+                "rg": "123456",
+                "data_nascimento": datetime(1980, 5, 5, tzinfo=UTC),
+                "cargo": "SINDICO",
+                "status": "ATIVO",
+            },
+            "update": {
+                "nome_completo": "Síndico de Teste",
+            },
+        },
+    )
+
+    # Gerar token para o Síndico
+    token = create_access_token(
+        data={
+            "sub": str(sindico_user.id),
+            "email": sindico_user.email,
+            "roles": ["SINDICO"],
         }
     )
 
-    # 2. Tentar gerar uma chave para ADMIN usando o ID do Síndico
-    # (Simulando que o Controller recebe o ID do usuário logado via query params mock)
+    # 2. Tentar gerar uma chave para ADMIN
     payload = {
         "validade_em_horas": 1,
         "perfil_id": perfil_admin.id,
@@ -47,17 +69,15 @@ async def test_sindico_nao_pode_gerar_chave_admin(client):
     }
 
     resp = await client.post(
-        f"/api/auth/chave-acesso?usuario_id={sindico_user.id}", json=payload
+        "/api/auth/chave-acesso",
+        json=payload,
+        headers={"Authorization": f"Bearer {token}"},
     )
 
     # 3. Validar que a ação foi bloqueada
     assert resp.status_code == 400
     assert resp.json()["nome"] == "permissao_negada"
     assert "não tem permissão" in resp.json()["mensagem"]
-
-    # Limpeza
-    await db.funcionario.delete_many(where={"usuario_id": sindico_user.id})
-    await db.usuario.delete(where={"id": sindico_user.id})
 
 
 @pytest.mark.anyio
@@ -97,16 +117,36 @@ async def test_sindico_nao_pode_gerar_chave_outro_condominio(client):
         },
     )
 
-    await db.funcionario.create(
+    await db.funcionario.upsert(
+        where={"usuario_id": sindico_user.id},
         data={
-            "usuario_id": sindico_user.id,
-            "condominio_id": condo_base.id,
-            "cargo": "SINDICO",
-            "status": "ATIVO",
+            "create": {
+                "usuario": {"connect": {"id": sindico_user.id}},
+                "condominio": {"connect": {"id": condo_base.id}},
+                "nome_completo": "Síndico Base",
+                "celular": "(11) 92222-3333",
+                "cpf": "444.555.666-77",
+                "rg": "654321",
+                "data_nascimento": datetime(1975, 8, 10, tzinfo=UTC),
+                "cargo": "SINDICO",
+                "status": "ATIVO",
+            },
+            "update": {
+                "nome_completo": "Síndico Base",
+            },
+        },
+    )
+
+    # Gerar token para o Síndico
+    token = create_access_token(
+        data={
+            "sub": str(sindico_user.id),
+            "email": sindico_user.email,
+            "roles": ["SINDICO"],
         }
     )
 
-    # 2. Tentar gerar uma chave para o Outro Condomínio sendo Síndico do Condomínio Base
+    # 2. Tentar gerar uma chave para o Outro Condomínio
     payload = {
         "validade_em_horas": 1,
         "perfil_id": perfil_morador.id,
@@ -114,15 +154,12 @@ async def test_sindico_nao_pode_gerar_chave_outro_condominio(client):
     }
 
     resp = await client.post(
-        f"/api/auth/chave-acesso?usuario_id={sindico_user.id}", json=payload
+        "/api/auth/chave-acesso",
+        json=payload,
+        headers={"Authorization": f"Bearer {token}"},
     )
 
     # 3. Validar que foi bloqueado
     assert resp.status_code == 400
     assert resp.json()["nome"] == "permissao_negada"
     assert "só pode gerar chaves para o condomínio onde atua" in resp.json()["mensagem"]
-
-    # Limpeza
-    await db.funcionario.delete_many(where={"usuario_id": sindico_user.id})
-    await db.usuario.delete(where={"id": sindico_user.id})
-    await db.condominio.delete(where={"id": outro_condo.id})
