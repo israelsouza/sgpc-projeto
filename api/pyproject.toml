@@ -49,6 +49,9 @@ indent-style = "space"
 testpaths = ["tests"]
 pythonpath = ["."]
 
+[tool.prisma]
+seed = "python prisma/seed.py"
+
 [dependency-groups]
 dev = [
     "ruff (>=0.15.7,<0.16.0)",
