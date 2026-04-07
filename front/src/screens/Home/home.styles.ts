@@ -24,16 +24,16 @@ export const styles = StyleSheet.create({
     gap: 12,
   },
   avatar:{
-    width: 46,
-    height: 46,
-    borderRadius: 23,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
   },
   avatarText: {
     color: colors.textLight,
-    fontSize: 15,
+    fontSize: 20,
     fontWeight: "700",
   },
   headerTitle: {
