@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 import pytest
 from httpx import ASGITransport, AsyncClient
 
@@ -99,7 +101,7 @@ async def setup_db():
 
     # 4. Criar Usuário Admin de Teste para o Controller
     perfil_admin = await db.perfil.find_unique(where={"nome": "ADMIN"})
-    await db.usuario.upsert(
+    admin_user = await db.usuario.upsert(
         where={"email": "admin@teste.com"},
         data={
             "create": {
@@ -109,6 +111,25 @@ async def setup_db():
                 "perfis": {"connect": [{"id": perfil_admin.id}]},
             },
             "update": {"email": "admin@teste.com"},
+        },
+    )
+
+    # 4.1 Vincular Admin ao Condomínio para passar na regra de escopo (Fase 2.4)
+    await db.funcionario.upsert(
+        where={"usuario_id": admin_user.id},
+        data={
+            "create": {
+                "usuario_id": admin_user.id,
+                "condominio_id": condo.id,
+                "nome_completo": "Administrador Global",
+                "celular": "(00) 00000-0000",
+                "cpf": "000.000.000-00",
+                "rg": "000000",
+                "data_nascimento": datetime(1970, 1, 1, tzinfo=UTC),
+                "cargo": "ADMIN",
+                "status": "ATIVO",
+            },
+            "update": {"condominio_id": condo.id},
         },
     )
 

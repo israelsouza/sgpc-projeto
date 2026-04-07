@@ -68,6 +68,8 @@ ex: no diretorio `/api/app/modules/usuario` teremos o modulo de usuario, e dentr
 - O nome das pastas dentro de `/modules` na `API` deve ser em português e no singular (ex: `usuario`, `unidade`, etc)
 - Padrão de Permissões (RBAC): As permissões no banco de dados devem seguir o formato `<acao>:<funcionalidade>` (ex: `criar:veiculo`, `ler:usuario`, `atualizar:morador`, `deletar:unidade`). As ações padrão são: `criar`, `ler`, `atualizar`, `deletar`.
 - Sempre rode o script de lint, formatação e testes automatizados após cada fase concluída para garantir a consistência e integridade do código.
+- Ao avançar para uma nova etapa de um planejamento (ex: 2.4, 2.5), explique obrigatoriamente **o que será feito** e **por que é importante** para a arquitetura e evolução do projeto.
+- Sempre que o usuário demonstrar interesse em compartilhar um tópico, assunto ou abordagem técnica em redes sociais (ex: LinkedIn), prepare obrigatoriamente um prompt otimizado para o Google Gemini criar um post atrativo, fornecendo o contexto técnico necessário do projeto para garantir a qualidade da resposta.
 - Após a conclusão de cada fase de um planejamento (Research, Strategy, Execution ou fases de um documento de plano), você deve obrigatoriamente solicitar ao usuário se deseja realizar o commit das alterações antes de prosseguir para a próxima fase.
 - O terminal utilizado no projeto é o PowerShell. Nunca utilize `&&` para encadear comandos; utilize o ponto e vírgula `;` no lugar.
 

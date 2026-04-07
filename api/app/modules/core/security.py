@@ -1,10 +1,11 @@
 import bcrypt
 import jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 
 from app.db.prisma_client import get_prisma
 from app.modules.core.auth import ALGORITHM, SECRET_KEY
+from app.modules.core.core_exception import ForbiddenError, UnauthorizedError
 from prisma import Prisma
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
@@ -30,18 +31,13 @@ async def get_current_user(
     Dependência para extrair o usuário atual do token JWT.
     Retorna o objeto Usuario com perfis e permissões carregados.
     """
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Não foi possível validar as credenciais.",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         usuario_id: str = payload.get("sub")
         if usuario_id is None:
-            raise credentials_exception
+            raise UnauthorizedError()
     except jwt.PyJWTError:
-        raise credentials_exception
+        raise UnauthorizedError()
 
     usuario = await db.usuario.find_unique(
         where={"id": int(usuario_id)},
@@ -53,7 +49,7 @@ async def get_current_user(
     )
 
     if usuario is None:
-        raise credentials_exception
+        raise UnauthorizedError(mensagem="Usuário não encontrado no sistema.")
 
     return usuario
 
@@ -81,9 +77,32 @@ class RequirePermission:
 
         # 3. Validar a permissão requerida
         if self.permissao not in permissoes_usuario:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Você não tem a permissão necessária: {self.permissao}",
+            raise ForbiddenError(
+                mensagem=f"Você não tem a permissão necessária: {self.permissao}"
             )
 
         return True
+
+
+def validar_escopo_condominio(usuario, condominio_id_alvo: int):
+    """
+    Verifica se o usuário tem permissão para acessar o condomínio alvo.
+    Levanta ForbiddenError se o escopo for inválido.
+    """
+    # 1. Verificar Condomínio via Funcionário
+    if usuario.funcionario and usuario.funcionario.condominio_id == condominio_id_alvo:
+        return True
+
+    # 3. Verificar Condomínio via Morador (através da Unidade)
+    if (
+        usuario.morador
+        and usuario.morador.unidade
+        and usuario.morador.unidade.condominio_id == condominio_id_alvo
+    ):
+        return True
+
+    # 4. Se chegou aqui, o usuário está tentando acessar um condomínio que não é dele
+    raise ForbiddenError(
+        mensagem="Acesso negado: Este recurso não pertence ao seu condomínio.",
+        acao="Certifique-se de que você está no contexto correto do seu condomínio.",
+    )
