@@ -2,7 +2,6 @@ import React from "react";
 import { View, Text, TouchableOpacity, StatusBar, ScrollView, TextInput } from "react-native";
 import { Feather, MaterialIcons, Ionicons } from "@expo/vector-icons";
 
-// Importando seus estilos padronizados
 import { styles } from "@/screens/Nova_Entrega/nova_entrega.styles";
 import { footerStyles } from "@/screens/Documentos/Footer_padrao";
 
@@ -83,7 +82,7 @@ export default function NewDeliveryScreen() {
         </View>
       </ScrollView>
 
-      {/* FOOTER PADRONIZADO (REUTILIZADO) */}
+      {/* FOOTER PADRONIZADO */}
       <View style={footerStyles.footer}>
         <TouchableOpacity style={footerStyles.footerItem}>
           <Feather name="home" size={26} color="black" />
