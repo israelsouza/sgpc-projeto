@@ -8,7 +8,7 @@ export default function HomeScreen() {
       <Text style={styles.subtitle}>Home Screen</Text>
       <Link href="/login" style={styles.link}>
         Ir para Login
-      </Link>
+      </Link>      
     </View>
   );
 }
