@@ -1,43 +1,44 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Dimensions } from "react-native";
 import { colors, palette } from "@/theme/colors";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-     backgroundColor: colors.primaryDark,
+    backgroundColor: colors.primaryDark,
   },
 
-    ContainerFundo:{
+  ContainerFundo: {
     width: "95%",
     height: "80%",
     backgroundColor: palette.offWhite,
     borderRadius: 10,
-    display: "flex",
-},
+  },
 
-ContainerFundoContent: {
-  alignItems: "stretch",   // ou o que você tinha antes
-  paddingHorizontal: 16,
-  paddingBottom: 24,
-  gap: 20
-},
+  ContainerFundoContent: {
+    alignItems: "stretch",
+    paddingHorizontal: 16,
+    paddingBottom: 24,
+    gap: 20,
+  },
 
-    ContainerTextData:{
+  ContainerTextData: {
     justifyContent: "center",
-    alignSelf:"baseline",
+    alignSelf: "baseline",
     margin: 20,
-    },
+  },
 
-    TextDataMain:{
-    color:palette.lightBrown,
-    fontFamily:"InterBold",
-    fontSize:13
-    },
+  TextDataMain: {
+    color: palette.lightBrown,
+    fontFamily: "InterBold",
+    fontSize: 13,
+  },
 
-    Listado:{
+  Listado: {
     width: "100%",
     backgroundColor: "#FFFF",
-    flexDirection:"row",
+    flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -47,48 +48,124 @@ ContainerFundoContent: {
     shadowOpacity: 0.06,
     shadowRadius: 4,
     elevation: 2,
-    },
+  },
 
-    ContainerIcon:{
+  ContainerIcon: {
     width: 52,
     height: 52,
     backgroundColor: palette.brown,
-    alignItems:"center",
-    justifyContent:"center",
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 14,
-    borderRadius: 10
-},
+    borderRadius: 10,
+  },
 
-    ContainerBody:{
-    flex:1,
-    justifyContent:"center",
-    gap:4,
-    },
+  ContainerBody: {
+    flex: 1,
+    justifyContent: "center",
+    gap: 4,
+  },
 
-    TextTitle:{
-    fontFamily:"InterBold",
-    fontSize: 13
-    },
-
-    TextDesc:{
-    fontFamily:"InterBold",
+  TextTitle: {
+    fontFamily: "InterBold",
     fontSize: 13,
-    color:palette.darkGray
-    },
+  },
 
-    ContainerData:{
-    alignItems:"flex-end",
-    justifyContent:"center",
-    gap:4
-    },
-
-    TextData:{
-    fontFamily:"InterBold",
+  TextDesc: {
+    fontFamily: "InterBold",
     fontSize: 13,
-    color:palette.darkGray
-    },
+    color: palette.darkGray,
+  },
 
-    icon:{
-        color:palette.darkBrown
-    }
-})
+  ContainerData: {
+    alignItems: "flex-end",
+    justifyContent: "center",
+    gap: 4,
+  },
+
+  TextData: {
+    fontFamily: "InterBold",
+    fontSize: 13,
+    color: palette.darkGray,
+  },
+
+  icon: {
+    color: palette.darkBrown,
+  },
+
+  // ─── Modal ──────────────────────────────────────────────────────────────────
+
+  // BlurView ocupa a tela toda
+  ModalBlur: {
+    flex: 1,
+  },
+
+  // Pressable transparente que fecha o modal ao tocar fora do card
+  ModalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  // Card branco centralizado
+  ModalCard: {
+    width: SCREEN_WIDTH * 0.85,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    padding: 24,
+    gap: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 20,
+    elevation: 12,
+  },
+
+  // Botão X no canto superior direito
+  ModalBotaoFechar: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    padding: 4,
+  },
+
+
+  //CONTEÚDO DO MODAL
+  Containerprincipal: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    paddingRight: 24, 
+  },
+
+  CardAberto: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  Divisao: {
+    height: 1,
+    backgroundColor: "#F0F0F0",
+  },
+
+  infosData: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+
+  ContainerAberto: {
+    gap: 12,
+  },
+
+  ContainerDataModal:{
+    alignItems: "flex-start",
+    justifyContent: "center",
+    gap: 4,
+  }
+
+});
