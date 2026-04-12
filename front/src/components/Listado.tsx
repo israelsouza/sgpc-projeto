@@ -1,6 +1,6 @@
-import { useState } from "react";
+  import { useState } from "react";
 import { View, TouchableOpacity, Text, SectionList, Modal, Pressable } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { styles } from "@/screens/Home/Listado.styles";
 import { useFonts } from "expo-font";
@@ -70,7 +70,7 @@ export const listadoMock: componenteList[] = [
     autor:"Paulo",
     data: "01/04/26",
     hora: "11:30",
-    icone: "dollar-sign",
+    icone: "cash",
     mesAno: "Abril 2026",
     cor: coresPorCategoria["pagamento"],
     corIcon: coresPorIcone["pagamento"],
@@ -83,7 +83,7 @@ export const listadoMock: componenteList[] = [
     autor:"Paulo",
     data: "05/04/26",
     hora: "16:20",
-    icone: "file-text",
+    icone: "document",
     mesAno: "Abril 2026",
     cor: coresPorCategoria["documento"],
     corIcon: coresPorIcone["documento"],
@@ -96,12 +96,24 @@ export const listadoMock: componenteList[] = [
     autor:"Paulo",
     data: "08/04/26",
     hora: "08:45",
-    icone: "clock",
+    icone: "time",
     mesAno: "Abril 2026",
     cor: coresPorCategoria["solicitacao"],
     corIcon: coresPorIcone["solicitacao"],
   },
 ];
+
+export type componenteAgendamento = {
+    id: string;
+    espaco: string;
+    icone: string;
+    corIcone: string;
+    cor: string;
+    data: string;
+    hora: string;
+    autor:string;
+}
+
 
 function agruparMes(items: componenteList[]) {
   const grupos: Record<string, componenteList[]> = {};
@@ -113,16 +125,30 @@ function agruparMes(items: componenteList[]) {
 }
 
 /* MODAL PARA VISUALIZAÇÃO COM HOVER */
-function DetalhesModal({
+export function DetalhesModal({
   item,
   onClose,
+  onDelete,
 }: {
   item: componenteList | null;
   onClose: () => void;
+  onDelete?: () => void;
 }) {
-  if (!item) return null;
+    const [confirmExclusao, setConfirmExclusao] = useState(false);
+  
+    if (!item) return null;
 
-  return (
+    function handleDelete() {
+        if (!confirmExclusao){
+            setConfirmExclusao(true);
+        } else {
+            onDelete?.();
+            onClose();
+        }
+
+    }
+
+    return (
     <Modal
       visible={!!item}
       transparent
@@ -131,19 +157,18 @@ function DetalhesModal({
     >
       <BlurView intensity={40} tint="dark" style={styles.ModalBlur}>
         <Pressable style={styles.ModalOverlay} onPress={onClose}>
-
-          {/* e.stopPropagation() evita fechar ao tocar dentro do card */}
+ 
           <Pressable style={styles.ModalCard} onPress={(e) => e.stopPropagation()}>
-
+ 
             {/* Botão fechar */}
             <TouchableOpacity style={styles.ModalBotaoFechar} onPress={onClose}>
-              <Feather name="x" size={18} color="#888" />
+              <Ionicons name="close" size={18} color="#888" />
             </TouchableOpacity>
-
-            {/* Ícone + título + subtítulo */}
+ 
+            {/* Ícone + título + autor + subtítulo */}
             <View style={styles.Containerprincipal}>
               <View style={[styles.CardAberto, { backgroundColor: item.cor }]}>
-                <Feather name={item.icone as any} size={22} color={item.corIcon} />
+                <Ionicons name={item.icone as any} size={22} color={item.corIcon} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.TextTitle}>{item.titulo}</Text>
@@ -151,34 +176,52 @@ function DetalhesModal({
                 <Text style={styles.TextDesc}>{item.subtitulo}</Text>
               </View>
             </View>
-
+ 
             <View style={styles.Divisao} />
-                <Text style={styles.TextDesc}>Descrição: {item.descricao}</Text>
-
+ 
+            <Text style={styles.TextDesc}>Descrição: {item.descricao}</Text>
+ 
             {/* Data e hora */}
             <View style={styles.ContainerDataModal}>
               <View style={styles.infosData}>
-                <Feather name="calendar" size={14} color={item.corIcon} />
+                <Ionicons name="calendar" size={14} color={item.corIcon} />
                 <Text style={styles.TextData}>{item.data}</Text>
               </View>
               <View style={styles.infosData}>
-                <Feather name="clock" size={14} color={item.corIcon} />
+                <Ionicons name="time" size={14} color={item.corIcon} />
                 <Text style={styles.TextData}>{item.hora}</Text>
               </View>
             </View>
-
-
-            <View style={styles.infosData}>
-              <Feather name="tag" size={14} color={item.corIcon} />
-              <Text style={styles.TextData}>{item.mesAno}</Text>
-            </View>
-
+ 
+            {/* Botão excluir — só renderiza se onDelete for passado */}
+            {onDelete && (
+              <TouchableOpacity
+                style={[
+                  styles.ModalBotaoExcluir,
+                  confirmExclusao && styles.ModalBotaoExcluirConfirmando,
+                ]}
+                onPress={handleDelete}
+              >
+                <Ionicons
+                  name={confirmExclusao ? "alert-circle" : "trash"}
+                  size={16}
+                  color="#fff"
+                />
+                <Text style={styles.ModalBotaoExcluirTexto}>
+                  {confirmExclusao ? "Confirmar exclusão" : "Excluir"}
+                </Text>
+              </TouchableOpacity>
+            )}
+ 
           </Pressable>
         </Pressable>
       </BlurView>
     </Modal>
   );
 }
+ 
+
+
 
 /* COMPONENTE PRINCIPAL QUE SERÁ RENDENIZADO NAS TELAS */
 
@@ -216,7 +259,7 @@ export default function ListadoCenter() {
             activeOpacity={0.7}
           >
             <View style={[styles.ContainerIcon, { backgroundColor: item.cor }]}>
-              <Feather
+              <Ionicons
                 name={item.icone as any}
                 size={24}
                 style={[styles.icon, { color: item.corIcon }]}

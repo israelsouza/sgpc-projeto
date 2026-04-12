@@ -17,6 +17,7 @@ export const styles = StyleSheet.create({
   },
 
   ContainerFundoContent: {
+    marginTop: 20,
     alignItems: "stretch",
     paddingHorizontal: 16,
     paddingBottom: 24,
@@ -32,7 +33,8 @@ export const styles = StyleSheet.create({
   TextDataMain: {
     color: palette.lightBrown,
     fontFamily: "InterBold",
-    fontSize: 13,
+    fontSize: 15,
+    padding: 20
   },
 
   Listado: {
@@ -93,14 +95,71 @@ export const styles = StyleSheet.create({
     color: palette.darkBrown,
   },
 
-  // ─── Modal ──────────────────────────────────────────────────────────────────
+  /*************************************************************************************** MODAL **********************************************************************************************************************/
 
-  // BlurView ocupa a tela toda
   ModalBlur: {
     flex: 1,
   },
 
-  // Pressable transparente que fecha o modal ao tocar fora do card
+    ModalBotaoExcluir: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+    backgroundColor: palette.accent,
+    borderRadius: 10,
+    padding: 20
+  },
+
+  TextCancelar:{
+    fontFamily: "InterBold",
+    fontSize: 14,
+    color: "#B07850",
+    padding:10
+  },
+
+  selecionarReservaMark:{
+    backgroundColor: "transparent",
+    borderWidth: 2,
+    borderColor:palette.accent,
+    borderRadius: 10,
+},
+
+  TextExcluirPress:{
+    fontFamily: "InterMedium",
+    fontSize: 14,
+    color: colors.textLight,
+  },
+
+    ModalBotaoCancelar: {
+    padding: 20,
+    borderRadius: 12,
+    backgroundColor: "#B07850",
+    alignItems: "center",
+    fontSize:14,
+  },
+  
+  ModalBotaoCancelarPress:{
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: "#B07850",
+    alignItems: "center",
+    justifyContent: "center"
+    
+  },
+
+  ModalBotaoExcluirConfirmando: {
+    backgroundColor: palette.accent,
+    padding:15,
+    gap:10
+  },
+  
+  ModalBotaoExcluirTexto: {
+    color: "#fff",
+    fontFamily: "InterBold",
+    fontSize: 14,
+    },
+
   ModalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.45)",
@@ -108,7 +167,6 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
-  // Card branco centralizado
   ModalCard: {
     width: SCREEN_WIDTH * 0.85,
     backgroundColor: "#FFFFFF",
@@ -122,14 +180,12 @@ export const styles = StyleSheet.create({
     elevation: 12,
   },
 
-  // Botão X no canto superior direito
   ModalBotaoFechar: {
     position: "absolute",
     top: 16,
     right: 16,
     padding: 4,
   },
-
 
   //CONTEÚDO DO MODAL
   Containerprincipal: {

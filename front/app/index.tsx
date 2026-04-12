@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 import { Link } from "expo-router";
-import ListadoCenter from "@/components/Listado";
+import AgendamentoScreen from "@/components/Agendamento";
 
 export default function HomeScreen() {
   return (
@@ -11,7 +11,7 @@ export default function HomeScreen() {
         Ir para Login
       </Link>
 
-      <ListadoCenter/>
+      <AgendamentoScreen/>
     </View>
   );
 }
