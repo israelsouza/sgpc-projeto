@@ -11,7 +11,7 @@ export default function HomeScreen() {
         Ir para Login
       </Link>
 
-      <ListadoCenter/>
+
     </View>
   );
 }
