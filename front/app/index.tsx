@@ -11,7 +11,6 @@ export default function HomeScreen() {
         Ir para Login
       </Link>
 
-      <AgendamentoScreen/>
     </View>
   );
 }
