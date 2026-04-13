@@ -13,6 +13,9 @@ export default function AllDeliveries() {
           <Text style={styles.headerTitle}>Todas Entregas</Text>
           <Text style={styles.headerSubtitle}>4 registros</Text>
         </View>
+        <TouchableOpacity style={{ position: 'absolute', right: 20 }}>
+        <Feather name="more-horizontal" size={28} color="white" />
+        </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -28,16 +31,16 @@ export default function AllDeliveries() {
       </ScrollView>
       <View style={footerStyles.footer}>
         <TouchableOpacity style={footerStyles.footerItem}>
-          <Feather name="home" size={26} color="black" />
+          <Feather name="home" size={26} color="#999" />
         </TouchableOpacity>
         <TouchableOpacity style={footerStyles.footerItem}>
-          <MaterialIcons name="history" size={28} color="black" />
+          <MaterialIcons name="history" size={28} color="#999" />
         </TouchableOpacity>
         <TouchableOpacity style={footerStyles.footerItem}>
-          <Ionicons name="megaphone-outline" size={26} color="black" />
+          <Ionicons name="megaphone-outline" size={26} color="#999" />
         </TouchableOpacity>
         <TouchableOpacity style={footerStyles.footerItem}>
-          <Feather name="user" size={26} color="black" />
+          <Feather name="user" size={26} color="#999" />
         </TouchableOpacity>
       </View>
     </View>

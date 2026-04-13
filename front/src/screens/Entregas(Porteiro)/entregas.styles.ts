@@ -4,7 +4,10 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F7F3EE",
-  },
+},
+  contentWrapper: {
+  flex: 1,
+},
   // --- HEADER PADRÃO ---
   header: {
     height: 120,
