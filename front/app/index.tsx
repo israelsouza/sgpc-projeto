@@ -1,7 +1,5 @@
 import { View, Text, StyleSheet } from "react-native";
 import { Link } from "expo-router";
-import AgendamentoScreen from "@/components/Agendamento";
-
 export default function HomeScreen() {
   return (
     <View style={styles.container}>
@@ -10,7 +8,6 @@ export default function HomeScreen() {
       <Link href="/login" style={styles.link}>
         Ir para Login
       </Link>
-
     </View>
   );
 }
