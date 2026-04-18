@@ -95,12 +95,11 @@ export const styles = StyleSheet.create({
     fontFamily: "InterBold",
     marginBottom: 6,
   },
-
+  
   input: {
     fontSize: 14,
     fontFamily:"interMedium",
     color: palette.negro,
-    height: 25
   },
 
   anexarCard: {
@@ -112,12 +111,13 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    gap: 25,
   },
  
   containerBotao:{
     flexDirection: "row",
     marginTop: 15,
-    justifyContent:"space-evenly"
+    justifyContent:"space-evenly",
   },
 
   btnEnviar: {
@@ -203,7 +203,7 @@ optionButton: {
 
 optionText: {
   fontSize: 16,
-  fontFamily: "InterRegular",
+  fontFamily: "InterMedium",
   color: colors.textDark,
 },
 

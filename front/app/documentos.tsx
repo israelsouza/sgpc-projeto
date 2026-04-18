@@ -18,6 +18,7 @@ export default function DocumentsScreen() {
   const [openSelect, setOpenSelect] = useState(false);
   const [showForm, setShowForm] = useState(false);       
   const [tipoDocumento, setTipoDocumento] = useState(""); 
+  const [placeHolder, setPlaceHolder] = useState("Ex: Alvará de demolição");
 
   const handleAddDocument = () => {
     setOpenSelect(true);
@@ -67,8 +68,10 @@ export default function DocumentsScreen() {
               <Text style={styles.label}>Tipo documento</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Ex: Alvará de demolição"
+                placeholder={placeHolder}
                 placeholderTextColor={palette.darkBrown}
+                onFocus={() => setPlaceHolder('')}
+                onBlur={() => setPlaceHolder("Ex: Alvará de demolição")}
                 value={tipoDocumento}
                 onChangeText={setTipoDocumento}
               />
