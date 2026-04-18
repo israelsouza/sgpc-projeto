@@ -15,6 +15,11 @@ class MoradorModel:
         return await db.morador.find_unique(where={"cpf": cpf, "deletado_em": None})
 
     @staticmethod
+    async def buscar_por_celular(celular: str, db: Prisma):
+        """Busca morador por celular para validação de unicidade."""
+        return await db.morador.find_first(where={"celular": celular, "deletado_em": None})
+
+    @staticmethod
     async def criar(data: dict, db: Prisma):
         """Persiste um novo morador (pode ser usado dentro de transação)."""
         return await db.morador.create(data=data)

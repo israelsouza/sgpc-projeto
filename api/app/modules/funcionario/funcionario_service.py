@@ -35,6 +35,14 @@ class FuncionarioService:
                 acao="Procure a administração.",
             )
 
+        celular_existente = await FuncionarioModel.buscar_por_celular(dados.celular, db)
+        if celular_existente:
+            raise ValidationError(
+                nome="celular_em_uso",
+                mensagem="Número de celular já cadastrado.",
+                acao="Verifique se você já possui cadastro ou procure a administração.",
+            )
+
         # Validar formato DDMMAAAA
         try:
             datetime.strptime(dados.data_nascimento, "%d%m%Y")
