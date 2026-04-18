@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import HTTPException, status
 
 from app.modules.chave.chave_service import ChaveService
@@ -39,6 +41,16 @@ class MoradorService:
                 nome="cpf_em_uso",
                 mensagem="CPF já cadastrado.",
                 acao="Procure a administração.",
+            )
+
+        # Validar formato DDMMAAAA
+        try:
+            datetime.strptime(dados.data_nascimento, "%d%m%Y")
+        except ValueError:
+            raise ValidationError(
+                nome="data_invalida",
+                mensagem="Data de nascimento inválida. Use o formato DDMMAAAA.",
+                acao="Corrija a data informada.",
             )
 
         # 3. Transação

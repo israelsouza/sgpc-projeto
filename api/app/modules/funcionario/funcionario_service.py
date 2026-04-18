@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import HTTPException
 
 from app.modules.chave.chave_service import ChaveService
@@ -7,7 +9,6 @@ from app.modules.funcionario.funcionario_model import FuncionarioModel
 from app.modules.funcionario.funcionario_schema import FuncionarioRegistroCreate
 from app.modules.usuario.usuario_model import UsuarioModel
 from prisma import Prisma
-
 
 class FuncionarioService:
     @staticmethod
@@ -32,6 +33,16 @@ class FuncionarioService:
                 nome="cpf_em_uso",
                 mensagem="Este CPF já está cadastrado para um funcionário.",
                 acao="Procure a administração.",
+            )
+
+        # Validar formato DDMMAAAA
+        try:
+            datetime.strptime(dados.data_nascimento, "%d%m%Y")
+        except ValueError:
+            raise ValidationError(
+                nome="data_invalida",
+                mensagem="Data de nascimento inválida. Use o formato DDMMAAAA.",
+                acao="Corrija a data informada.",
             )
 
         # 3. Transação

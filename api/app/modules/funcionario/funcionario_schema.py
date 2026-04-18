@@ -8,7 +8,7 @@ class FuncionarioBase(BaseModel):
     celular: str
     rg: str
     cpf: str
-    data_nascimento: datetime
+    data_nascimento: str
     cargo: str
     status: str = "PENDENTE"
 
@@ -23,7 +23,7 @@ class FuncionarioRegistroCreate(BaseModel):
     celular: str
     rg: str
     cpf: str
-    data_nascimento: datetime
+    data_nascimento: str
     email: EmailStr
     senha: str
     confirmacao_senha: str
