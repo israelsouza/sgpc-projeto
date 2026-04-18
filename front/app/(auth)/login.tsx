@@ -14,7 +14,7 @@ import {
 import { useRouter } from "expo-router";
 import { colors } from "@/theme/colors";
 import { styles } from "@/screens/Login/login.styles";
-import api from "@/services/api";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -25,7 +25,7 @@ export default function LoginScreen() {
   const [showKeyInput, setShowKeyInput] = useState(false);
   const [accessKey, setAccessKey] = useState("");
   
-  const [loading, setLoading] = useState(false);
+  const { loading, handleValidateKey } = useAuth();
 
   const handleLogin = async () => {
     if (!email || !senha) {
@@ -34,55 +34,6 @@ export default function LoginScreen() {
     }
     // TODO: Implementar login na Fase 2
     Alert.alert("Aviso", "Login será implementado na Fase 2");
-  };
-
-  const handleValidateKey = async () => {
-    if (!accessKey) {
-      Alert.alert("Erro", "Informe a chave de acesso");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      console.log("Validando chave:", accessKey);
-      const response = await api.get(`/chaves/validar/${accessKey}`);
-      console.log("Resposta da API:", response.data);
-      
-      const { perfil, condominio, unidade } = response.data.data;
-      console.log("Dados extraídos:", { perfil, condominio, unidade });
-
-      const navegarParaRegistro = () => {
-        router.push({
-          pathname: "/(auth)/Register",
-          params: { 
-            chave_acesso: accessKey,
-            perfil: perfil,
-            condominio: condominio
-          }
-        });
-      };
-
-      if (Platform.OS === 'web') {
-        // No web, o Alert.alert pode ser instável, usamos o confirm do navegador ou navegamos direto
-        navegarParaRegistro();
-      } else {
-        Alert.alert(
-          "Chave Validada",
-          `Perfil: ${perfil}\nCondomínio: ${condominio}${unidade ? `\nUnidade: ${unidade}` : ""}`,
-          [
-            {
-              text: "Continuar Cadastro",
-              onPress: navegarParaRegistro
-            }
-          ]
-        );
-      }
-    } catch (error: any) {
-      const msg = error.response?.data?.mensagem || "Chave inválida ou expirada";
-      Alert.alert("Erro", msg);
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (

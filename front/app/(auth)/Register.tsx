@@ -13,16 +13,18 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { colors } from "@/theme/colors";
 import { styles } from "@/screens/Register/Register.styles";
-import api from "@/services/api";
+import { useAuth } from "@/hooks/useAuth";
 import { registerStep1Schema, registerSchema } from "@/validation/authSchemas";
 
 export default function RegisterScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const { loading, handleRegistration } = useAuth();
 
   const { chave_acesso, perfil, condominio } = params;
 
-  const [formData, setFormData] = useState({
+  // Estados do Formulário
+  const [formData, setFormData] = useState<IRegisterForm>({
     nome_completo: "",
     email: "",
     senha: "",
@@ -35,12 +37,10 @@ export default function RegisterScreen() {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
 
   const handleChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Limpa erro do campo ao digitar
     if (errors[name]) {
       setErrors((prev) => {
         const newErrors = { ...prev };
@@ -57,8 +57,6 @@ export default function RegisterScreen() {
     });
 
     if (error) {
-      console.log(error);
-
       const newErrors: Record<string, string> = {};
       error.details.forEach((detail) => {
         newErrors[detail.path[0]] = detail.message;
@@ -85,25 +83,7 @@ export default function RegisterScreen() {
       return;
     }
 
-    setLoading(true);
-    try {
-      const endpoint =
-        perfil === "MORADOR"
-          ? "/moradores/registrar"
-          : "/funcionarios/registrar";
-      await api.post(endpoint, formData);
-
-      Alert.alert(
-        "Sucesso!",
-        "Seu cadastro foi realizado e está aguardando aprovação do síndico.",
-        [{ text: "OK", onPress: () => router.replace("/(auth)/login") }],
-      );
-    } catch (err: any) {
-      const msg = err.response?.data?.mensagem || "Erro ao realizar cadastro";
-      Alert.alert("Erro", msg);
-    } finally {
-      setLoading(false);
-    }
+    handleRegistration(formData, perfil as 'MORADOR' | 'FUNCIONARIO');
   };
 
   return (
