@@ -1,13 +1,39 @@
 import { useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import { AuthService } from '@/services/authService';
 import { IRegisterForm } from '@/types';
-import { registerStep1Schema, registerSchema } from '@/validation/authSchemas';
 
 export function useAuth() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  const handleLogin = async (dados: { email: string; senha: string }) => {
+    if (!dados.email || !dados.senha) {
+      Alert.alert("Erro", "Preencha e-mail e senha");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const authData = await AuthService.login(dados);
+      
+      // Salva o token de forma segura (SecureStore apenas aceita strings)
+      await SecureStore.setItemAsync('userToken', String(authData.access_token || ""));
+      await SecureStore.setItemAsync('userProfile', String(authData.perfil || ""));
+
+      // TODO: Redirecionar para a Home após o login
+      Alert.alert("Sucesso", "Login realizado com sucesso!", [
+        { text: "OK", onPress: () => router.replace("/Home/Home") }
+      ]);
+    } catch (error: any) {
+      const msg = error.response?.data?.mensagem || "E-mail ou senha incorretos";
+      Alert.alert("Erro", msg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleValidateKey = async (accessKey: string) => {
     if (!accessKey) {
@@ -35,9 +61,7 @@ export function useAuth() {
       } else {
         Alert.alert(
           "Chave Validada",
-          `Perfil: ${perfil}
-Condomínio: ${condominio}${unidade ? `
-Unidade: ${unidade}` : ""}`,
+          `Perfil: ${perfil}\nCondomínio: ${condominio}${unidade ? `\nUnidade: ${unidade}` : ""}`,
           [{ text: "Continuar Cadastro", onPress: navigateToRegister }]
         );
       }
@@ -68,6 +92,7 @@ Unidade: ${unidade}` : ""}`,
 
   return { 
     loading,
+    handleLogin,
     handleValidateKey,
     handleRegistration,
   };

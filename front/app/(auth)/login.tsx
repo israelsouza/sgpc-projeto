@@ -25,16 +25,7 @@ export default function LoginScreen() {
   const [showKeyInput, setShowKeyInput] = useState(false);
   const [accessKey, setAccessKey] = useState("");
   
-  const { loading, handleValidateKey } = useAuth();
-
-  const handleLogin = async () => {
-    if (!email || !senha) {
-      Alert.alert("Erro", "Preencha e-mail e senha");
-      return;
-    }
-    // TODO: Implementar login na Fase 2
-    Alert.alert("Aviso", "Login será implementado na Fase 2");
-  };
+  const { loading, handleLogin, handleValidateKey } = useAuth();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -83,8 +74,16 @@ export default function LoginScreen() {
               <Text style={styles.forgotText}>Esqueci a senha</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.btnPrimary} onPress={handleLogin}>
-              <Text style={styles.btnPrimaryText}>Entrar</Text>
+            <TouchableOpacity 
+              style={styles.btnPrimary} 
+              onPress={() => handleLogin({ email, senha })}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#FFF" />
+              ) : (
+                <Text style={styles.btnPrimaryText}>Entrar</Text>
+              )}
             </TouchableOpacity>
 
             <View style={styles.divider}>
@@ -118,7 +117,7 @@ export default function LoginScreen() {
 
             <TouchableOpacity 
               style={styles.btnPrimary} 
-              onPress={handleValidateKey}
+              onPress={() => handleValidateKey(accessKey)}
               disabled={loading}
             >
               {loading ? (
