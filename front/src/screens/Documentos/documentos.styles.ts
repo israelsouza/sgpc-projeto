@@ -35,14 +35,17 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     height: 70,
-    borderRadius: 15,
     paddingHorizontal: 15,
     marginBottom: 12,
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
     shadowRadius: 3,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.earthAccent,
   },
   listItemLeft: {
     flexDirection: 'row',
@@ -220,4 +223,86 @@ cancelText: {
   fontFamily: "InterBold",
   color: colors.textLight
 },
+
+//MODAL PARA BAIXAR OS PDF NO PERFIL DE USUÁRIO
+overlayPDFs:{
+  flex: 1,
+  backgroundColor: "rgba(0,0,0,0.5)",
+  justifyContent: "center",
+  padding: 16,
+},
+
+containerPDF:{
+  backgroundColor: "#FFF",
+  borderRadius: 16,
+  overflow: "hidden",
+  marginTop: 40,
+  marginBottom: 40,
+},
+
+headerPDFs:{
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  paddingHorizontal: 16,
+  paddingVertical: 14,
+  borderBottomWidth: 1,
+  borderBottomColor: "#E5E5E5",
+},
+
+titlePDFs:{
+  fontSize: 16,
+  fontWeight: "700",
+  flex: 1,
+  marginRight: 12,
+},
+
+loadingContainer:{
+  fontSize: 16,
+  fontWeight: "700",
+  flex: 1,
+  marginRight: 12,
+},
+
+loadingText:{
+  marginTop: 10
+},
+
+footerPDF:{
+  flexDirection: "row",
+  gap: 12,
+  padding: 16,
+  borderTopWidth: 1,
+  borderTopColor: "#E5E5E5",
+},
+
+downloadButtonPDF:{
+  flex: 1,
+  backgroundColor: palette.accent,
+  paddingVertical: 14,
+  borderRadius: 12,
+  alignItems: "center",
+  justifyContent: "center",
+},
+
+downloadTextPDF:{
+  color: colors.textLight,
+  fontFamily: "InterMedium",
+  fontSize: 16
+},
+
+closeButtonPDF:{
+  flex: 1,
+  backgroundColor: palette.offWhite,
+  paddingVertical: 14,
+  borderRadius: 12,
+  alignItems: "center",
+  justifyContent: "center",
+},
+
+closeTextPDF:{
+  fontFamily: "InterMedium",
+  fontSize: 16,
+  color: palette.negro
+}
 });

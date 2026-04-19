@@ -8,7 +8,7 @@ import {
 import { Ionicons, Feather, MaterialIcons } from "@expo/vector-icons";
 
 import { styles } from "@/screens/Convidar/convidar.styles";
-import { footerStyles } from "@/screens/Documentos/Footer_padrao";
+import { BottomNav } from "@/components/BottomNav";
 
 export default function InviteScreen() {
   return (
@@ -42,21 +42,7 @@ export default function InviteScreen() {
 
       </View>
 
-      {/* ── FOOTER PADRONIZADO ── */}
-      <View style={footerStyles.footer}>
-        <TouchableOpacity style={footerStyles.footerItem}>
-          <Feather name="home" size={26} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity style={footerStyles.footerItem}>
-          <MaterialIcons name="history" size={28} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity style={footerStyles.footerItem}>
-          <Ionicons name="megaphone-outline" size={26} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity style={footerStyles.footerItem}>
-          <Feather name="user" size={26} color="black" />
-        </TouchableOpacity>
-      </View>
+    <BottomNav />
 
     </View>
   );

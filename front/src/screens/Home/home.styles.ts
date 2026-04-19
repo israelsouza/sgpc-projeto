@@ -1,15 +1,15 @@
 import { StyleSheet } from "react-native";
-import { colors } from "@/theme/colors";
+import { colors, palette } from "@/theme/colors";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-     backgroundColor: colors.primaryDark,
+     backgroundColor: palette.accent,
   },
 
   // header
   header: {
-    backgroundColor: colors.primaryDark,
+    backgroundColor: palette.accent,
     paddingHorizontal: 20,
     paddingTop: 52,
     paddingBottom: 36,  
@@ -27,7 +27,7 @@ export const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: colors.primary,
+    backgroundColor: "rgba(255,255,255,0.22)",
     alignItems: "center",
     justifyContent: "center",
   },

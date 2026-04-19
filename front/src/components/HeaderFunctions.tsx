@@ -1,7 +1,6 @@
 import { View, Text, Touchable, TouchableOpacity } from "react-native";
 import { Entypo } from "@expo/vector-icons";
 import { styles } from "@/screens/Home/HeaderFunction.styles";
-import { colors } from "@/theme/colors";
 import { useFonts } from "expo-font";
 
 

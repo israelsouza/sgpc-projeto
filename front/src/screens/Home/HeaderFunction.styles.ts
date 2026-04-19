@@ -23,7 +23,7 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.22)",
     justifyContent: "center",
     alignItems: "center",
-    marginLeft: 20
+    marginLeft: 20,
     },
     
     ContainerRIcon:{
@@ -33,7 +33,7 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.22)",
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 20
+    marginRight: 20,
     },
 
     CenterContent:{

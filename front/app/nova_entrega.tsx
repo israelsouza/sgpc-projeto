@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StatusBar, ScrollView, TextInput } from "
 import { Feather, MaterialIcons, Ionicons } from "@expo/vector-icons";
 
 import { styles } from "@/screens/Nova_Entrega/nova_entrega.styles";
-import { footerStyles } from "@/screens/Documentos/Footer_padrao";
+import { BottomNav } from "@/components/BottomNav";
 
 export default function NewDeliveryScreen() {
   return (
@@ -82,21 +82,9 @@ export default function NewDeliveryScreen() {
         </View>
       </ScrollView>
 
-      {/* FOOTER PADRONIZADO */}
-      <View style={footerStyles.footer}>
-        <TouchableOpacity style={footerStyles.footerItem}>
-          <Feather name="home" size={26} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity style={footerStyles.footerItem}>
-          <MaterialIcons name="history" size={28} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity style={footerStyles.footerItem}>
-          <Ionicons name="megaphone-outline" size={26} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity style={footerStyles.footerItem}>
-          <Feather name="user" size={26} color="black" />
-        </TouchableOpacity>
-      </View>
+     <BottomNav />
+
+
     </View>
   );
 }
