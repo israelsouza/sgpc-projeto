@@ -1,11 +1,11 @@
 import Joi from 'joi';
 
 // Regras granulares para reaproveitamento
-export const nome_completo = Joi.string().min(3).max(100).pattern(/^[a-zA-ZÀ-ÿ\s]+$/).required().messages({
+export const nome_completo = Joi.string().trim().min(3).max(100).pattern(/^(?=.*[a-zA-ZÀ-ÿ])[a-zA-ZÀ-ÿ\s]+$/).required().messages({
   'string.empty': 'O nome completo é obrigatório',
   'string.min': 'O nome deve ter pelo menos 3 caracteres',
   'string.max': 'O nome deve ter no máximo 100 caracteres',
-  'string.pattern.base': 'O nome não deve conter números',
+  'string.pattern.base': 'O nome não deve conter números e deve ter pelo menos uma letra',
 });
 
 export const email = Joi.string().email({ tlds: { allow: false } }).max(100).required().messages({
@@ -37,9 +37,30 @@ export const cpf = Joi.string().length(11).pattern(/^[0-9]+$/).required().messag
   'string.pattern.base': 'O CPF deve conter apenas números',
 });
 
-export const data_nascimento = Joi.string().length(8).regex(/^\d{8}$/).required().messages({
+export const data_nascimento = Joi.string().length(8).regex(/^\d{8}$/).custom((value, helpers) => {
+  const day = parseInt(value.substring(0, 2), 10);
+  const month = parseInt(value.substring(2, 4), 10);
+  const year = parseInt(value.substring(4, 8), 10);
+
+  const date = new Date(year, month - 1, day);
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() + 1 !== month ||
+    date.getDate() !== day
+  ) {
+    return helpers.error('date.invalid');
+  }
+
+  // Optional reasonable year range check
+  if (year < 1900 || year > new Date().getFullYear()) {
+    return helpers.error('date.invalid');
+  }
+
+  return value;
+}).required().messages({
   'string.length': 'A data deve ter exatamente 8 números',
   'string.pattern.base': 'A data deve estar no formato DDMMAAAA',
+  'date.invalid': 'A data de nascimento é inválida',
   'any.required': 'A data de nascimento é obrigatória',
 });
 

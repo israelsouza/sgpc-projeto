@@ -52,6 +52,7 @@ export function useAuth() {
             chave_acesso: accessKey,
             perfil,
             condominio,
+            ...(unidade ? { unidade } : {})
           }
         });
       };

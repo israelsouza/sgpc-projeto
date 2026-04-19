@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 
 from fastapi import HTTPException, status
@@ -51,7 +52,14 @@ class MoradorService:
                 acao="Verifique se você já possui cadastro ou procure a administração.",
             )
 
-        # Validar formato DDMMAAAA
+        # Validar formato DDMMAAAA estrito (apenas 8 dígitos numéricos)
+        if not re.match(r"^\d{8}$", dados.data_nascimento):
+            raise ValidationError(
+                nome="data_invalida",
+                mensagem="Data de nascimento inválida. Use o formato DDMMAAAA.",
+                acao="Corrija a data informada.",
+            )
+
         try:
             datetime.strptime(dados.data_nascimento, "%d%m%Y")
         except ValueError:
