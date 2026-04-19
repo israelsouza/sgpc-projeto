@@ -1,5 +1,7 @@
 import asyncio
+
 from prisma import Prisma
+
 
 async def main():
     db = Prisma()
@@ -11,10 +13,12 @@ async def main():
     condominio = await db.condominio.find_first()
     if not condominio:
         condominio = await db.condominio.create(data={"nome": "Condomínio Exemplo"})
-    
+
     unidade = await db.unidade.find_first()
     if not unidade:
-        unidade = await db.unidade.create(data={"unidade": "101", "bloco": "A", "condominio_id": condominio.id})
+        unidade = await db.unidade.create(
+            data={"unidade": "101", "bloco": "A", "condominio_id": condominio.id}
+        )
 
     # Dados de teste
     dados_morador = {
@@ -47,21 +51,32 @@ async def main():
     }
 
     from app.modules.core.security import hash_senha
-    
+
     senha_padrao = hash_senha("senha123")
 
     # Criar usuários de suporte
-    usuario_morador = await db.usuario.create(data={"email": "joao@exemplo.com", "senha": senha_padrao, "status": "ATIVO"})
-    usuario_porteiro = await db.usuario.create(data={"email": "maria@exemplo.com", "senha": senha_padrao, "status": "ATIVO"})
-    usuario_sindico = await db.usuario.create(data={"email": "carlos@exemplo.com", "senha": senha_padrao, "status": "ATIVO"})
+    usuario_morador = await db.usuario.create(
+        data={"email": "joao@exemplo.com", "senha": senha_padrao, "status": "ATIVO"}
+    )
+    usuario_porteiro = await db.usuario.create(
+        data={"email": "maria@exemplo.com", "senha": senha_padrao, "status": "ATIVO"}
+    )
+    usuario_sindico = await db.usuario.create(
+        data={"email": "carlos@exemplo.com", "senha": senha_padrao, "status": "ATIVO"}
+    )
 
     # Inserir no banco
     await db.morador.create(data={**dados_morador, "usuario_id": usuario_morador.id})
-    await db.funcionario.create(data={**dados_funcionario_porteiro, "usuario_id": usuario_porteiro.id})
-    await db.funcionario.create(data={**dados_funcionario_sindico, "usuario_id": usuario_sindico.id})
+    await db.funcionario.create(
+        data={**dados_funcionario_porteiro, "usuario_id": usuario_porteiro.id}
+    )
+    await db.funcionario.create(
+        data={**dados_funcionario_sindico, "usuario_id": usuario_sindico.id}
+    )
 
     print("✅ Dados de teste inseridos!")
     await db.disconnect()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

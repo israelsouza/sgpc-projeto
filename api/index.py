@@ -156,7 +156,7 @@ async def general_exception_handler(request: Request, exc: Exception):
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Permitir qualquer origem em desenvolvimento
-    allow_credentials=False, # Importante: False permite o uso de allow_origins=["*"]
+    allow_credentials=False,  # Importante: False permite o uso de allow_origins=["*"]
     allow_methods=["*"],
     allow_headers=["*"],
 )

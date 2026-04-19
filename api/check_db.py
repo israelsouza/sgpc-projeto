@@ -1,10 +1,12 @@
 import asyncio
+
 from prisma import Prisma
+
 
 async def main():
     db = Prisma()
     await db.connect()
-    
+
     print("\n--- PERFIS ---")
     for p in await db.perfil.find_many():
         print(f"ID {p.id}: {p.nome}")
@@ -38,6 +40,7 @@ async def main():
         print(f"key: {c.chave} | Usada: {c.usada} | Validade: {c.validade} ")
 
     await db.disconnect()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

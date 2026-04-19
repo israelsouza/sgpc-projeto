@@ -16,7 +16,9 @@ class AutenticacaoService:
         log = logger.bind(module="AUTENTICACAO", action="login", email=dados.email)
 
         usuario = await UsuarioModel.buscar_por_email(
-            dados.email, db, includes={"perfis": True, "morador": True, "funcionario": True}
+            dados.email,
+            db,
+            includes={"perfis": True, "morador": True, "funcionario": True},
         )
 
         if not usuario or not verificar_senha(dados.senha, usuario.senha):
@@ -35,7 +37,7 @@ class AutenticacaoService:
                 mensagem="Seu cadastro ainda está em análise pelo síndico.",
                 acao="Aguarde a aprovação para acessar o sistema.",
             )
-            
+
         if usuario.funcionario and usuario.funcionario.status == "PENDENTE":
             log.warn("Tentativa de login de funcionário pendente")
             raise ValidationError(

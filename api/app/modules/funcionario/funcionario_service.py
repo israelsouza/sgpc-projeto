@@ -10,6 +10,7 @@ from app.modules.funcionario.funcionario_schema import FuncionarioRegistroCreate
 from app.modules.usuario.usuario_model import UsuarioModel
 from prisma import Prisma
 
+
 class FuncionarioService:
     @staticmethod
     async def registrar_funcionario(dados: FuncionarioRegistroCreate, db: Prisma):

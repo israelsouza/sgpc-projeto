@@ -20,7 +20,9 @@ async def login(dados: LoginSchema, db: Prisma = Depends(get_prisma)):
 
 
 @router.post("/token", include_in_schema=False)
-async def swagger_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Prisma = Depends(get_prisma)):
+async def swagger_login(
+    form_data: OAuth2PasswordRequestForm = Depends(), db: Prisma = Depends(get_prisma)
+):
     """
     Rota exclusiva para o botão 'Authorize' do Swagger UI.
     Recebe form-data (username/password) em vez de JSON.
