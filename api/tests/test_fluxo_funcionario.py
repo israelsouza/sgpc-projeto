@@ -38,7 +38,7 @@ async def test_registro_porteiro_completo(client, admin_token):
         "celular": "(11) 91234-5678",
         "rg": "MG-12.345.678",
         "cpf": cpf_teste,
-        "data_nascimento": "1985-10-20T00:00:00",
+        "data_nascimento": "20101985",
         "email": email_teste,
         "senha": "SenhaForte123!",
         "confirmacao_senha": "SenhaForte123!",

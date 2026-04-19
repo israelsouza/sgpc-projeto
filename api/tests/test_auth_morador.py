@@ -45,7 +45,7 @@ async def test_fluxo_registro_morador_completo(client, admin_token):
         "celular": "(11) 98888-7777",
         "rg": "12.345.678-9",
         "cpf": cpf_teste,
-        "data_nascimento": "1990-01-01T00:00:00",
+        "data_nascimento": "01011990",
         "email": email_teste,
         "senha": "SenhaForte123!",
         "confirmacao_senha": "SenhaForte123!",
@@ -66,6 +66,10 @@ async def test_fluxo_registro_morador_completo(client, admin_token):
     resp_repetida = await client.post("/api/moradores/registrar", json=dados_outro)
     assert resp_repetida.status_code == 400
     assert resp_repetida.json()["nome"] == "chave_usada"
+
+    # --- 3.5 Simular Aprovação do Síndico ---
+    morador_banco = await db.morador.find_unique(where={"cpf": cpf_teste})
+    await db.morador.update(where={"id": morador_banco.id}, data={"status": "ATIVO"})
 
     # --- 4. Tentar Login ---
     login_data = {"email": email_teste, "senha": "SenhaForte123!"}

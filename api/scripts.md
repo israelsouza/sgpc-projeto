@@ -1,10 +1,22 @@
 # Comandos úteis
 
-Rodar o servidor `poetry run uvicorn index:app --reload`
+## Scripts Auxiliares
+
+Gerar chaves de acesso: `poetry run python gen_key.py` (ou `poetry run python gen_key.py <PERFIL>`)
+Popular perfis e permissões: `poetry run python prisma/seed.py`
+Popular banco com dados de teste: `poetry run python seed_test_data.py`
+Verificar banco: `poetry run python check_db.py`
+
+Rodar o servidor: `poetry run uvicorn index:app --reload`
+Rodar o servidor para testar pelo celular: `poetry run uvicorn index:app --host 0.0.0.0 --port 8000`
 
 ## docker container para PostgreSQL
 
 docker run --name sgpc-db -e POSTGRES_PASSWORD=senha_forte -p 5432:5432 -d postgres
+docker start sgpc-db
+docker restart sgpc-db
+
+docker rm <container-id>
 
 ## Migrations
 

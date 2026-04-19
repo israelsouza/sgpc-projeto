@@ -72,4 +72,8 @@ ex: no diretorio `/api/app/modules/usuario` teremos o modulo de usuario, e dentr
 - Sempre que o usuário demonstrar interesse em compartilhar um tópico, assunto ou abordagem técnica em redes sociais (ex: LinkedIn), prepare obrigatoriamente um prompt otimizado para o Google Gemini criar um post atrativo, fornecendo o contexto técnico necessário do projeto para garantir a qualidade da resposta.
 - Após a conclusão de cada fase de um planejamento (Research, Strategy, Execution ou fases de um documento de plano), você deve obrigatoriamente solicitar ao usuário se deseja realizar o commit das alterações antes de prosseguir para a próxima fase.
 - O terminal utilizado no projeto é o PowerShell. Nunca utilize `&&` para encadear comandos; utilize o ponto e vírgula `;` no lugar.
+- **Arquitetura Frontend (React Native)**: Adotar uma arquitetura de 3 camadas para separação de responsabilidades:
+  1.  **Services (`src/services`)**: Funções que interagem diretamente com a API. Exclusivamente para chamadas HTTP (ex: `AuthService.validarChave`).
+  2.  **Hooks (`src/hooks`)**: Custom Hooks que orquestram a lógica de negócio, controlam estados (loading, error) e interagem com os *Services*.
+  3.  **Componentes/Telas (`app/` ou `src/screens`)**: A camada de UI, que deve ser o mais "burra" possível, consumindo os *Hooks* para obter dados e executar ações.
 
