@@ -9,7 +9,7 @@ from app.modules.core.core_exception import ForbiddenError, UnauthorizedError
 from app.modules.core.logger import logger
 from prisma import Prisma
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
 
 def hash_senha(senha: str) -> str:

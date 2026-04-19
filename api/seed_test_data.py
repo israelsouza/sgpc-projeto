@@ -46,10 +46,14 @@ async def main():
         "condominio_id": condominio.id,
     }
 
+    from app.modules.core.security import hash_senha
+    
+    senha_padrao = hash_senha("senha123")
+
     # Criar usuários de suporte
-    usuario_morador = await db.usuario.create(data={"email": "joao@exemplo.com", "senha": "hashed_password", "status": "ATIVO"})
-    usuario_porteiro = await db.usuario.create(data={"email": "maria@exemplo.com", "senha": "hashed_password", "status": "ATIVO"})
-    usuario_sindico = await db.usuario.create(data={"email": "carlos@exemplo.com", "senha": "hashed_password", "status": "ATIVO"})
+    usuario_morador = await db.usuario.create(data={"email": "joao@exemplo.com", "senha": senha_padrao, "status": "ATIVO"})
+    usuario_porteiro = await db.usuario.create(data={"email": "maria@exemplo.com", "senha": senha_padrao, "status": "ATIVO"})
+    usuario_sindico = await db.usuario.create(data={"email": "carlos@exemplo.com", "senha": senha_padrao, "status": "ATIVO"})
 
     # Inserir no banco
     await db.morador.create(data={**dados_morador, "usuario_id": usuario_morador.id})

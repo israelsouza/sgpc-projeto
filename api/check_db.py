@@ -35,7 +35,7 @@ async def main():
 
     print("\n--- CHAVES DE ACESSO ---")
     for c in await db.chaveacesso.find_many():
-        print(f"ID: {c.id[:8]}... | Usada: {c.usada} | Validade: {c.validade}")
+        print(f"key: {c.chave} | Usada: {c.usada} | Validade: {c.validade} ")
 
     await db.disconnect()
 
