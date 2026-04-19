@@ -11,10 +11,12 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import MaskInput, { Masks } from "react-native-mask-input";
 import { colors } from "@/theme/colors";
 import { styles } from "@/screens/Register/Register.styles";
 import { useAuth } from "@/hooks/useAuth";
 import { registerStep1Schema, registerSchema } from "@/validation/authSchemas";
+import { IRegisterForm } from "@/types";
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -170,17 +172,17 @@ export default function RegisterScreen() {
               </Text>
             )}
 
-            <TextInput
+            <MaskInput
               style={[
                 styles.input,
                 errors.celular && { borderColor: "red", borderWidth: 1 },
               ]}
-              placeholder="Celular (ex: 11999998888)"
-              maxLength={11}
+              placeholder="Celular"
               placeholderTextColor={colors.textMuted}
               keyboardType="phone-pad"
               value={formData.celular}
-              onChangeText={(v) => handleChange("celular", v)}
+              mask={Masks.BRL_PHONE}
+              onChangeText={(masked, unmasked) => handleChange("celular", unmasked)}
             />
             {errors.celular && (
               <Text style={{ color: "red", fontSize: 10, marginBottom: 5 }}>
@@ -239,7 +241,7 @@ export default function RegisterScreen() {
             <Text style={styles.sectionLabel}>Identificação</Text>
 
             <View style={styles.identBox}>
-              <TextInput
+              <MaskInput
                 style={[
                   styles.inputFull,
                   { marginBottom: 10 },
@@ -248,9 +250,9 @@ export default function RegisterScreen() {
                 placeholder="RG"
                 placeholderTextColor={colors.textMuted}
                 keyboardType="numeric"
-                maxLength={9}
                 value={formData.rg}
-                onChangeText={(v) => handleChange("rg", v)}
+                mask={[/\d/, /\d/, '.', /\d/, /\d/, /\d/, '.', /\d/, /\d/, /\d/, '-', /\d/]}
+                onChangeText={(masked, unmasked) => handleChange("rg", unmasked)}
               />
               {errors.rg && (
                 <Text style={{ color: "red", fontSize: 10, marginBottom: 5 }}>
@@ -258,17 +260,17 @@ export default function RegisterScreen() {
                 </Text>
               )}
 
-              <TextInput
+              <MaskInput
                 style={[
                   styles.inputFull,
                   errors.cpf && { borderColor: "red", borderWidth: 1 },
                 ]}
-                placeholder="CPF (apenas números)"
+                placeholder="CPF"
                 placeholderTextColor={colors.textMuted}
                 keyboardType="numeric"
-                maxLength={11}
                 value={formData.cpf}
-                onChangeText={(v) => handleChange("cpf", v)}
+                mask={Masks.BRL_CPF}
+                onChangeText={(masked, unmasked) => handleChange("cpf", unmasked)}
               />
               {errors.cpf && (
                 <Text style={{ color: "red", fontSize: 10, marginBottom: 5 }}>
@@ -276,7 +278,7 @@ export default function RegisterScreen() {
                 </Text>
               )}
 
-              <TextInput
+              <MaskInput
                 style={[
                   styles.inputFull,
                   { marginTop: 10 },
@@ -285,12 +287,12 @@ export default function RegisterScreen() {
                     borderWidth: 1,
                   },
                 ]}
-                placeholder="Nascimento (DDMMAAAA)"
+                placeholder="Nascimento"
                 placeholderTextColor={colors.textMuted}
                 keyboardType="numeric"
-                maxLength={8}
                 value={formData.data_nascimento}
-                onChangeText={(v) => handleChange("data_nascimento", v)}
+                mask={Masks.DATE_DDMMYYYY}
+                onChangeText={(masked, unmasked) => handleChange("data_nascimento", unmasked)}
               />
               {errors.data_nascimento && (
                 <Text style={{ color: "red", fontSize: 10, marginBottom: 5 }}>
