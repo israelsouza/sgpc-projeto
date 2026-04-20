@@ -3,7 +3,12 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from app.db.prisma_client import get_prisma
 from app.modules.autenticacao.autenticacao_controller import AutenticacaoController
-from app.modules.autenticacao.autenticacao_schema import LoginSchema
+from app.modules.autenticacao.autenticacao_schema import (
+    LoginSchema,
+    RecuperarSenhaRequest,
+    ResetarSenhaRequest,
+    ValidarCodigoRequest,
+)
 from app.modules.autenticacao.autenticacao_service import AutenticacaoService
 from app.modules.core.core_schema import StandardResponse
 from prisma import Prisma
@@ -17,6 +22,32 @@ async def login(dados: LoginSchema, db: Prisma = Depends(get_prisma)):
     Realiza o login e gera um token JWT. Rota principal usada pelo frontend.
     """
     return await AutenticacaoController.login(dados, db)
+
+
+@router.post("/recuperar-senha", response_model=StandardResponse)
+async def solicitar_recuperacao(
+    dados: RecuperarSenhaRequest, db: Prisma = Depends(get_prisma)
+):
+    """
+    Solicita a recuperação de senha enviando um código por e-mail.
+    """
+    return await AutenticacaoController.solicitar_recuperacao(dados, db)
+
+
+@router.post("/validar-codigo", response_model=StandardResponse)
+async def validar_codigo(dados: ValidarCodigoRequest, db: Prisma = Depends(get_prisma)):
+    """
+    Valida o código de recuperação enviado por e-mail.
+    """
+    return await AutenticacaoController.validar_codigo(dados, db)
+
+
+@router.post("/resetar-senha", response_model=StandardResponse)
+async def resetar_senha(dados: ResetarSenhaRequest, db: Prisma = Depends(get_prisma)):
+    """
+    Define uma nova senha para o usuário usando o código de recuperação.
+    """
+    return await AutenticacaoController.resetar_senha(dados, db)
 
 
 @router.post("/token", include_in_schema=False)

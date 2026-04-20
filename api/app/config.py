@@ -8,6 +8,15 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "changeme"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
+    MAIL_USERNAME: str = ""
+    MAIL_PASSWORD: str = ""
+    MAIL_FROM: str = "noreply@sgpc.com"
+    MAIL_PORT: int = 587
+    MAIL_SERVER: str = "smtp.gmail.com"
+    MAIL_STARTTLS: bool = True
+    MAIL_SSL_TLS: bool = False
+    MAIL_FROM_NAME: str = "SGPC"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         extra="ignore",  # Permite variáveis extras no .env sem travar a aplicação

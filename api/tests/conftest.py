@@ -8,6 +8,12 @@ from app.modules.core.auth import create_access_token
 from index import app
 
 
+@pytest.fixture()
+async def db_client():
+    """Retorna a instância do Prisma Client."""
+    return db
+
+
 @pytest.fixture(autouse=True)
 async def setup_db():
     """Conecta ao banco de dados, prepara perfis e condomínio de teste."""
