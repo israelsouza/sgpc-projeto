@@ -8,7 +8,7 @@ class MoradorBase(BaseModel):
     celular: str
     rg: str
     cpf: str
-    data_nascimento: datetime
+    data_nascimento: str
 
 
 class MoradorCreate(MoradorBase):

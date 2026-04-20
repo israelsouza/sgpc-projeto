@@ -97,10 +97,10 @@ model Usuario {
 model Morador {
   id              Int       @id @default(autoincrement())
   nome_completo   String    @map("nome_completo")
-  celular         String    @map("celular")
+  celular         String    @unique @map("celular")
   rg              String?   @map("rg")
   cpf             String    @unique @map("cpf")
-  data_nascimento DateTime? @map("data_nascimento")
+  data_nascimento String @map("data_nascimento")
   status          String    @default("PENDENTE") @map("status")
   
   // Auditoria e Soft Delete
@@ -123,10 +123,10 @@ model Morador {
 model Funcionario {
   id              Int       @id @default(autoincrement())
   nome_completo   String   @map("nome_completo")
-  celular         String   @map("celular")
+  celular         String   @unique @map("celular")
   rg              String   @map("rg")
   cpf             String   @unique @map("cpf")
-  data_nascimento DateTime @map("data_nascimento")
+  data_nascimento String @map("data_nascimento")
   cargo           String    @map("cargo") // SINDICO, PORTEIRO, ZELADOR, etc.
   status          String    @default("ATIVO") @map("status")
   

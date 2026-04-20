@@ -17,6 +17,13 @@ class FuncionarioModel:
         return await db.funcionario.find_unique(where={"cpf": cpf, "deletado_em": None})
 
     @staticmethod
+    async def buscar_por_celular(celular: str, db: Prisma):
+        """Busca funcionário por celular para validação de unicidade."""
+        return await db.funcionario.find_first(
+            where={"celular": celular, "deletado_em": None}
+        )
+
+    @staticmethod
     async def criar(data: dict, db: Prisma):
         """Persiste um novo funcionário."""
         return await db.funcionario.create(data=data)

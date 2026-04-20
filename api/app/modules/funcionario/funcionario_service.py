@@ -1,3 +1,6 @@
+import re
+from datetime import datetime
+
 from fastapi import HTTPException
 
 from app.modules.chave.chave_service import ChaveService
@@ -32,6 +35,31 @@ class FuncionarioService:
                 nome="cpf_em_uso",
                 mensagem="Este CPF já está cadastrado para um funcionário.",
                 acao="Procure a administração.",
+            )
+
+        celular_existente = await FuncionarioModel.buscar_por_celular(dados.celular, db)
+        if celular_existente:
+            raise ValidationError(
+                nome="celular_em_uso",
+                mensagem="Número de celular já cadastrado.",
+                acao="Verifique se você já possui cadastro ou procure a administração.",
+            )
+
+        # Validar formato DDMMAAAA estrito (apenas 8 dígitos numéricos)
+        if not re.match(r"^\d{8}$", dados.data_nascimento):
+            raise ValidationError(
+                nome="data_invalida",
+                mensagem="Data de nascimento inválida. Use o formato DDMMAAAA.",
+                acao="Corrija a data informada.",
+            )
+
+        try:
+            datetime.strptime(dados.data_nascimento, "%d%m%Y")
+        except ValueError:
+            raise ValidationError(
+                nome="data_invalida",
+                mensagem="Data de nascimento inválida. Use o formato DDMMAAAA.",
+                acao="Corrija a data informada.",
             )
 
         # 3. Transação
