@@ -29,13 +29,13 @@ export default function DocumentsScreen() {
   {
     id: 3,
     title: "Regimento interno",
-    pdfURL: "https://www.africau.edu/images/default/sample.pdf",
+    pdfURL: "https://eppge.fgv.br/sites/default/files/teste.pdf",
   },
 
   {
     id: 4,
     title: "Relatório de manutenção",
-    pdfURL: "https://www.clickdimensions.com/links/TestPDFfile.pdf",
+    pdfURL: "https://camarademanga.mg.gov.br/arquivo/643db1e220143.pdf",
   },
 ];
 
@@ -43,7 +43,7 @@ export default function DocumentsScreen() {
   const [showForm, setShowForm] = useState(false);       
   const [tipoDocumento, setTipoDocumento] = useState(""); 
   const [placeHolder, setPlaceHolder] = useState("Ex: Alvará de demolição");
-  const [userRole, setUserRole] = useState<"sindico" | "usuario" | "admin" | null>(null); //PARA TESTE SÓ TROCAR O VALOR DO PARENTESES
+  const [userRole, setUserRole] = useState<"sindico" | "usuario" | "administrador" | null>(null); //PARA TESTE SÓ TROCAR O VALOR DO PARENTESES
   const [pdfModal, setPdfModal] = useState(false);
   const [selecionarDoc, setSelecionarDoc] = useState<{
   id: number;
@@ -204,7 +204,7 @@ const handleDownloadPdf = async () => {
                   <MaterialIcons name="chevron-right" size={28} color={colors.earthBrown} />
                 </TouchableOpacity>
               ))}
-              <View style={{ height: 100 }} />
+              <View/>
             </ScrollView>
         )}
 

@@ -24,10 +24,12 @@ export const styles = StyleSheet.create({
   
   // --- LISTA ---
   content: {
-    flex: 1,
+    flex:1
   },
+
   contentContainer: {
     padding: 20,
+    gap: 10
   },
   listItem: {
     backgroundColor: 'white',
@@ -35,7 +37,6 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     height: 70,
-    paddingHorizontal: 15,
     marginBottom: 12,
     elevation: 3,
     shadowColor: '#000',
@@ -43,13 +44,15 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 3,
     borderRadius: 16,
-    padding: 16,
     borderWidth: 1,
+    width: "105%",
     borderColor: colors.earthAccent,
   },
   listItemLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    padding: 10,
+    width: 230
   },
   listItemText: {
     fontSize: 16,
@@ -87,9 +90,11 @@ export const styles = StyleSheet.create({
   card: {
     backgroundColor: "#ffff",
     borderRadius: 12,
-    padding: 25,
+    padding: 20,
     borderWidth: 1,
     borderColor: "#e0d9d0",
+    flex: 1,
+    gap: 16
   },
 
   label: {
