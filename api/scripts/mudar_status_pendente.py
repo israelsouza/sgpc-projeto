@@ -21,21 +21,21 @@ async def main():
 
     # Atualiza o status na tabela principal USUARIOS
     await db.usuario.update(where={"email": email}, data={"status": "ATIVO"})
-    print("✅ Status do 'Usuario' atualizado para PENDENTE.")
+    print("✅ Status do 'Usuario' atualizado para ATIVO.")
 
     # Atualiza o status na tabela MORADORES, se existir
     if usuario.morador:
         await db.morador.update(
             where={"id": usuario.morador.id}, data={"status": "ATIVO"}
         )
-        print("✅ Status do 'Morador' atualizado para PENDENTE.")
+        print("✅ Status do 'Morador' atualizado para ATIVO.")
 
     # Atualiza o status na tabela FUNCIONARIOS, se existir
     if usuario.funcionario:
         await db.funcionario.update(
             where={"id": usuario.funcionario.id}, data={"status": "ATIVO"}
         )
-        print("✅ Status do 'Funcionario' atualizado para PENDENTE.")
+        print("✅ Status do 'Funcionario' atualizado para ATIVO.")
 
     await db.disconnect()
     print("🚀 Alteração concluída com sucesso!")

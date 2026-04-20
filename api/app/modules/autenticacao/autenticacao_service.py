@@ -1,7 +1,10 @@
+import hashlib
+import hmac
 import random
 import string
 from datetime import UTC, datetime, timedelta
 
+from app.config import settings
 from app.modules.autenticacao.autenticacao_schema import (
     LoginSchema,
     RecuperarSenhaRequest,
@@ -15,6 +18,21 @@ from app.modules.core.logger import logger
 from app.modules.core.security import hash_senha, verificar_senha
 from app.modules.usuario.usuario_model import UsuarioModel
 from prisma import Prisma
+
+
+def hash_email_for_logging(email: str) -> str:
+    """Hash email using SHA-256 for privacy-safe logging."""
+    normalized = email.lower().strip()
+    return hashlib.sha256(normalized.encode()).hexdigest()
+
+
+def hmac_codigo(codigo: str) -> str:
+    """Generate HMAC of reset code using server-side secret."""
+    return hmac.new(
+        settings.HMAC_SECRET_KEY.encode(),
+        codigo.encode(),
+        hashlib.sha256,
+    ).hexdigest()
 
 
 class AutenticacaoService:
@@ -78,7 +96,9 @@ class AutenticacaoService:
         Inicia o processo de recuperação de senha, enviando código por e-mail.
         """
         log = logger.bind(
-            module="AUTENTICACAO", action="solicitar_recuperacao", email=dados.email
+            module="AUTENTICACAO",
+            action="solicitar_recuperacao",
+            email_hash=hash_email_for_logging(dados.email),
         )
 
         usuario = await UsuarioModel.buscar_por_email(
@@ -99,7 +119,7 @@ class AutenticacaoService:
         elif usuario.funcionario and usuario.funcionario.status == "ATIVO":
             vinc_ativo = True
 
-        if not vinc_ativo:
+        if not vinc_ativo or usuario.status != "ATIVO":
             log.warn("Tentativa de recuperação para usuário não ativo/pendente")
             return {"mensagem": "Se o e-mail existir na base, um código será enviado."}
 
@@ -112,11 +132,12 @@ class AutenticacaoService:
         codigo = "".join(random.choices(string.digits, k=6))
         expira_em = datetime.now(UTC) + timedelta(hours=2)
 
-        # Salva no banco
+        # Salva no banco com HMAC do código
+        codigo_hmac = hmac_codigo(codigo)
         await db.recuperacaosenha.create(
             data={
                 "usuario_id": usuario.id,
-                "codigo": codigo,
+                "codigo": codigo_hmac,
                 "expira_em": expira_em,
             }
         )
@@ -144,17 +165,27 @@ class AutenticacaoService:
         Valida se o código enviado ainda é válido.
         """
         log = logger.bind(
-            module="AUTENTICACAO", action="validar_codigo", email=dados.email
+            module="AUTENTICACAO",
+            action="validar_codigo",
+            email_hash=hash_email_for_logging(dados.email),
         )
 
-        recuperacao = await db.recuperacaosenha.find_first(
+        # Find all non-expired recovery codes for this email
+        recuperacoes = await db.recuperacaosenha.find_many(
             where={
                 "usuario": {"is": {"email": dados.email}},
-                "codigo": dados.codigo,
                 "usada": False,
                 "expira_em": {"gt": datetime.now(UTC)},
             }
         )
+
+        # Compare HMAC of provided code with stored HMACs
+        codigo_hmac = hmac_codigo(dados.codigo)
+        recuperacao = None
+        for rec in recuperacoes:
+            if hmac.compare_digest(rec.codigo, codigo_hmac):
+                recuperacao = rec
+                break
 
         if not recuperacao:
             log.warn("Código de recuperação inválido ou expirado")
@@ -173,18 +204,28 @@ class AutenticacaoService:
         Atualiza a senha do usuário após validação do código.
         """
         log = logger.bind(
-            module="AUTENTICACAO", action="resetar_senha", email=dados.email
+            module="AUTENTICACAO",
+            action="resetar_senha",
+            email_hash=hash_email_for_logging(dados.email),
         )
 
-        recuperacao = await db.recuperacaosenha.find_first(
+        # Find all non-expired recovery codes for this email
+        recuperacoes = await db.recuperacaosenha.find_many(
             where={
                 "usuario": {"is": {"email": dados.email}},
-                "codigo": dados.codigo,
                 "usada": False,
                 "expira_em": {"gt": datetime.now(UTC)},
             },
             include={"usuario": {"include": {"morador": True, "funcionario": True}}},
         )
+
+        # Compare HMAC of provided code with stored HMACs
+        codigo_hmac = hmac_codigo(dados.codigo)
+        recuperacao = None
+        for rec in recuperacoes:
+            if hmac.compare_digest(rec.codigo, codigo_hmac):
+                recuperacao = rec
+                break
 
         if not recuperacao:
             log.warn("Tentativa de reset de senha com código inválido")
@@ -213,16 +254,31 @@ class AutenticacaoService:
                 acao="Entre em contato com a administração.",
             )
 
-        # Atualiza senha do usuário
+        # Atualiza senha do usuário e marca código como usado em transação
         nova_senha_hash = hash_senha(dados.nova_senha)
-        await db.usuario.update(
-            where={"id": recuperacao.usuario_id}, data={"senha": nova_senha_hash}
-        )
 
-        # Marca código como usado
-        await db.recuperacaosenha.update(
-            where={"id": recuperacao.id}, data={"usada": True}
-        )
+        async with db.tx() as transaction:
+            # Update password
+            await transaction.usuario.update(
+                where={"id": recuperacao.usuario_id}, data={"senha": nova_senha_hash}
+            )
+
+            # Conditionally mark code as used (only if not already used)
+            result = await transaction.recuperacaosenha.update_many(
+                where={"id": recuperacao.id, "usada": False}, data={"usada": True}
+            )
+
+            # If count is 0, the code was already used (race condition)
+            if result == 0:
+                log.error(
+                    "Tentativa de reutilizar código de recuperação",
+                    usuario_id=recuperacao.usuario_id,
+                )
+                raise ValidationError(
+                    nome="codigo_ja_usado",
+                    mensagem="Este código já foi utilizado.",
+                    acao="Solicite um novo código de recuperação.",
+                )
 
         log.info("Senha resetada com sucesso", usuario_id=recuperacao.usuario_id)
         return {"mensagem": "Sua senha foi alterada com sucesso."}

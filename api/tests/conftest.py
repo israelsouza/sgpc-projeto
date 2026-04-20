@@ -1,6 +1,7 @@
 from datetime import UTC, datetime
 
 import pytest
+import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
 from app.db.prisma_client import connect_db, db, disconnect_db
@@ -14,7 +15,7 @@ def anyio_backend():
     return "asyncio"
 
 
-@pytest.fixture(autouse=True)
+@pytest_asyncio.fixture(autouse=True)
 async def setup_db():
     """Conecta ao banco de dados, prepara perfis e condomínio de teste."""
     await connect_db()
@@ -144,7 +145,7 @@ async def setup_db():
     await disconnect_db()
 
 
-@pytest.fixture()
+@pytest_asyncio.fixture()
 async def client():
     """Client de teste assíncrono para a API FastAPI."""
     async with AsyncClient(
@@ -153,13 +154,13 @@ async def client():
         yield ac
 
 
-@pytest.fixture()
+@pytest_asyncio.fixture()
 async def db_client():
     """Retorna a instância do Prisma Client."""
     return db
 
 
-@pytest.fixture()
+@pytest_asyncio.fixture()
 async def admin_token():
     """Gera um token de acesso para o usuário admin de teste."""
     admin = await db.usuario.find_unique(
