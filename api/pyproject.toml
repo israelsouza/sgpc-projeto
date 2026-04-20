@@ -22,7 +22,8 @@ dependencies = [
     "axiom-py (>=0.10.0,<0.11.0)",
     "python-multipart (>=0.0.26,<0.0.27)",
     "jinja2 (==3.1.6)",
-    "fastapi-mail (==1.6.2)"
+    "fastapi-mail (==1.6.2)",
+    "slowapi (>=0.1.9,<0.2.0)"
 ]
 
 [tool.poetry]
@@ -51,6 +52,7 @@ indent-style = "space"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+asyncio_default_fixture_loop_scope = "session"
 
 [tool.prisma]
 seed = "python prisma/seed.py"
@@ -59,5 +61,6 @@ seed = "python prisma/seed.py"
 dev = [
     "ruff (>=0.15.7,<0.16.0)",
     "pytest (>=9.0.2,<10.0.0)",
+    "pytest-asyncio (>=0.25.2,<0.26.0)",
     "httpx (>=0.28.1,<0.29.0)",
 ]
