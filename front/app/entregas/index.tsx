@@ -4,6 +4,7 @@ import { Feather, MaterialIcons, Ionicons } from "@expo/vector-icons";
 
 import { styles } from "@/screens/Nova_Entrega/nova_entrega.styles";
 import { BottomNav } from "@/components/BottomNav";
+import { router } from "expo-router";
 
 export default function NewDeliveryScreen() {
   return (
@@ -12,7 +13,7 @@ export default function NewDeliveryScreen() {
 
       {/* HEADER */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <MaterialIcons name="arrow-back" size={26} color="white" />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>

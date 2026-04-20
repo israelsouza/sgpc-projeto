@@ -81,7 +81,7 @@ const menuItems: MenuItem[] = [
     icon: { name: "book-open-page-variant", library: "MaterialCommunityIcons" },
     iconBg: "#D6E8F7",
     iconColor: "#5B9BC4",
-    route: "/Documentos",
+    route: "/documentos",
   },
   {
     id: "bilhetes",

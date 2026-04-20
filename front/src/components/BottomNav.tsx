@@ -17,22 +17,22 @@ export function BottomNav({ activeIndex = 0 }: BottomNavProps) {
 
   return (
     <View style={styles.bottomNav}>
-      <Link href="../Home/Home" asChild>
+      <Link href="../home" asChild>
         <TouchableOpacity style={styles.navItem}>
           <FontAwesome6 name="house" size={24} color={getColor(0)} />
         </TouchableOpacity>
       </Link>
-      <Link href="/Historico/historico" asChild>
+      <Link href="/historico" asChild>
         <TouchableOpacity style={styles.navItem}>
           <Entypo name="back-in-time" size={24} color={getColor(1)} />
         </TouchableOpacity>
       </Link>
-      <Link href="/Avisos/avisos" asChild>
+      <Link href="/avisos" asChild>
         <TouchableOpacity style={styles.navItem}>
           <Entypo name="megaphone" size={24} color={getColor(2)} />
         </TouchableOpacity>
       </Link>
-      <Link href="../Perfil/perfil" asChild>
+      <Link href="../perfil" asChild>
         <TouchableOpacity style={styles.navItem}>
           <Feather name="users" size={24} color={getColor(3)} />
         </TouchableOpacity>

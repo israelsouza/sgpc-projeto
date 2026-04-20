@@ -43,7 +43,9 @@ export default function DocumentsScreen() {
   const [showForm, setShowForm] = useState(false);       
   const [tipoDocumento, setTipoDocumento] = useState(""); 
   const [placeHolder, setPlaceHolder] = useState("Ex: Alvará de demolição");
-  const [userRole, setUserRole] = useState<"sindico" | "usuario" | "administrador" | null>(null); //PARA TESTE SÓ TROCAR O VALOR DO PARENTESES
+  const [userRole, setUserRole] = useState<
+    "sindico" | "usuario" | "administrador" | null
+  >("sindico"); //PARA TESTE SÓ TROCAR O VALOR DO PARENTESES
   const [pdfModal, setPdfModal] = useState(false);
   const [selecionarDoc, setSelecionarDoc] = useState<{
   id: number;
@@ -143,7 +145,7 @@ const handleDownloadPdf = async () => {
             ? <Feather name="plus" size={24} color={colors.textLight} />
             : <Feather name="folder" size={24} color={colors.textLight} />
         }
-        onPressLeft={showForm ? handleCancelar : () => router.push('/Home/Home  ')}
+        onPressLeft={showForm ? handleCancelar : () => router.push('/home  ')}
         onPressRight={ userRole === "sindico" && !showForm ? handleAddDocument : undefined}
       />
 
