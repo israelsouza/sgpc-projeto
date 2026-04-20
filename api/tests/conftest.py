@@ -1,3 +1,4 @@
+import asyncio
 from datetime import UTC, datetime
 
 import pytest
@@ -8,10 +9,13 @@ from app.modules.core.auth import create_access_token
 from index import app
 
 
-@pytest.fixture()
-async def db_client():
-    """Retorna a instância do Prisma Client."""
-    return db
+@pytest.fixture(scope="session")
+def event_loop():
+    """Força um único event loop para toda a sessão de testes.
+    Isso previne o erro do Prisma 'bound to a different event loop'."""
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
 
 
 @pytest.fixture(autouse=True)
@@ -151,6 +155,12 @@ async def client():
         transport=ASGITransport(app=app), base_url="http://test", timeout=60.0
     ) as ac:
         yield ac
+
+
+@pytest.fixture()
+async def db_client():
+    """Retorna a instância do Prisma Client."""
+    return db
 
 
 @pytest.fixture()
