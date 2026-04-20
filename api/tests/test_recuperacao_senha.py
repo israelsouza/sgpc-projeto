@@ -1,6 +1,6 @@
-import pytest
 import uuid
 
+import pytest
 from httpx import AsyncClient
 
 from app.modules.core.security import hash_senha

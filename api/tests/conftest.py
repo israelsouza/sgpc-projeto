@@ -1,5 +1,6 @@
-import pytest
 from datetime import UTC, datetime
+
+import pytest
 from httpx import ASGITransport, AsyncClient
 
 from app.db.prisma_client import connect_db, db, disconnect_db
