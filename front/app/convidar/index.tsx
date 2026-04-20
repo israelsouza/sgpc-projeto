@@ -1,14 +1,10 @@
 import React from "react";
-import { 
-  View, 
-  Text, 
-  TouchableOpacity, 
-  StatusBar 
-} from "react-native";
+import { View, Text, TouchableOpacity, StatusBar } from "react-native";
 import { Ionicons, Feather, MaterialIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 import { styles } from "@/screens/Convidar/convidar.styles";
-import { footerStyles } from "@/screens/Documentos/Footer_padrao";
+import { BottomNav } from "@/components/BottomNav";
 
 export default function InviteScreen() {
   return (
@@ -17,10 +13,13 @@ export default function InviteScreen() {
 
       {/* ── HEADER ── */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
           <MaterialIcons name="arrow-back" size={28} color="white" />
         </TouchableOpacity>
-        
+
         <Text style={styles.headerTitle}>Convidar alguém</Text>
 
         <TouchableOpacity style={styles.headerDots}>
@@ -30,7 +29,6 @@ export default function InviteScreen() {
 
       {/* ── CONTEÚDO PRINCIPAL ── */}
       <View style={styles.content}>
-        
         <View style={styles.whiteCard}>
           <Text style={styles.infoText}>Este link de convite expira em</Text>
           <Text style={styles.timerText}>10m59s</Text>
@@ -39,25 +37,9 @@ export default function InviteScreen() {
         <TouchableOpacity style={styles.btnInvite} activeOpacity={0.8}>
           <Text style={styles.btnInviteText}>Enviar link ao convidado</Text>
         </TouchableOpacity>
-
       </View>
 
-      {/* ── FOOTER PADRONIZADO ── */}
-      <View style={footerStyles.footer}>
-        <TouchableOpacity style={footerStyles.footerItem}>
-          <Feather name="home" size={26} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity style={footerStyles.footerItem}>
-          <MaterialIcons name="history" size={28} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity style={footerStyles.footerItem}>
-          <Ionicons name="megaphone-outline" size={26} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity style={footerStyles.footerItem}>
-          <Feather name="user" size={26} color="black" />
-        </TouchableOpacity>
-      </View>
-
+      <BottomNav />
     </View>
   );
 }
