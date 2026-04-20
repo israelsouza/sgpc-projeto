@@ -1,3 +1,4 @@
+import pytest
 import uuid
 
 from httpx import AsyncClient
@@ -5,6 +6,7 @@ from httpx import AsyncClient
 from app.modules.core.security import hash_senha
 
 
+@pytest.mark.anyio
 async def test_solicitar_recuperacao_email_inexistente(client: AsyncClient):
     response = await client.post(
         "/api/auth/recuperar-senha",
@@ -17,6 +19,7 @@ async def test_solicitar_recuperacao_email_inexistente(client: AsyncClient):
     )
 
 
+@pytest.mark.anyio
 async def test_fluxo_recuperacao_completo(client: AsyncClient, db_client):
     # 1. Criar um usuário ativo com e-mail único para o teste
     email = f"user_{uuid.uuid4().hex[:8]}@teste.com"

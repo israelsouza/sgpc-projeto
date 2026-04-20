@@ -1,6 +1,5 @@
-from datetime import UTC, datetime
-
 import pytest
+from datetime import UTC, datetime
 from httpx import ASGITransport, AsyncClient
 
 from app.db.prisma_client import connect_db, db, disconnect_db
@@ -8,10 +7,10 @@ from app.modules.core.auth import create_access_token
 from index import app
 
 
-@pytest.fixture()
-async def db_client():
-    """Retorna a instância do Prisma Client."""
-    return db
+@pytest.fixture(scope="session")
+def anyio_backend():
+    """Configura o anyio para usar um único event loop asyncio durante toda a sessão."""
+    return "asyncio"
 
 
 @pytest.fixture(autouse=True)
@@ -151,6 +150,12 @@ async def client():
         transport=ASGITransport(app=app), base_url="http://test", timeout=60.0
     ) as ac:
         yield ac
+
+
+@pytest.fixture()
+async def db_client():
+    """Retorna a instância do Prisma Client."""
+    return db
 
 
 @pytest.fixture()
