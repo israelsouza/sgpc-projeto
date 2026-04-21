@@ -25,7 +25,7 @@ export function useAuth() {
 
       // TODO: Redirecionar para a Home após o login
       Alert.alert("Sucesso", "Login realizado com sucesso!", [
-        { text: "OK", onPress: () => router.replace("/Home/Home") }
+        { text: "OK", onPress: () => router.replace("/home") }
       ]);
     } catch (error: any) {
       const msg = error.response?.data?.mensagem || "E-mail ou senha incorretos";

@@ -70,7 +70,10 @@ export default function LoginScreen() {
               onChangeText={setSenha}
             />
 
-            <TouchableOpacity style={styles.forgotWrapper}>
+            <TouchableOpacity 
+              style={styles.forgotWrapper}
+              onPress={() => router.push("/EsqueciSenha")}
+            >
               <Text style={styles.forgotText}>Esqueci a senha</Text>
             </TouchableOpacity>
 

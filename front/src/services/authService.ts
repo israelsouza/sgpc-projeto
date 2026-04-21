@@ -4,12 +4,18 @@ import { IRegisterForm, StandardResponse, AuthResponse, ChaveValidacao } from '@
 export const AuthService = {
   login: async (dados: { email: string; senha: string }): Promise<AuthResponse> => {
     const response = await api.post<StandardResponse<AuthResponse>>("/auth/login", dados)
-    return response.data.data as AuthResponse; // Retorna o payload { access_token, token_type, perfil }
+    if (!response.data.data) {
+      throw new Error(response.data.message || "Erro ao realizar login");
+    }
+    return response.data.data;
   },
 
   validarChave: async (chave: string): Promise<ChaveValidacao> => {
     const response = await api.get<StandardResponse<ChaveValidacao>>(`/chaves/validar/${chave}`);
-    return response.data.data as ChaveValidacao; // Retorna o payload { perfil, condominio, unidade }
+    if (!response.data.data) {
+      throw new Error(response.data.message || "Chave inválida");
+    }
+    return response.data.data;
   },
 
   registrar: async (dados: IRegisterForm, perfil: 'MORADOR' | 'FUNCIONARIO'): Promise<any> => {
