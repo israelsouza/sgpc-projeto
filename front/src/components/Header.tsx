@@ -1,7 +1,5 @@
 import { View, Text } from "react-native";
-import { Entypo } from "@expo/vector-icons";
 import { styles } from "@/screens/Home/home.styles";
-import { colors } from "@/theme/colors";
 import { ReactNode } from "react";
 
 interface HeaderProps {

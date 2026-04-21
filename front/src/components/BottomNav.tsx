@@ -1,6 +1,7 @@
-import { View, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity, Platform } from "react-native";
 import { FontAwesome6, Entypo, Feather } from "@expo/vector-icons";
 import { Link } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { styles } from "@/screens/Home/home.styles";
 import { colors } from "@/theme/colors";
 
@@ -9,6 +10,7 @@ interface BottomNavProps {
 }
 
 export function BottomNav({ activeIndex = 0 }: BottomNavProps) {
+  const insets = useSafeAreaInsets();
   const inactiveColor = "#B8A89A";
   const activeColor = colors.earthBrown;
 
@@ -16,7 +18,14 @@ export function BottomNav({ activeIndex = 0 }: BottomNavProps) {
     activeIndex === index ? activeColor : inactiveColor;
 
   return (
-    <View style={styles.bottomNav}>
+    <View 
+      style={[
+        styles.bottomNav, 
+        { 
+          paddingBottom: Platform.OS === 'ios' ? Math.max(insets.bottom, 12) : insets.bottom + 12 
+        }
+      ]}
+    >
       <Link href="../home" asChild>
         <TouchableOpacity style={styles.navItem}>
           <FontAwesome6 name="house" size={24} color={getColor(0)} />
