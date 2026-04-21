@@ -67,3 +67,9 @@ export const data_nascimento = Joi.string().length(8).regex(/^\d{8}$/).custom((v
 export const chave_acesso = Joi.string().guid({ version: ['uuidv4'] }).required().messages({
   'string.guid': 'Chave de acesso inválida',
 });
+
+export const codigo = Joi.string().length(6).pattern(/^[0-9]+$/).required().messages({
+  'string.length': 'O código deve ter exatamente 6 números',
+  'string.pattern.base': 'O código deve conter apenas números',
+  'string.empty': 'O código é obrigatório',
+});

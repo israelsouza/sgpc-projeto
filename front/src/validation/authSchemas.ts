@@ -25,3 +25,22 @@ export const registerStep2Schema = Joi.object({
 export const registerSchema = registerStep1Schema
   .concat(registerStep2Schema)
   .append({ chave_acesso: common.chave_acesso });
+
+export const recuperarSenhaSchema = Joi.object({
+  email: common.email,
+});
+
+export const validarCodigoSchema = Joi.object({
+  codigo: common.codigo,
+});
+
+export const resetarSenhaSchema = Joi.object({
+  nova_senha: common.senha.min(8).messages({
+    'string.min': 'A nova senha deve ter pelo menos 8 caracteres',
+  }),
+  confirmar_senha: Joi.any().valid(Joi.ref('nova_senha')).required().messages({
+    'any.only': 'As senhas não coincidem',
+    'any.required': 'A confirmação de senha é obrigatória',
+  }),
+});
+
