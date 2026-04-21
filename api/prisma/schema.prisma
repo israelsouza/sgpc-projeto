@@ -10,9 +10,15 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum TipoCondominio {
+  PREDIO
+  HORIZONTAL
+}
+
 model Condominio {
   id                Int       @id @default(autoincrement())
   nome              String    @map("nome")
+  tipoCond          TipoCondominio @default(PREDIO)
   cnpj              String?   @unique @map("cnpj")
   endereco          String?   @map("endereco")
   
