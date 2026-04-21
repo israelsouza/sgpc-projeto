@@ -1,4 +1,5 @@
 import uuid
+from unittest.mock import patch
 
 import pytest
 from httpx import AsyncClient
@@ -42,16 +43,28 @@ async def test_fluxo_recuperacao_completo(client: AsyncClient, db_client):
         }
     )
 
-    # 2. Solicitar recuperação
-    response = await client.post("/api/auth/recuperar-senha", json={"email": email})
-    assert response.status_code == 200
+    # 2. Solicitar recuperação e capturar o código
+    captured_codigo = None
 
-    # 3. Buscar o código no banco
+    async def mock_enviar_email(email_destino, nome_usuario, codigo):
+        nonlocal captured_codigo
+        captured_codigo = codigo
+
+    with patch(
+        "app.modules.autenticacao.autenticacao_service.enviar_email_recuperacao",
+        new=mock_enviar_email,
+    ):
+        response = await client.post("/api/auth/recuperar-senha", json={"email": email})
+        assert response.status_code == 200
+
+    assert captured_codigo is not None
+    codigo = captured_codigo
+
+    # 3. Buscar o registro no banco (apenas para validar se foi criado corretamente)
     recuperacao = await db_client.recuperacaosenha.find_first(
         where={"usuario_id": usuario.id, "usada": False}
     )
     assert recuperacao is not None
-    codigo = recuperacao.codigo
 
     # 4. Validar código
     response = await client.post(

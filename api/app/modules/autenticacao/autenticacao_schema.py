@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 
 class LoginSchema(BaseModel):
@@ -17,10 +17,10 @@ class RecuperarSenhaRequest(BaseModel):
 
 class ValidarCodigoRequest(BaseModel):
     email: EmailStr
-    codigo: str
+    codigo: str = Field(..., min_length=6, max_length=6)
 
 
 class ResetarSenhaRequest(BaseModel):
     email: EmailStr
-    codigo: str
-    nova_senha: str
+    codigo: str = Field(..., min_length=6, max_length=6)
+    nova_senha: str = Field(..., min_length=8)

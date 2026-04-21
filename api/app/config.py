@@ -1,3 +1,4 @@
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -16,6 +17,17 @@ class Settings(BaseSettings):
     MAIL_STARTTLS: bool = True
     MAIL_SSL_TLS: bool = False
     MAIL_FROM_NAME: str = "SGPC"
+
+    @model_validator(mode="after")
+    def validate_email_credentials(self):
+        # Em produção, ou quando o ambiente não for "development", obriga credenciais de e-mail válidas
+        if self.ENVIRONMENT != "development":
+            if not self.MAIL_USERNAME or not self.MAIL_PASSWORD:
+                raise ValueError(
+                    "MAIL_USERNAME e MAIL_PASSWORD são obrigatórios fora do ambiente de desenvolvimento "
+                    "para evitar envio não autenticado."
+                )
+        return self
 
     model_config = SettingsConfigDict(
         env_file=".env",

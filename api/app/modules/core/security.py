@@ -1,3 +1,7 @@
+import hashlib
+import hmac
+import secrets
+
 import bcrypt
 import jwt
 from fastapi import Depends
@@ -23,6 +27,18 @@ def hash_senha(senha: str) -> str:
 def verificar_senha(senha_plana: str, senha_hash: str) -> bool:
     """Verifica se a senha plana coincide com o hash do banco."""
     return bcrypt.checkpw(senha_plana.encode("utf-8"), senha_hash.encode("utf-8"))
+
+
+def gerar_hmac_codigo(codigo: str) -> str:
+    """Gera um HMAC para um código de recuperação usando o SECRET_KEY."""
+    h = hmac.new(SECRET_KEY.encode("utf-8"), codigo.encode("utf-8"), hashlib.sha256)
+    return h.hexdigest()
+
+
+def verificar_hmac_codigo(codigo_fornecido: str, hmac_armazenado: str) -> bool:
+    """Verifica se o código fornecido bate com o HMAC armazenado (constant-time compare)."""
+    hmac_calculado = gerar_hmac_codigo(codigo_fornecido)
+    return secrets.compare_digest(hmac_calculado, hmac_armazenado)
 
 
 async def get_current_user(

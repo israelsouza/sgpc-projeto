@@ -1,4 +1,4 @@
-from fastapi import status
+from fastapi import BackgroundTasks, status
 
 from app.modules.autenticacao.autenticacao_schema import (
     LoginSchema,
@@ -23,11 +23,15 @@ class AutenticacaoController:
         )
 
     @staticmethod
-    async def solicitar_recuperacao(dados: RecuperarSenhaRequest, db: Prisma):
-        resultado = await AutenticacaoService.solicitar_recuperacao(dados, db)
+    async def solicitar_recuperacao(
+        dados: RecuperarSenhaRequest, background_tasks: BackgroundTasks, db: Prisma
+    ):
+        resultado = await AutenticacaoService.solicitar_recuperacao(
+            dados, background_tasks, db
+        )
 
         return StandardResponse(
-            message=resultado["mensagem"],
+            message=resultado.get("mensagem", "Operação concluída"),
             status_code=status.HTTP_200_OK,
         )
 
@@ -46,6 +50,6 @@ class AutenticacaoController:
         resultado = await AutenticacaoService.resetar_senha(dados, db)
 
         return StandardResponse(
-            message=resultado["mensagem"],
+            message=resultado.get("mensagem", "Operação concluída"),
             status_code=status.HTTP_200_OK,
         )
