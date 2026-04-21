@@ -12,7 +12,7 @@ from app.modules.condominio.condominio_controller import CondominioController
 router = APIRouter(prefix="/condominio", tags=["Condomínio"])
 
 
-@router.post("/criarCondominio", response_model=CondominioResponse)
+@router.post("/criar-condominio", response_model=CondominioResponse)
 async def criar_condominio(
     dados: CondominioCreate,
     db: Prisma = Depends(get_prisma)
@@ -20,12 +20,12 @@ async def criar_condominio(
     return await CondominioController.criar_condominio(dados, db)
 
 
-@router.get("/listarCondominios", response_model=list[CondominioResponse])
+@router.get("/listar-condominios", response_model=list[CondominioResponse])
 async def listar_condominios(db: Prisma = Depends(get_prisma)):
     return await CondominioController.listar_condominios(db)
 
 
-@router.get("/buscarCondominio/{cond_id}", response_model=CondominioResponse)
+@router.get("/buscar-condominio/{cond_id}", response_model=CondominioResponse)
 async def buscar_condominio(cond_id: int, db: Prisma = Depends(get_prisma)):
     condominio = await CondominioController.buscar_condominio(cond_id, db)
     if not condominio:
@@ -33,7 +33,7 @@ async def buscar_condominio(cond_id: int, db: Prisma = Depends(get_prisma)):
     return condominio
 
 
-@router.put("/atualizarCondominio/{cond_id}", response_model=CondominioResponse)
+@router.put("/atualizar-condominio/{cond_id}", response_model=CondominioResponse)
 async def atualizar_condominio(
     cond_id: int,
     dados: CondominioUpdate,
