@@ -8,6 +8,12 @@ from app.modules.core.auth import create_access_token
 from index import app
 
 
+@pytest.fixture(scope="session")
+def anyio_backend():
+    """Configura o anyio para usar um único event loop asyncio durante toda a sessão."""
+    return "asyncio"
+
+
 @pytest.fixture(autouse=True)
 async def setup_db():
     """Conecta ao banco de dados, prepara perfis e condomínio de teste."""
@@ -145,6 +151,12 @@ async def client():
         transport=ASGITransport(app=app), base_url="http://test", timeout=60.0
     ) as ac:
         yield ac
+
+
+@pytest.fixture()
+async def db_client():
+    """Retorna a instância do Prisma Client."""
+    return db
 
 
 @pytest.fixture()

@@ -76,4 +76,5 @@ ex: no diretorio `/api/app/modules/usuario` teremos o modulo de usuario, e dentr
   1.  **Services (`src/services`)**: Funções que interagem diretamente com a API. Exclusivamente para chamadas HTTP (ex: `AuthService.validarChave`).
   2.  **Hooks (`src/hooks`)**: Custom Hooks que orquestram a lógica de negócio, controlam estados (loading, error) e interagem com os *Services*.
   3.  **Componentes/Telas (`app/` ou `src/screens`)**: A camada de UI, que deve ser o mais "burra" possível, consumindo os *Hooks* para obter dados e executar ações.
+- **Log de Dados Sensíveis (PII):** Todo e qualquer log que envolva dados sensíveis (e-mails, CPFs, nomes, telefones) deve utilizar a técnica de *redaction*. Utilize `logger.bind(...)` para definir o contexto e substitua o valor do dado sensível por `"<redacted>"` ou um hash (SHA-256) do valor original. Mantenha o ID do usuário (ex: `usuario_id`) sempre que possível para permitir a rastreabilidade sem expor o dado pessoal.
 
