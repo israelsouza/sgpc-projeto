@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   TouchableOpacity,
@@ -10,6 +9,7 @@ import {
 import { colors } from "@/theme/colors";
 import { styles } from "@/screens/Perfil/perfil.styles";
 import { BottomNav } from "@/components/BottomNav";
+import { Header } from "@/components/Header";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import type { ComponentType } from "react";
 
@@ -75,83 +75,74 @@ export default function PerfilScreen({
   name = "João da Silva",
   email = "joao.silva@gmail.com",
   phone = "11 91234-1234",
-  avatarUri,
 }: PerfilScreenProps) {
+
+  const profileIcon = (
+    <Feather name="user" size={32} color={colors.textLight} />
+  );
+
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.primaryDark} />
 
       {/* ── Header de perfil ── */}
-      <View style={styles.header}>
-        <View style={styles.avatarWrapper}>
-          {avatarUri ? (
-            <Image source={{ uri: avatarUri }} style={styles.avatar} />
-          ) : (
-            <View style={styles.avatarFallback}>
-              <Feather name="user" size={32} color={colors.textLight} />
-            </View>
-          )}
-        </View>
-
-        <View style={styles.headerInfo}>
-          <Text style={styles.headerName}>{name}</Text>
-          <Text style={styles.headerDetail}>{email}</Text>
-          <Text style={styles.headerDetail}>{phone}</Text>
-        </View>
-
-        {/* Curva de transição para o conteúdo */}
-        <View style={styles.headerCurve} />
-      </View>
+      <Header
+        title={name}
+        subtitle={`${email}\n${phone}`}
+        icon={profileIcon}
+      />
 
       {/* ── Conteúdo ── */}
-      <ScrollView
-        style={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Cards de resumo */}
-        <View style={styles.statsRow}>
-          {statCards.map((card) => (
-            <View key={card.id} style={styles.statCard}>
-              <Text style={[styles.statValue, card.highlight && styles.statValueHighlight]}>
-                {card.value}
-              </Text>
-              <Text style={styles.statLabel}>{card.label}</Text>
-            </View>
-          ))}
-        </View>
+      <View style={styles.contentWrapper}>
+        <ScrollView
+          style={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Cards de resumo */}
+          <View style={styles.statsRow}>
+            {statCards.map((card) => (
+              <View key={card.id} style={styles.statCard}>
+                <Text style={[styles.statValue, card.highlight && styles.statValueHighlight]}>
+                  {card.value}
+                </Text>
+                <Text style={styles.statLabel}>{card.label}</Text>
+              </View>
+            ))}
+          </View>
 
-        {/* Itens de menu */}
-        <View style={styles.menuList}>
-          {menuItems.map((item) => {
-            const IconComponent = (
-              item.library === "Feather" ? Feather : MaterialCommunityIcons
-            ) as ComponentType<{ name: string; size: number; color: string }>;
+          {/* Itens de menu */}
+          <View style={styles.menuList}>
+            {menuItems.map((item) => {
+              const IconComponent = (
+                item.library === "Feather" ? Feather : MaterialCommunityIcons
+              ) as ComponentType<{ name: string; size: number; color: string }>;
 
-            return (
-              <TouchableOpacity
-                key={item.id}
-                style={styles.menuItem}
-                activeOpacity={0.7}
-              >
-                <View style={styles.menuIconBox}>
-                  <IconComponent
-                    name={item.icon}
-                    size={20}
-                    color={colors.earthBrown}
-                  />
-                </View>
-                <Text style={styles.menuItemTitle}>{item.title}</Text>
-                <Feather name="chevron-down" size={18} color={colors.earthBrown} />
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  style={styles.menuItem}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.menuIconBox}>
+                    <IconComponent
+                      name={item.icon}
+                      size={20}
+                      color={colors.earthBrown}
+                    />
+                  </View>
+                  <Text style={styles.menuItemTitle}>{item.title}</Text>
+                  <Feather name="chevron-down" size={18} color={colors.earthBrown} />
+                </TouchableOpacity>
+              );
+            })}
+          </View>
 
-        <View style={{ height: 24 }} />
-      </ScrollView>
+          <View style={{ height: 24 }} />
+        </ScrollView>
+      </View>
 
       {/* ── Bottom Nav ── */}
       <BottomNav activeIndex={3} />
-    </SafeAreaView>
+    </View>
   );
 }

@@ -1,9 +1,11 @@
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, ScrollView, TouchableOpacity, StatusBar } from "react-native";
 import { Feather, Entypo } from "@expo/vector-icons";
 import { Header } from "@/components/Header";
 import { BottomNav } from "@/components/BottomNav";
 import { styles } from "@/screens/Avisos/avisos.styles";
 import { colors } from "@/theme/colors";
+import * as SecureStore from 'expo-secure-store';
 
 interface Aviso {
   id: string;
@@ -116,25 +118,47 @@ function AvisoCard({ aviso }: { aviso: Aviso }) {
 }
 
 export default function AvisosScreen() {
+  const [userCondo, setUserCondo] = useState("");
+
+  useEffect(() => {
+    async function loadUserData() {
+      try {
+        const condo = await SecureStore.getItemAsync("userCondo");
+        if (condo) setUserCondo(condo);
+      } catch (error) {
+        console.error("Erro ao carregar condomínio do usuário:", error);
+      }
+    }
+    loadUserData();
+  }, []);
+
+  const megaphoneIcon = (
+    <Entypo name="megaphone" size={24} color={colors.textLight} />
+  );
+
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={colors.primaryDark} />
+      
       <Header
         title="Mural de avisos"
-        subtitle="Itaim Bibi"
-        icon={<Entypo name="megaphone" size={24} color={colors.textLight} />}
+        subtitle={userCondo || "Condomínio"}
+        icon={megaphoneIcon}
       />
 
-      <ScrollView
-        style={styles.content}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.list}
-      >
-        <Text style={styles.sectionTitle}>Mural de avisos</Text>
+      <View style={styles.contentWrapper}>
+        <ScrollView
+          style={styles.content}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.list}
+        >
+          {/* <Text style={styles.sectionTitle}>Mural de avisos</Text> */}
 
-        {avisos.map((aviso) => (
-          <AvisoCard key={aviso.id} aviso={aviso} />
-        ))}
-      </ScrollView>
+          {avisos.map((aviso) => (
+            <AvisoCard key={aviso.id} aviso={aviso} />
+          ))}
+        </ScrollView>
+      </View>
 
       <BottomNav activeIndex={2} />
     </View>
