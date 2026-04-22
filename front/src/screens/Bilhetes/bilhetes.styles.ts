@@ -4,7 +4,7 @@ import { colors, palette } from "@/theme/colors";
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export const styles = StyleSheet.create({
-  container: {
+container: {
     flex: 1,
     backgroundColor: palette.offWhite,
   },
@@ -22,155 +22,95 @@ export const styles = StyleSheet.create({
   },
   
   ContainerFundo: {
-  flex: 1,
-  width: "100%",
-  backgroundColor: palette.offWhite,
-  borderRadius: 10,
+    flex: 1,                        
+    backgroundColor: "transparent",
   },
 
   ContainerFundoContent: {
-  marginTop: 20,
-  paddingHorizontal: 16,
-  paddingBottom: 24,
-  gap: 20,
-},
+    paddingHorizontal: 20,
+    paddingBottom: 32,
+    gap: 10,
+  },
 
   ContainerTextData: {
     justifyContent: "center",
-    alignSelf: "baseline",
-    margin: 20,
+    alignSelf: "flex-start",
+    marginBottom: 4,
+    marginTop: 16,
+    paddingHorizontal: 4,
   },
 
   TextDataMain: {
     color: palette.lightBrown,
     fontFamily: "InterBold",
-    fontSize: 15,
-    padding: 20
+    fontSize: 14,
   },
+
 
   Listado: {
     width: "100%",
-    backgroundColor: "#FFFF",
+    backgroundColor: "#FFFFFF",
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 14,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07,
+    shadowRadius: 6,
     elevation: 2,
   },
 
   ContainerIcon: {
-    width: 52,
-    height: 52,
-    backgroundColor: palette.brown,
+    width: 48,
+    height: 48,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
-    borderRadius: 10,
-  },
-
-  ContainerBody: {
-    flex: 1,
-    justifyContent: "center",
-    gap: 4,
-  },
-
-  TextTitle: {
-    fontFamily: "InterBold",
-    fontSize: 13,
-  },
-
-  TextDesc: {
-    fontFamily: "InterBold",
-    fontSize: 13,
-    color: palette.darkGray,
-  },
-
-  ContainerData: {
-    alignItems: "flex-end",
-    justifyContent: "center",
-    gap: 4,
-    minWidth: 80
-  },
-
-  TextData: {
-    fontFamily: "InterBold",
-    fontSize: 13,
-    color: palette.darkGray,
+    borderRadius: 12,
   },
 
   icon: {
     color: palette.darkBrown,
   },
 
-  /*************************************************************************************** MODAL **********************************************************************************************************************/
+
+  ContainerBody: {
+    flex: 1,
+    justifyContent: "center",
+    gap: 3,
+  },
+
+  TextTitle: {
+    fontFamily: "InterBold",
+    fontSize: 13,
+    color: palette.negro,
+  },
+
+  TextDesc: {
+    fontFamily: "InterRegular",
+    fontSize: 12,
+    color: palette.darkGray,
+  },
+
+  ContainerData: {
+    alignItems: "flex-end",
+    justifyContent: "center",
+    gap: 3,
+    maxWidth: 80,
+  },
+
+  TextData: {
+    fontFamily: "InterMedium",
+    fontSize: 11,
+    color: palette.darkGray,
+  },
+
 
   ModalBlur: {
     flex: 1,
   },
-
-    ModalBotaoExcluir: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 12,
-    backgroundColor: palette.accent,
-    borderRadius: 10,
-    padding: 20
-  },
-
-  TextCancelar:{
-    fontFamily: "InterBold",
-    fontSize: 14,
-    color: "#B07850",
-    padding:10
-  },
-
-  selecionarReservaMark:{
-    backgroundColor: "transparent",
-    borderWidth: 2,
-    borderColor:palette.accent,
-    borderRadius: 10,
-},
-
-  TextExcluirPress:{
-    fontFamily: "InterMedium",
-    fontSize: 14,
-    color: colors.textLight,
-  },
-
-    ModalBotaoCancelar: {
-    padding: 20,
-    borderRadius: 12,
-    backgroundColor: "#B07850",
-    alignItems: "center",
-    fontSize:14,
-  },
-  
-  ModalBotaoCancelarPress:{
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: "#B07850",
-    alignItems: "center",
-    justifyContent: "center"
-    
-  },
-
-  ModalBotaoExcluirConfirmando: {
-    backgroundColor: palette.accent,
-    padding:15,
-    gap:10
-  },
-  
-  ModalBotaoExcluirTexto: {
-    color: "#fff",
-    fontFamily: "InterBold",
-    fontSize: 14,
-    },
 
   ModalOverlay: {
     flex: 1,
@@ -180,14 +120,14 @@ export const styles = StyleSheet.create({
   },
 
   ModalCard: {
-    width: SCREEN_WIDTH * 0.85,
+    width: SCREEN_WIDTH * 0.88,
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
     padding: 24,
     gap: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.18,
+    shadowOpacity: 0.15,
     shadowRadius: 20,
     elevation: 12,
   },
@@ -199,12 +139,11 @@ export const styles = StyleSheet.create({
     padding: 4,
   },
 
-  //CONTEÚDO DO MODAL
   Containerprincipal: {
     flexDirection: "row",
     alignItems: "center",
     gap: 14,
-    paddingRight: 24, 
+    paddingRight: 24,
   },
 
   CardAberto: {
@@ -230,10 +169,65 @@ export const styles = StyleSheet.create({
     gap: 12,
   },
 
-  ContainerDataModal:{
+  ContainerDataModal: {
     alignItems: "flex-start",
     justifyContent: "center",
-    gap: 4,
-  }
+    gap: 6,
+  },
+
+  ModalBotaoExcluir: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: palette.accent,
+    borderRadius: 10,
+    padding: 14,
+  },
+
+  ModalBotaoExcluirConfirmando: {
+    backgroundColor: "#C0392B",       // vermelho para confirmar exclusão
+  },
+
+  ModalBotaoExcluirTexto: {
+    color: "#fff",
+    fontFamily: "InterBold",
+    fontSize: 14,
+  },
+
+  ModalBotaoCancelar: {
+    padding: 14,
+    borderRadius: 12,
+    backgroundColor: palette.brown,
+    alignItems: "center",
+  },
+
+  ModalBotaoCancelarPress: {
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: palette.brown,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  TextCancelar: {
+    fontFamily: "InterBold",
+    fontSize: 14,
+    color: palette.accent,
+    padding: 10,
+  },
+
+  TextExcluirPress: {
+    fontFamily: "InterMedium",
+    fontSize: 14,
+    color: colors.textLight,
+  },
+
+  selecionarReservaMark: {
+    backgroundColor: "transparent",
+    borderWidth: 2,
+    borderColor: palette.accent,
+    borderRadius: 10,
+  },
 
 });

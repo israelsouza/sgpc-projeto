@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 import { Link } from "expo-router";
-import DocumentsScreen from "./Documentos";
+import Bilhetes from "./Bilhetes";
 
 export default function HomeScreen() {
   return (
@@ -10,7 +10,7 @@ export default function HomeScreen() {
       <Link href="/login" style={styles.link}>
         Ir para Login
       </Link>
-      <DocumentsScreen />
+      <Bilhetes />
     </View>
   );
 }

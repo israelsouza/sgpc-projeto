@@ -1,6 +1,6 @@
-  import { useState } from "react";
+import { useState } from "react";
 import { View, TouchableOpacity, Text, SectionList, Modal, Pressable } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { styles } from "@/screens/Home/Listado.styles";
 import { useFonts } from "expo-font";
@@ -36,7 +36,7 @@ export const coresPorIcone: Record<string, string> = {
 };
 
 export const listadoMock: componenteList[] = [
-  {
+/*   {
     id: "1",
     titulo: "Pedido de reforma",
     subtitulo: "Formulário enviado",
@@ -70,7 +70,7 @@ export const listadoMock: componenteList[] = [
     autor:"Paulo",
     data: "01/04/26",
     hora: "11:30",
-    icone: "cash",
+    icone: "dollar-sign",
     mesAno: "Abril 2026",
     cor: coresPorCategoria["pagamento"],
     corIcon: coresPorIcone["pagamento"],
@@ -83,7 +83,7 @@ export const listadoMock: componenteList[] = [
     autor:"Paulo",
     data: "05/04/26",
     hora: "16:20",
-    icone: "document",
+    icone: "file",
     mesAno: "Abril 2026",
     cor: coresPorCategoria["documento"],
     corIcon: coresPorIcone["documento"],
@@ -96,11 +96,24 @@ export const listadoMock: componenteList[] = [
     autor:"Paulo",
     data: "08/04/26",
     hora: "08:45",
-    icone: "time",
+    icone: "clock",
     mesAno: "Abril 2026",
     cor: coresPorCategoria["solicitacao"],
     corIcon: coresPorIcone["solicitacao"],
-  },
+  }, */
+  {
+    id: "6",
+    titulo: "Bilhete",
+    subtitulo: "Uber",
+    descricao: "Pedi um uber e a placa é: njcnkd",
+    autor: "André",
+    data: "20/04/2023",
+    hora: "10:30",
+    icone: "user",
+    mesAno: "Abril 2023",
+    cor: coresPorCategoria["solicitacao"],
+    corIcon: coresPorIcone["solicitacao"]
+  }
 ];
 
 export type componenteAgendamento = {
@@ -115,7 +128,9 @@ export type componenteAgendamento = {
 }
 
 
-function agruparMes(items: componenteList[]) {
+
+
+export function agruparMes(items: componenteList[]) {
   const grupos: Record<string, componenteList[]> = {};
   items.forEach((item) => {
     if (!grupos[item.mesAno]) grupos[item.mesAno] = [];
@@ -162,13 +177,13 @@ export function DetalhesModal({
  
             {/* Botão fechar */}
             <TouchableOpacity style={styles.ModalBotaoFechar} onPress={onClose}>
-              <Ionicons name="close" size={18} color="#888" />
+              <Feather name="x" size={18} color="#888" />
             </TouchableOpacity>
  
             {/* Ícone + título + autor + subtítulo */}
             <View style={styles.Containerprincipal}>
               <View style={[styles.CardAberto, { backgroundColor: item.cor }]}>
-                <Ionicons name={item.icone as any} size={22} color={item.corIcon} />
+                <Feather name={item.icone as any} size={22} color={item.corIcon} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.TextTitle}>{item.titulo}</Text>
@@ -184,11 +199,11 @@ export function DetalhesModal({
             {/* Data e hora */}
             <View style={styles.ContainerDataModal}>
               <View style={styles.infosData}>
-                <Ionicons name="calendar" size={14} color={item.corIcon} />
+                <Feather name="calendar" size={14} color={item.corIcon} />
                 <Text style={styles.TextData}>{item.data}</Text>
               </View>
               <View style={styles.infosData}>
-                <Ionicons name="time" size={14} color={item.corIcon} />
+                <Feather name="clock" size={14} color={item.corIcon} />
                 <Text style={styles.TextData}>{item.hora}</Text>
               </View>
             </View>
@@ -202,7 +217,7 @@ export function DetalhesModal({
                 ]}
                 onPress={handleDelete}
               >
-                <Ionicons
+                <Feather
                   name={confirmExclusao ? "alert-circle" : "trash"}
                   size={16}
                   color="#fff"
@@ -225,8 +240,11 @@ export function DetalhesModal({
 
 /* COMPONENTE PRINCIPAL QUE SERÁ RENDENIZADO NAS TELAS */
 
-export default function ListadoCenter() {
-  /* TODOS os hooks primeiro */
+interface ListadoProps {
+  dados?: componenteList[];
+}
+
+export default function ListadoCenter({ dados = [] }: ListadoProps) {
   const [itemSelecionado, setItemSelecionado] = useState<componenteList | null>(null);
 
   const [loaded, error] = useFonts({
@@ -238,10 +256,12 @@ export default function ListadoCenter() {
 
   if (!loaded && !error) return null;
 
-  const secoes = agruparMes(listadoMock);
+  const secoes = agruparMes(dados);
 
   return (
-    <>
+    <View style={styles.container}>
+
+    <View style={styles.centerContainer}>
       <SectionList
         style={styles.ContainerFundo}
         contentContainerStyle={styles.ContainerFundoContent}
@@ -259,7 +279,7 @@ export default function ListadoCenter() {
             activeOpacity={0.7}
           >
             <View style={[styles.ContainerIcon, { backgroundColor: item.cor }]}>
-              <Ionicons
+              <Feather
                 name={item.icone as any}
                 size={24}
                 style={[styles.icon, { color: item.corIcon }]}
@@ -284,6 +304,8 @@ export default function ListadoCenter() {
         item={itemSelecionado}
         onClose={() => setItemSelecionado(null)}
       />
-    </>
+    </View>
+    </View>
+    
   );
 }

@@ -90,7 +90,7 @@ const menuItems: MenuItem[] = [
     icon: { name: "send", library: "Feather" },
     iconBg: "#EDD6F5",
     iconColor: "#9B6BB6",
-    route: "/bilhetes",
+    route: "/Bilhetes",
   },
 ];
 
