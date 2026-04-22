@@ -135,7 +135,7 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.primaryDark} />
 
       {/* ── Header ── */}
@@ -181,7 +181,6 @@ export default function HomeScreen() {
 
       {/*  Bottom Nav  */}
       <BottomNav activeIndex={0} />
-    </SafeAreaView>
-
+    </View>
   );
-}
+  }

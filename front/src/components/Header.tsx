@@ -1,4 +1,5 @@
 import { View, Text } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { styles } from "@/screens/Home/home.styles";
 import { ReactNode } from "react";
 
@@ -16,8 +17,10 @@ export function Header({
   initials = "IB",
   icon,
 }: HeaderProps) {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) + 16 }]}>
       <View style={styles.headerLeft}>
         <View style={styles.avatar}>
           {icon ? (

@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
   },
   topSection: {
     flex: 1,
-    paddingHorizontal: 28,
+    paddingHorizontal: 20,
     paddingTop: 48,
     justifyContent: "flex-end",
     paddingBottom: 32,
@@ -27,9 +27,9 @@ export const styles = StyleSheet.create({
   bottomSheet: {
     flex: 1,
     backgroundColor: colors.sheetBg,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    paddingHorizontal: 28,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 20,
     paddingTop: 32,
     paddingBottom: 40,
   },
