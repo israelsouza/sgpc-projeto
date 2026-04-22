@@ -140,9 +140,6 @@ export default function PerfilScreen({
           <View style={{ height: 24 }} />
         </ScrollView>
       </View>
-
-      {/* ── Bottom Nav ── */}
-      <BottomNav activeIndex={3} />
     </View>
   );
 }

@@ -176,11 +176,8 @@ export default function HomeScreen() {
 
           {/* Espaço no final para o scroll não cortar */}
           <View style={{ height: 24 }} />
-        </ScrollView>
-      </View>
-
-      {/*  Bottom Nav  */}
-      <BottomNav activeIndex={0} />
-    </View>
-  );
-  }
+          </ScrollView>
+          </View>
+          </View>
+          );
+          }

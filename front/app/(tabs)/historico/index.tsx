@@ -185,9 +185,6 @@ export default function HistoricoScreen() {
           <View style={{ height: 24 }} />
         </ScrollView>
       </View>
-
-      {/* ── Bottom Nav (índice 1 = Histórico) ── */}
-      <BottomNav activeIndex={1} />
     </View>
   );
 }

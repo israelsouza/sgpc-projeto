@@ -159,8 +159,6 @@ export default function AvisosScreen() {
           ))}
         </ScrollView>
       </View>
-
-      <BottomNav activeIndex={2} />
     </View>
   );
 }
