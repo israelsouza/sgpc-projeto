@@ -7,6 +7,8 @@ import {
   StatusBar,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useState, useEffect } from "react";
+import * as SecureStore from 'expo-secure-store';
 import { colors } from "@/theme/colors";
 import { styles } from "@/screens/Home/home.styles";
 import { Feather, AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -107,48 +109,78 @@ function renderIcon(icon: MenuItem["icon"], color: string) {
 
 export default function HomeScreen() {
   const router = useRouter();
+  
+  const [userName, setUserName] = useState("Usuário");
+  const [userCondo, setUserCondo] = useState("");
+  const [userUnit, setUserUnit] = useState("");
+
+  useEffect(() => {
+    async function loadUserData() {
+      try {
+        const name = await SecureStore.getItemAsync("userName");
+        const condo = await SecureStore.getItemAsync("userCondo");
+        const unit = await SecureStore.getItemAsync("userUnit");
+        
+        if (name) {
+          // Pega o primeiro nome para o "Seja bem vindo"
+          setUserName(name.split(" ")[0]);
+        }
+        if (condo) setUserCondo(condo);
+        if (unit) setUserUnit(unit);
+      } catch (error) {
+        console.error("Erro ao carregar dados do usuário:", error);
+      }
+    }
+    loadUserData();
+  }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.primaryDark} />
 
       {/* ── Header ── */}
-      <Header />
+      <Header 
+        title={userCondo || "Condomínio"} 
+        subtitle={userUnit} 
+        initials={userCondo ? userCondo.substring(0, 2).toUpperCase() : "SG"} 
+      />
 
       {/* ── Conteúdo ── */}
-      <ScrollView
-        style={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Boas-vindas */}
-        <View style={styles.welcomeCard}>
-          <Text style={styles.welcomeText}>Seja bem vindo João</Text>
-        </View>
+      <View style={styles.contentWrapper}>
+        <ScrollView
+          style={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Boas-vindas */}
+          <View style={styles.welcomeCard}>
+            <Text style={styles.welcomeText}>Seja bem vindo(a) {userName}</Text>
+          </View>
 
-        {/* Grid de cards */}
-        <View style={styles.grid}>
-          {menuItems.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.card}
-              onPress={() => router.push(item.route as any)}
-              activeOpacity={0.7}
-            >
-              <View style={[styles.iconBox, { backgroundColor: item.iconBg }]}>
-                {renderIcon(item.icon, item.iconColor)}
-              </View>
-              <Text style={styles.cardTitle}>{item.title}</Text>
-              <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+          {/* Grid de cards */}
+          <View style={styles.grid}>
+            {menuItems.map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.card}
+                onPress={() => router.push(item.route as any)}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.iconBox, { backgroundColor: item.iconBg }]}>
+                  {renderIcon(item.icon, item.iconColor)}
+                </View>
+                <Text style={styles.cardTitle}>{item.title}</Text>
+                <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
-        {/* Espaço no final para o scroll não cortar */}
-        <View style={{ height: 24 }} />
-      </ScrollView>
+          {/* Espaço no final para o scroll não cortar */}
+          <View style={{ height: 24 }} />
+        </ScrollView>
+      </View>
 
       {/*  Bottom Nav  */}
       <BottomNav activeIndex={0} />
-    </SafeAreaView>
+    </View>
   );
-}
+  }

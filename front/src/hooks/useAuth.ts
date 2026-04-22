@@ -22,6 +22,9 @@ export function useAuth() {
       // Salva o token de forma segura (SecureStore apenas aceita strings)
       await SecureStore.setItemAsync('userToken', String(authData.access_token || ""));
       await SecureStore.setItemAsync('userProfile', String(authData.perfil || ""));
+      await SecureStore.setItemAsync('userName', String(authData.nome || ""));
+      await SecureStore.setItemAsync('userCondo', String(authData.condominio || ""));
+      await SecureStore.setItemAsync('userUnit', String(authData.unidade || ""));
 
       // TODO: Redirecionar para a Home após o login
       Alert.alert("Sucesso", "Login realizado com sucesso!", [

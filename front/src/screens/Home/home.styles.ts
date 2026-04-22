@@ -11,7 +11,7 @@ export const styles = StyleSheet.create({
   header: {
     backgroundColor: palette.accent,
     paddingHorizontal: 20,
-    paddingTop: 52,
+    paddingTop: 20,
     paddingBottom: 36,  
     flexDirection: "row",
     alignItems: "center",
@@ -49,23 +49,24 @@ export const styles = StyleSheet.create({
 
 headerCurve: {
   position: "absolute",
-  marginLeft: "2.5%",
-  width: "95%",
+  left: 20,
+  right: 20,
   bottom: -1,
-  left: 0,
-  right: 0,
-  height: 15,              
+  height: 16,              
   backgroundColor: colors.sheetBg,
   borderTopLeftRadius: 20,
   borderTopRightRadius: 20,
 },
 
   //  Conteúdo
+  contentWrapper: {
+    flex: 1,
+    backgroundColor: colors.sheetBg,
+    paddingTop: 16,
+  },
   content: {
-   flex: 1,
-  paddingHorizontal: 16,
-  paddingTop: 16,
-  backgroundColor: colors.sheetBg, 
+    flex: 1,
+    paddingHorizontal: 16,
   },
 
   // Boas vindas
@@ -74,7 +75,7 @@ headerCurve: {
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    margin: 16,
+    marginBottom: 20,
   },
   welcomeText: {
     color: colors.textDark,

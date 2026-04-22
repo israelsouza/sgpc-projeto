@@ -35,7 +35,11 @@ class AutenticacaoService:
         usuario = await UsuarioModel.buscar_por_email(
             dados.email,
             db,
-            includes={"perfis": True, "morador": True, "funcionario": True},
+            includes={
+                "perfis": True,
+                "morador": {"include": {"unidade": {"include": {"condominio": True}}}},
+                "funcionario": {"include": {"condominio": True}},
+            },
         )
 
         if not usuario or not verificar_senha(dados.senha, usuario.senha):
@@ -66,6 +70,27 @@ class AutenticacaoService:
         roles = [p.nome for p in usuario.perfis]
         status_morador = usuario.morador.status if usuario.morador else "N/A"
 
+        # Extração de dados de perfil para o app mobile
+        nome_exibicao = "Usuário"
+        condominio_nome = "Condomínio"
+        unidade_nome = ""
+
+        if usuario.morador:
+            nome_exibicao = usuario.morador.nome_completo
+            if usuario.morador.unidade:
+                bloco = (
+                    f"Bloco {usuario.morador.unidade.bloco} - "
+                    if usuario.morador.unidade.bloco
+                    else ""
+                )
+                unidade_nome = f"{bloco}Unid. {usuario.morador.unidade.unidade}"
+                if usuario.morador.unidade.condominio:
+                    condominio_nome = usuario.morador.unidade.condominio.nome
+        elif usuario.funcionario:
+            nome_exibicao = usuario.funcionario.nome_completo
+            if usuario.funcionario.condominio:
+                condominio_nome = usuario.funcionario.condominio.nome
+
         access_token = create_access_token(
             data={
                 "sub": str(usuario.id),
@@ -77,7 +102,14 @@ class AutenticacaoService:
 
         log.info("Login realizado com sucesso", usuario_id=usuario.id, roles=roles)
 
-        return {"access_token": access_token, "token_type": "bearer"}
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "perfil": roles[0] if roles else "N/A",
+            "nome": nome_exibicao,
+            "condominio": condominio_nome,
+            "unidade": unidade_nome,
+        }
 
     @staticmethod
     async def solicitar_recuperacao(
