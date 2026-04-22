@@ -1,21 +1,22 @@
 import { View, TouchableOpacity, Platform } from "react-native";
 import { FontAwesome6, Entypo, Feather } from "@expo/vector-icons";
-import { Link } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { styles } from "@/screens/Home/home.styles";
 import { colors } from "@/theme/colors";
 
-interface BottomNavProps {
-  activeIndex?: number;
-}
-
-export function BottomNav({ activeIndex = 0 }: BottomNavProps) {
+export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const inactiveColor = "#B8A89A";
   const activeColor = colors.earthBrown;
 
-  const getColor = (index: number) =>
-    activeIndex === index ? activeColor : inactiveColor;
+  // As rotas na mesma ordem em que foram declaradas no _layout.tsx das Tabs
+  const routesInfo = [
+    { name: "home/index", icon: FontAwesome6, iconName: "house" },
+    { name: "historico/index", icon: Entypo, iconName: "back-in-time" },
+    { name: "avisos/index", icon: Entypo, iconName: "megaphone" },
+    { name: "perfil/index", icon: Feather, iconName: "users" },
+  ];
 
   return (
     <View 
@@ -26,26 +27,38 @@ export function BottomNav({ activeIndex = 0 }: BottomNavProps) {
         }
       ]}
     >
-      <Link href="../home" asChild>
-        <TouchableOpacity style={styles.navItem}>
-          <FontAwesome6 name="house" size={24} color={getColor(0)} />
-        </TouchableOpacity>
-      </Link>
-      <Link href="/historico" asChild>
-        <TouchableOpacity style={styles.navItem}>
-          <Entypo name="back-in-time" size={24} color={getColor(1)} />
-        </TouchableOpacity>
-      </Link>
-      <Link href="/avisos" asChild>
-        <TouchableOpacity style={styles.navItem}>
-          <Entypo name="megaphone" size={24} color={getColor(2)} />
-        </TouchableOpacity>
-      </Link>
-      <Link href="../perfil" asChild>
-        <TouchableOpacity style={styles.navItem}>
-          <Feather name="users" size={24} color={getColor(3)} />
-        </TouchableOpacity>
-      </Link>
+      {state.routes.map((route, index) => {
+        const isFocused = state.index === index;
+        const iconInfo = routesInfo[index];
+        const IconComponent = iconInfo.icon as any;
+
+        const onPress = () => {
+          const event = navigation.emit({
+            type: 'tabPress',
+            target: route.key,
+            canPreventDefault: true,
+          });
+
+          if (!isFocused && !event.defaultPrevented) {
+            navigation.navigate(route.name, route.params);
+          }
+        };
+
+        return (
+          <TouchableOpacity 
+            key={route.key}
+            style={styles.navItem} 
+            activeOpacity={0.7}
+            onPress={onPress}
+          >
+            <IconComponent 
+              name={iconInfo.iconName} 
+              size={24} 
+              color={isFocused ? activeColor : inactiveColor} 
+            />
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 }

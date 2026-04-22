@@ -20,11 +20,11 @@ export function useAuth() {
       const authData = await AuthService.login(dados);
       
       // Salva o token de forma segura (SecureStore apenas aceita strings)
-      await SecureStore.setItemAsync('userToken', String(authData.access_token || ""));
-      await SecureStore.setItemAsync('userProfile', String(authData.perfil || ""));
-      await SecureStore.setItemAsync('userName', String(authData.nome || ""));
-      await SecureStore.setItemAsync('userCondo', String(authData.condominio || ""));
-      await SecureStore.setItemAsync('userUnit', String(authData.unidade || ""));
+      await SecureStore.setItemAsync('user_token', String(authData.access_token || ""));
+      await SecureStore.setItemAsync('user_perfil', String(authData.perfil || ""));
+      await SecureStore.setItemAsync('user_nome', String(authData.nome || ""));
+      await SecureStore.setItemAsync('user_condominio', String(authData.condominio || ""));
+      await SecureStore.setItemAsync('user_unidade', String(authData.unidade || ""));
 
       // TODO: Redirecionar para a Home após o login
       Alert.alert("Sucesso", "Login realizado com sucesso!", [
