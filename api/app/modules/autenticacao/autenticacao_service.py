@@ -36,9 +36,9 @@ class AutenticacaoService:
             dados.email,
             db,
             includes={
-                "perfis": True, 
-                "morador": {"include": {"unidade": {"include": {"condominio": True}}}}, 
-                "funcionario": {"include": {"condominio": True}}
+                "perfis": True,
+                "morador": {"include": {"unidade": {"include": {"condominio": True}}}},
+                "funcionario": {"include": {"condominio": True}},
             },
         )
 
@@ -78,7 +78,11 @@ class AutenticacaoService:
         if usuario.morador:
             nome_exibicao = usuario.morador.nome_completo
             if usuario.morador.unidade:
-                bloco = f"Bloco {usuario.morador.unidade.bloco} - " if usuario.morador.unidade.bloco else ""
+                bloco = (
+                    f"Bloco {usuario.morador.unidade.bloco} - "
+                    if usuario.morador.unidade.bloco
+                    else ""
+                )
                 unidade_nome = f"{bloco}Unid. {usuario.morador.unidade.unidade}"
                 if usuario.morador.unidade.condominio:
                     condominio_nome = usuario.morador.unidade.condominio.nome
@@ -99,12 +103,12 @@ class AutenticacaoService:
         log.info("Login realizado com sucesso", usuario_id=usuario.id, roles=roles)
 
         return {
-            "access_token": access_token, 
+            "access_token": access_token,
             "token_type": "bearer",
             "perfil": roles[0] if roles else "N/A",
             "nome": nome_exibicao,
             "condominio": condominio_nome,
-            "unidade": unidade_nome
+            "unidade": unidade_nome,
         }
 
     @staticmethod
