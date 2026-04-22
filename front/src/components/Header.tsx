@@ -12,9 +12,9 @@ interface HeaderProps {
 }
 
 export function Header({
-  title = "Itaim Bibi",
-  subtitle = "Unidade 056",
-  initials = "IB",
+  title,
+  subtitle,
+  initials,
   icon,
 }: HeaderProps) {
   const insets = useSafeAreaInsets();

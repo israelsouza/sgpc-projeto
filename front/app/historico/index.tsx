@@ -2,15 +2,15 @@ import {
   View,
   Text,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
   StatusBar,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { Feather, MaterialCommunityIcons, AntDesign } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons, AntDesign, Entypo } from "@expo/vector-icons";
 import { colors } from "@/theme/colors";
 import { styles } from "@/screens/Historico/historico.styles";
 import { BottomNav } from "@/components/BottomNav";
+import { Header } from "@/components/Header";
 import type { ComponentType } from "react";
 
 // ── Tipos ──────────────────────────────────────────
@@ -72,6 +72,36 @@ const historicoItems: HistoricoItem[] = [
     date: "15/03/25",
     time: "14:50",
   },
+  {
+    id: "5",
+    title: "Aviso de visita ao porteiro",
+    subtitle: "Julia Santos",
+    icon: { name: "user", library: "Feather" },
+    iconBg: "#D6E8F7",
+    iconColor: "#5B9BC4",
+    date: "15/03/25",
+    time: "14:50",
+  },
+  {
+    id: "6",
+    title: "Aviso de visita ao porteiro",
+    subtitle: "Julia Santos",
+    icon: { name: "user", library: "Feather" },
+    iconBg: "#D6E8F7",
+    iconColor: "#5B9BC4",
+    date: "15/03/25",
+    time: "14:50",
+  },
+  {
+    id: "7",
+    title: "Aviso de visita ao porteiro",
+    subtitle: "Julia Santos",
+    icon: { name: "user", library: "Feather" },
+    iconBg: "#D6E8F7",
+    iconColor: "#5B9BC4",
+    date: "15/03/25",
+    time: "14:50",
+  }
 ];
 
 // ── Renderizador de ícones (mesmo padrão do Home) ──
@@ -80,7 +110,11 @@ function renderIcon(icon: HistoricoItem["icon"], color: string) {
     Feather,
     MaterialCommunityIcons,
     AntDesign,
-  }[icon.library] as ComponentType<{ name: string; size: number; color: string }>;
+  }[icon.library] as ComponentType<{
+    name: string;
+    size: number;
+    color: string;
+  }>;
 
   return <IconComponent name={icon.name} size={22} color={color} />;
 }
@@ -89,77 +123,71 @@ function renderIcon(icon: HistoricoItem["icon"], color: string) {
 export default function HistoricoScreen() {
   const router = useRouter();
 
+  const historyIcon = (
+    <Entypo name="back-in-time" size={26} color={colors.textLight} />
+  );
+
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.primaryDark} />
+    <View style={styles.container}>
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor={colors.primaryDark}
+      />
 
-      {/* ── Header com botão voltar ── */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-          activeOpacity={0.7}
-        >
-          <Feather name="arrow-left" size={18} color={colors.textLight} />
-        </TouchableOpacity>
-
-        <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>Minhas Ações</Text>
-          <Text style={styles.headerSubtitle}>
-            {historicoItems.length} ações recentes
-          </Text>
-        </View>
-
-        {/* Curva de transição (mesmo efeito do Header compartilhado) */}
-        <View style={styles.headerCurve} />
-      </View>
+      {/* ── Header ── */}
+      <Header 
+        title="Minhas Ações"
+        subtitle={`${historicoItems.length} ações recentes`}
+        icon={historyIcon}
+      />
 
       {/* ── Lista ── */}
-      <ScrollView
-        style={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        {historicoItems.map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            style={styles.itemCard}
-            activeOpacity={0.7}
-          >
-            {/* Ícone + badge */}
-            <View style={styles.iconWrapper}>
-              <View style={[styles.iconBox, { backgroundColor: item.iconBg }]}>
-                {renderIcon(item.icon, item.iconColor)}
-              </View>
-              {item.hasBadge && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>!</Text>
+      <View style={styles.contentWrapper}>
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          {historicoItems.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.itemCard}
+              activeOpacity={0.7}
+            >
+              {/* Ícone + badge */}
+              <View style={styles.iconWrapper}>
+                <View
+                  style={[styles.iconBox, { backgroundColor: item.iconBg }]}
+                >
+                  {renderIcon(item.icon, item.iconColor)}
                 </View>
-              )}
-            </View>
+                {item.hasBadge && (
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>!</Text>
+                  </View>
+                )}
+              </View>
 
-            {/* Texto */}
-            <View style={styles.itemContent}>
-              <Text style={styles.itemTitle} numberOfLines={1}>
-                {item.title}
-              </Text>
-              <Text style={styles.itemSubtitle} numberOfLines={2}>
-                {item.subtitle}
-              </Text>
-            </View>
+              {/* Texto */}
+              <View style={styles.itemContent}>
+                <Text style={styles.itemTitle} numberOfLines={1}>
+                  {item.title}
+                </Text>
+                <Text style={styles.itemSubtitle} numberOfLines={2}>
+                  {item.subtitle}
+                </Text>
+              </View>
 
-            {/* Data e hora */}
-            <View style={styles.itemMeta}>
-              <Text style={styles.itemDate}>{item.date}</Text>
-              <Text style={styles.itemTime}>{item.time}</Text>
-            </View>
-          </TouchableOpacity>
-        ))}
+              {/* Data e hora */}
+              <View style={styles.itemMeta}>
+                <Text style={styles.itemDate}>{item.date}</Text>
+                <Text style={styles.itemTime}>{item.time}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
 
-        <View style={{ height: 24 }} />
-      </ScrollView>
+          <View style={{ height: 24 }} />
+        </ScrollView>
+      </View>
 
       {/* ── Bottom Nav (índice 1 = Histórico) ── */}
       <BottomNav activeIndex={1} />
-    </SafeAreaView>
+    </View>
   );
 }

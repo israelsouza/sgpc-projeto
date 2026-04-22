@@ -41,23 +41,24 @@ export const styles = StyleSheet.create({
   },
   headerCurve: {
     position: "absolute",
-    marginLeft: "2.5%",
-    width: "95%",
+    left: 20,
+    right: 20,
     bottom: -1,
-    left: 0,
-    right: 0,
-    height: 15,
+    height: 16,
     backgroundColor: colors.sheetBg,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
 
   // ── Conteúdo ──
+  contentWrapper: {
+    flex: 1,
+    backgroundColor: colors.sheetBg,
+    paddingTop: 16,
+  },
   content: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingTop: 16,
-    backgroundColor: colors.sheetBg,
   },
 
   // ── Card de item ──
