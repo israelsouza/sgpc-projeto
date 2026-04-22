@@ -20,7 +20,7 @@ container: {
     paddingTop: 18,
     alignSelf:"center",
   },
-  
+
   ContainerFundo: {
     flex: 1,                        
     backgroundColor: "transparent",
@@ -186,7 +186,7 @@ container: {
   },
 
   ModalBotaoExcluirConfirmando: {
-    backgroundColor: "#C0392B",       // vermelho para confirmar exclusão
+    backgroundColor: "#C0392B",    
   },
 
   ModalBotaoExcluirTexto: {
