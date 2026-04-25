@@ -25,6 +25,7 @@ model Condominio {
   unidades          Unidade[]
   funcionarios      Funcionario[]
   chaves_acesso     ChaveAcesso[]
+  avisos            Aviso[]
 
   @@map("CONDOMINIOS")
 }
@@ -91,8 +92,51 @@ model Usuario {
   morador        Morador?
   funcionario    Funcionario?
   recuperacoes_senha RecuperacaoSenha[]
+  fcm_tokens     FCMToken[]
 
   @@map("USUARIOS")
+}
+
+enum CategoriaAviso {
+  MANUTENCAO
+  ASSEMBLEIA
+  URGENTE
+  GERAL
+}
+
+model Aviso {
+  id              Int            @id @default(autoincrement())
+  titulo          String         @map("titulo")
+  descricao       String         @map("descricao")
+  categoria       CategoriaAviso @map("categoria")
+  anexo_url       String?        @map("anexo_url")
+  
+  // FKs
+  condominio_id   Int            @map("condominio_id")
+  
+  // Auditoria e Soft Delete
+  criado_em       DateTime       @default(now()) @map("criado_em")
+  atualizado_em   DateTime       @updatedAt @map("atualizado_em")
+  deletado_em     DateTime?      @map("deletado_em")
+  quem_criou      Int?           @map("quem_criou")
+
+  // Relacionamentos
+  condominio      Condominio     @relation(fields: [condominio_id], references: [id])
+
+  @@map("AVISOS")
+}
+
+model FCMToken {
+  id          Int      @id @default(autoincrement())
+  token       String   @unique @map("token")
+  usuario_id  Int      @map("usuario_id")
+  dispositivo String?  @map("dispositivo")
+  criado_em   DateTime @default(now()) @map("criado_em")
+
+  // Relacionamentos
+  usuario     Usuario  @relation(fields: [usuario_id], references: [id])
+
+  @@map("FCM_TOKENS")
 }
 
 model RecuperacaoSenha {
