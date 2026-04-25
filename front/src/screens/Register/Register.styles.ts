@@ -78,9 +78,9 @@ export const styles = StyleSheet.create({
   card: {
     flex: 1,
     backgroundColor: colors.sheetBg,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    paddingHorizontal: 24,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 20,
     paddingTop: 28,
     paddingBottom: 32,
   },

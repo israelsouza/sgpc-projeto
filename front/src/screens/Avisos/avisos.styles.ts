@@ -7,11 +7,14 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.primaryDark,
   },
 
-  content: {
+  contentWrapper: {
     flex: 1,
     backgroundColor: colors.sheetBg,
-    paddingHorizontal: 16,
     paddingTop: 16,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 16,
   },
 
   // Título da seção
@@ -38,7 +41,7 @@ export const styles = StyleSheet.create({
     alignItems: "flex-start",
     gap: 12,
     borderWidth: 1,
-    borderColor: colors.divider,
+    borderColor: colors.earthAccent,
   },
 
   // Ícone do card

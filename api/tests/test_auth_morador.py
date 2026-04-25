@@ -4,7 +4,7 @@ from app.db.prisma_client import db
 
 
 @pytest.mark.anyio
-async def test_fluxo_registro_morador_completo(client):
+async def test_fluxo_registro_morador_completo(client, admin_token):
     """
     Testa o fluxo completo de registro de um morador:
     1. Geração de chave de acesso (Síndico)
@@ -26,25 +26,26 @@ async def test_fluxo_registro_morador_completo(client):
     perfil = await db.perfil.find_unique(where={"nome": "MORADOR"})
 
     resp_chave = await client.post(
-        "/api/auth/chave-acesso",
+        "/api/chaves/gerar",
         json={
             "validade_em_horas": 1,
             "perfil_id": perfil.id,
             "condominio_id": condo.id,
+            "unidade_id": 1,
         },
+        headers={"Authorization": f"Bearer {admin_token}"},
     )
     assert resp_chave.status_code == 201
     chave_data = resp_chave.json()
-    chave_uuid = chave_data["chave"]
+    chave_uuid = chave_data["data"]["chave"]
     assert chave_uuid is not None
-
     # --- 2. Registrar Morador ---
     dados_morador = {
         "nome_completo": "Morador de Teste Silva",
         "celular": "(11) 98888-7777",
         "rg": "12.345.678-9",
         "cpf": cpf_teste,
-        "data_nascimento": "1990-01-01T00:00:00",
+        "data_nascimento": "01011990",
         "email": email_teste,
         "senha": "SenhaForte123!",
         "confirmacao_senha": "SenhaForte123!",
@@ -54,7 +55,7 @@ async def test_fluxo_registro_morador_completo(client):
     resp_registro = await client.post("/api/moradores/registrar", json=dados_morador)
     assert resp_registro.status_code == 201
     registro_data = resp_registro.json()
-    assert registro_data["status"] == "PENDENTE"
+    assert registro_data["data"]["status"] == "PENDENTE"
 
     # --- 3. Tentar registrar com a mesma chave (deve falhar por chave_usada) ---
     # Usamos outros dados para garantir que o erro seja na chave
@@ -66,12 +67,16 @@ async def test_fluxo_registro_morador_completo(client):
     assert resp_repetida.status_code == 400
     assert resp_repetida.json()["nome"] == "chave_usada"
 
+    # --- 3.5 Simular Aprovação do Síndico ---
+    morador_banco = await db.morador.find_unique(where={"cpf": cpf_teste})
+    await db.morador.update(where={"id": morador_banco.id}, data={"status": "ATIVO"})
+
     # --- 4. Tentar Login ---
     login_data = {"email": email_teste, "senha": "SenhaForte123!"}
     resp_login = await client.post("/api/auth/login", json=login_data)
     assert resp_login.status_code == 200
     token_data = resp_login.json()
-    assert "access_token" in token_data
+    assert "access_token" in token_data["data"]
 
 
 @pytest.mark.anyio

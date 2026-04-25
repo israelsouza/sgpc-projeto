@@ -1,17 +1,17 @@
 import { StyleSheet } from "react-native";
-import { colors } from "@/theme/colors";
+import { colors, palette } from "@/theme/colors";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-     backgroundColor: colors.primaryDark,
+     backgroundColor: palette.accent,
   },
 
   // header
   header: {
-    backgroundColor: colors.primaryDark,
+    backgroundColor: palette.accent,
     paddingHorizontal: 20,
-    paddingTop: 52,
+    paddingTop: 20,
     paddingBottom: 36,  
     flexDirection: "row",
     alignItems: "center",
@@ -24,16 +24,16 @@ export const styles = StyleSheet.create({
     gap: 12,
   },
   avatar:{
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: colors.primary,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: "rgba(255,255,255,0.22)",
     alignItems: "center",
     justifyContent: "center",
   },
   avatarText: {
     color: colors.textLight,
-    fontSize: 15,
+    fontSize: 20,
     fontWeight: "700",
   },
   headerTitle: {
@@ -49,23 +49,24 @@ export const styles = StyleSheet.create({
 
 headerCurve: {
   position: "absolute",
-  marginLeft: "2.5%",
-  width: "95%",
+  left: 20,
+  right: 20,
   bottom: -1,
-  left: 0,
-  right: 0,
-  height: 15,              
+  height: 16,              
   backgroundColor: colors.sheetBg,
   borderTopLeftRadius: 20,
   borderTopRightRadius: 20,
 },
 
   //  Conteúdo
+  contentWrapper: {
+    flex: 1,
+    backgroundColor: colors.sheetBg,
+    paddingTop: 16,
+  },
   content: {
-   flex: 1,
-  paddingHorizontal: 16,
-  paddingTop: 16,
-  backgroundColor: colors.sheetBg, 
+    flex: 1,
+    paddingHorizontal: 16,
   },
 
   // Boas vindas
@@ -74,7 +75,7 @@ headerCurve: {
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    margin: 16,
+    marginBottom: 20,
   },
   welcomeText: {
     color: colors.textDark,

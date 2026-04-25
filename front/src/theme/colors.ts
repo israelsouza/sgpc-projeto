@@ -5,8 +5,11 @@ export const palette = {
   brown: "#7C5841",
   accent: "#AA7452",
   gray: "#96999E",
+  darkGray:"#545757",
   subtle: "#D4C9C7",
   offWhite: "#F4F1EC",
+  lightBrown: "#B97E58",
+  darkBrown: "#583410"
 } as const;
 
 export const colors = {
@@ -23,6 +26,9 @@ export const colors = {
   textDark: palette.darkBg,
   textMuted: palette.gray,
   textSubtle: palette.subtle,
+  textLightB: palette.lightBrown,
+  textdarkBrown: palette.darkBrown,
+  textdarkGray: palette.darkGray,
 
   // UI
   divider: palette.subtle,

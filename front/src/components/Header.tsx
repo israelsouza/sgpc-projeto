@@ -1,7 +1,6 @@
 import { View, Text } from "react-native";
-import { Entypo } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { styles } from "@/screens/Home/home.styles";
-import { colors } from "@/theme/colors";
 import { ReactNode } from "react";
 
 interface HeaderProps {
@@ -13,13 +12,15 @@ interface HeaderProps {
 }
 
 export function Header({
-  title = "Itaim Bibi",
-  subtitle = "Unidade 056",
-  initials = "IB",
+  title,
+  subtitle,
+  initials,
   icon,
 }: HeaderProps) {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) + 16 }]}>
       <View style={styles.headerLeft}>
         <View style={styles.avatar}>
           {icon ? (
