@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { colors } from "@/theme/colors";
 import { styles } from "@/screens/Login/login.styles";
+import { router } from "expo-router";
 
 export default function LoginScreen() {
   return (
@@ -53,7 +54,7 @@ export default function LoginScreen() {
           <Text style={styles.forgotText}>Esqueci a senha</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.btnPrimary}>
+        <TouchableOpacity style={styles.btnPrimary} onPress={() => router.push('/Home/Home')}>
           <Text style={styles.btnPrimaryText}>Entrar</Text>
         </TouchableOpacity>
 

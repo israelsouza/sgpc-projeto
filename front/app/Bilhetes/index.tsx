@@ -78,17 +78,18 @@ export default function BilhetesScreen({ onAdicionarBilhete } : Props) {
   
 
 //DESCOMENTAR PARA FAZER TESTE COM OS MORADORES -- jwt.io
-/* useEffect(() => {
+useEffect(() => {
   const salvarToken = async () => {
+    await AsyncStorage.clear();
     await AsyncStorage.setItem(
       "token",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoibW9yYWRvciIsInN1YiI6IjEiLCJ0aXBvQ29uZCI6IlBSRURJTyIsInVuaWRhZGUiOiIxMDIiLCJibG9jbyI6IkEiLCJhbmRhciI6IjEifQ.7SfSLuJpmfViDRimEtyrryS3N8CiwSufqm296xUgwdg"
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGFkbWluLmNvbSIsInJvbGUiOiJhZG1pbmlzdHJhZG9yIn0.mEiv0QPjkvcWr-Io9iMj4osKvmwVi7bT-W4_E0khNmU"
     );
   };
 
   salvarToken();
 }, []);
- */
+
 
   //FUNÇÕES PARA O MODAL
 

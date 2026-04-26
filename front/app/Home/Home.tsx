@@ -116,36 +116,36 @@ export default function HomeScreen() {
       <Header />
 
       {/* ── Conteúdo ── */}
-      <ScrollView
-        style={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Boas-vindas */}
-        <View style={styles.welcomeCard}>
-          <Text style={styles.welcomeText}>Seja bem vindo João</Text>
-        </View>
-
-        {/* Grid de cards */}
-        <View style={styles.grid}>
-          {menuItems.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.card}
-              onPress={() => router.push(item.route as any)}
-              activeOpacity={0.7}
+            <View style={styles.centerContainer}>
+            <ScrollView
+              style={styles.content}
+              showsVerticalScrollIndicator={false}
             >
-              <View style={[styles.iconBox, { backgroundColor: item.iconBg }]}>
-                {renderIcon(item.icon, item.iconColor)}
+              <View style={styles.welcomeCard}>
+                <Text style={styles.welcomeText}>Seja bem vindo João</Text>
               </View>
-              <Text style={styles.cardTitle}>{item.title}</Text>
-              <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
 
-        {/* Espaço no final para o scroll não cortar */}
-        <View style={{ height: 24 }} />
-      </ScrollView>
+              <View style={styles.grid}>
+                {menuItems.map((item) => (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={styles.card}
+                    onPress={() => router.push(item.route as any)}
+                    activeOpacity={0.7}
+                  >
+                    <View style={[styles.iconBox, { backgroundColor: item.iconBg }]}>
+                      {renderIcon(item.icon, item.iconColor)}
+                    </View>
+
+                    <Text style={styles.cardTitle}>{item.title}</Text>
+                    <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+          <View style={{ height: 24 }} />
+        </ScrollView>
+      </View>
 
       {/*  Bottom Nav  */}
       <BottomNav activeIndex={0} />
