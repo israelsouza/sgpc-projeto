@@ -446,32 +446,8 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
                   </View>
                 )}
 
-                {/* CAMPO DE ASSUNTO */}
-                <View style={styles.containerMensagem}>
-                  <Text style={styles.labelMensagem}>Assunto</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Digite o assunto"
-                    value={assunto}
-                    onChangeText={setAssunto}
-                    />
-                    </View> 
 
-                {/* CAMPO DE MENSAGEM */}
-                <View style={styles.containerMensagem}>
-                  <Text style={styles.labelMensagem}>Mensagem</Text>
-                  <TextInput
-                    style={[styles.input, styles.inputMensagem]}
-                    placeholder={placeHolder}
-                    placeholderTextColor={palette.gray}
-                    value={mensagem}
-                    onChangeText={setMensagem}
-                    multiline
-                    textAlignVertical="top"
-                    />
-                    </View>
-
-                {/* ENVIO DOS ARQUIVOS E QUE SERÁ OPCIONAL */}
+                ENVIO DOS ARQUIVOS E QUE SERÁ OPCIONAL 
                 <TouchableOpacity style={styles.arquivoBotao}>
                   <Text style={styles.arquivoBotaoText}>Enviar Arquivo (Opcional)</Text>
                   <Feather name="upload" size={24} color={palette.accent}/>
