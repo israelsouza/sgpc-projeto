@@ -230,4 +230,195 @@ container: {
     borderRadius: 10,
   },
 
+//ESTILIZAÇÃO PARA MODAL DE ADICIONAR BILHETES
+overlay: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.3)",
+  },
+ 
+  card: {
+    backgroundColor: palette.offWhite,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    gap: 14,
+    maxHeight: "100%",
+  },
+ 
+  HeaderCard: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+ 
+  tituloCard: {
+    fontFamily: "InterBold",
+    fontSize: 17,
+    color: palette.negro,
+  },
+ 
+  divisao: {
+    height: 1,
+    backgroundColor: palette.subtle,
+    marginVertical: 4,
+  },
+ 
+  labelCard: {
+    fontFamily: "InterBold",
+    fontSize: 14,
+    color: palette.lightBrown,
+    marginBottom: 4,
+  },
+ 
+    infoUnidadeContainer: {
+    width: "100%",
+    gap: 18,
+  },
+
+  InputDesabilitado: {
+    backgroundColor: palette.negro,
+    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+
+  InputDesabilitadoFull: {
+    width: "100%",
+    backgroundColor: palette.negro,
+    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+
+  InputDesabilitadoMetade: {
+    flex: 1,
+    backgroundColor: palette.negro,
+    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+
+  rowcard: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    gap: 35,
+  },
+
+  InputDesabilitadoText: {
+    fontFamily: "InterBold",
+    fontSize: 15,
+    color: "#fff",
+  },
+ 
+  input: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    fontFamily: "InterRegular",
+    fontSize: 13,
+    color: palette.negro,
+    borderWidth: 1,
+    borderColor: palette.subtle,
+  },
+
+  containerMensagem: {
+    width: "100%",
+    gap: 8,
+  },
+
+  labelMensagem: {
+    fontFamily: "InterBold",
+    fontSize: 14,
+    color: palette.lightBrown,
+  },
+
+  inputMensagem: {
+    height: 140,
+    backgroundColor: "#F5F5F5",
+    borderRadius: 16,
+    padding: 16,
+    fontFamily: "InterMedium",
+    fontSize: 14,
+    color: palette.darkGray,
+    borderWidth: 1,
+    borderColor: palette.lightBrown,
+  },
+
+  arquivoBotao: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: palette.subtle,
+  },
+ 
+  arquivoBotaoText:{
+    color: palette.lightBrown,
+    fontFamily: "InterMedium",
+    fontSize: 14
+  },
+
+  botoes: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    gap: 35,
+  },
+
+  btnSalvar: {
+    flex: 1,
+    backgroundColor: palette.accent,
+    borderRadius: 10,
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+ 
+  btnSalvarText: {
+    fontFamily: "InterBold",
+    fontSize: 14,
+    color: "#fff",
+  },
+ 
+  btnCancelar: {
+    flex: 1,
+    backgroundColor: "transparent",
+    borderRadius: 10,
+    paddingVertical: 14,
+    alignItems: "center",
+    borderWidth: 1.5,
+    borderColor: palette.accent,
+  },
+ 
+  btnCancelarText: {
+    fontFamily: "InterBold",
+    fontSize: 14,
+    color: palette.accent,
+  },
+
 });
