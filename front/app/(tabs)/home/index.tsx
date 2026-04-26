@@ -117,9 +117,9 @@ export default function HomeScreen() {
   useEffect(() => {
     async function loadUserData() {
       try {
-        const name = await SecureStore.getItemAsync("userName");
-        const condo = await SecureStore.getItemAsync("userCondo");
-        const unit = await SecureStore.getItemAsync("userUnit");
+        const name = await SecureStore.getItemAsync("user_nome");
+        const condo = await SecureStore.getItemAsync("user_condominio");
+        const unit = await SecureStore.getItemAsync("user_unidade");
         
         if (name) {
           // Pega o primeiro nome para o "Seja bem vindo"

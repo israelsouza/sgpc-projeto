@@ -24,6 +24,7 @@ export function useAuth() {
       await SecureStore.setItemAsync('user_perfil', String(authData.perfil || ""));
       await SecureStore.setItemAsync('user_nome', String(authData.nome || ""));
       await SecureStore.setItemAsync('user_condominio', String(authData.condominio || ""));
+      await SecureStore.setItemAsync('user_condominio_id', String(authData.condominio_id || ""));
       await SecureStore.setItemAsync('user_unidade', String(authData.unidade || ""));
 
       // TODO: Redirecionar para a Home após o login

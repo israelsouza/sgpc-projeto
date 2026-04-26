@@ -1,91 +1,46 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity, StatusBar } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, StatusBar, ActivityIndicator, RefreshControl } from "react-native";
 import { Feather, Entypo } from "@expo/vector-icons";
 import { Header } from "@/components/Header";
-import { BottomNav } from "@/components/BottomNav";
 import { styles } from "@/screens/Avisos/avisos.styles";
 import { colors } from "@/theme/colors";
 import * as SecureStore from 'expo-secure-store';
+import { useAviso } from "@/hooks/useAviso";
+import { Aviso } from "@/services/avisoService";
 
-interface Aviso {
-  id: string;
-  titulo: string;
-  preview: string;
-  data: string;
-  hora: string;
-  novo: boolean;
-  anexos?: number;
-}
-
-const avisos: Aviso[] = [
-  {
-    id: "1",
-    titulo: "Aviso de manutenção preventiva",
-    preview: "Conforme combinado na ...",
-    data: "15/03/25",
-    hora: "14:50",
-    novo: true,
-    anexos: 1,
-  },
-  {
-    id: "2",
-    titulo: "Ata da assembleia 205",
-    preview: "Os assuntos e decisões que...",
-    data: "15/03/25",
-    hora: "14:50",
-    novo: true,
-    anexos: 1,
-  },
-  {
-    id: "3",
-    titulo: "Lorem Ipsum is simply dummy",
-    preview: "Lorem ipsum is simply dummy text...",
-    data: "15/03/25",
-    hora: "14:50",
-    novo: false,
-  },
-  {
-    id: "4",
-    titulo: "Lorem Ipsum is simply dummy",
-    preview: "Lorem ipsum is simply dummy text...",
-    data: "15/03/25",
-    hora: "14:50",
-    novo: false,
-  },
-  {
-    id: "5",
-    titulo: "Lorem Ipsum is simply dummy",
-    preview: "Lorem ipsum is simply dummy text...",
-    data: "15/03/25",
-    hora: "14:50",
-    novo: false,
-  },
-];
+import { useRouter } from "expo-router";
 
 function AvisoCard({ aviso }: { aviso: Aviso }) {
-  const iconColor = aviso.novo ? colors.earthAccent : colors.textMuted;
+  const router = useRouter();
+  const iconColor = aviso.is_recente ? colors.earthAccent : colors.textMuted;
+  
+  // Formatação simples de data/hora
+  const dataObj = new Date(aviso.criado_em);
+  const dataFormatada = dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' });
+  const horaFormatada = dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
   return (
-    <TouchableOpacity activeOpacity={0.75} style={styles.card}>
-      {/* Ícone */}
+    <TouchableOpacity 
+      activeOpacity={0.75} 
+      style={styles.card}
+      onPress={() => router.push(`/avisos/${aviso.id}`)}
+    >
       <View
         style={[
           styles.iconBox,
-          aviso.novo ? styles.iconBoxActive : styles.iconBoxInactive,
+          aviso.is_recente ? styles.iconBoxActive : styles.iconBoxInactive,
         ]}
       >
         <Entypo name="megaphone" size={22} color={iconColor} />
       </View>
 
-      {/* Corpo */}
       <View style={styles.cardBody}>
-        {/* Título + badge + data na mesma linha */}
         <View style={styles.cardHeader}>
           <View style={styles.cardTitleRow}>
             <Text style={styles.cardTitle} numberOfLines={2}>
               {aviso.titulo}
             </Text>
-            {aviso.novo && (
+            {aviso.is_recente && (
               <View style={styles.badgeNovo}>
                 <Text style={styles.badgeNovoText}>novo</Text>
               </View>
@@ -93,23 +48,19 @@ function AvisoCard({ aviso }: { aviso: Aviso }) {
           </View>
 
           <View style={styles.dateBlock}>
-            <Text style={styles.dateText}>{aviso.data}</Text>
-            <Text style={styles.dateText}>{aviso.hora}</Text>
+            <Text style={styles.dateText}>{dataFormatada}</Text>
+            <Text style={styles.dateText}>{horaFormatada}</Text>
           </View>
         </View>
 
-        {/* Preview */}
-        <Text style={styles.cardPreview} numberOfLines={1}>
-          {aviso.preview}
+        <Text style={styles.cardPreview} numberOfLines={2}>
+          {aviso.descricao}
         </Text>
 
-        {/* Anexo */}
-        {aviso.anexos && aviso.anexos > 0 ? (
+        {aviso.anexo_url ? (
           <View style={styles.attachmentRow}>
             <Feather name="paperclip" size={12} color={colors.textMuted} />
-            <Text style={styles.attachmentText}>
-              {aviso.anexos} {aviso.anexos === 1 ? "anexo" : "anexos"}
-            </Text>
+            <Text style={styles.attachmentText}>Possui anexo</Text>
           </View>
         ) : null}
       </View>
@@ -119,11 +70,12 @@ function AvisoCard({ aviso }: { aviso: Aviso }) {
 
 export default function AvisosScreen() {
   const [userCondo, setUserCondo] = useState("");
+  const { avisos, loading, refresh } = useAviso();
 
   useEffect(() => {
     async function loadUserData() {
       try {
-        const condo = await SecureStore.getItemAsync("userCondo");
+        const condo = await SecureStore.getItemAsync("user_condominio");
         if (condo) setUserCondo(condo);
       } catch (error) {
         console.error("Erro ao carregar condomínio do usuário:", error);
@@ -151,12 +103,21 @@ export default function AvisosScreen() {
           style={styles.content}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.list}
+          refreshControl={
+            <RefreshControl refreshing={loading} onRefresh={refresh} colors={[colors.primary]} />
+          }
         >
-          {/* <Text style={styles.sectionTitle}>Mural de avisos</Text> */}
-
-          {avisos.map((aviso) => (
-            <AvisoCard key={aviso.id} aviso={aviso} />
-          ))}
+          {loading && avisos.length === 0 ? (
+            <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 20 }} />
+          ) : avisos.length === 0 ? (
+            <View style={{ alignItems: 'center', marginTop: 50 }}>
+              <Text style={{ color: colors.textMuted }}>Nenhum aviso encontrado.</Text>
+            </View>
+          ) : (
+            avisos.map((aviso) => (
+              <AvisoCard key={aviso.id} aviso={aviso} />
+            ))
+          )}
         </ScrollView>
       </View>
     </View>

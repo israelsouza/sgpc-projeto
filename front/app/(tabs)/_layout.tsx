@@ -9,7 +9,7 @@ export default function TabsLayout() {
     >
       <Tabs.Screen name="home/index" options={{ title: "Home" }} />
       <Tabs.Screen name="historico/index" options={{ title: "Histórico" }} />
-      <Tabs.Screen name="avisos/index" options={{ title: "Avisos" }} />
+      <Tabs.Screen name="avisos" options={{ title: "Avisos" }} />
       <Tabs.Screen name="perfil/index" options={{ title: "Perfil" }} />
     </Tabs>
   );
