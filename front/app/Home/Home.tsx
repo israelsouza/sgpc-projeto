@@ -72,7 +72,7 @@ const menuItems: MenuItem[] = [
     icon: { name: "message-square", library: "Feather" },
     iconBg: "#F5F0D6",
     iconColor: "#B8A44A",
-    route: "/manifestacao",
+    route: "/Manifestacoes",
   },
   {
     id: "documentos",

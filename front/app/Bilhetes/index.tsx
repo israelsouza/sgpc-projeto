@@ -78,7 +78,7 @@ export default function BilhetesScreen({ onAdicionarBilhete } : Props) {
   
 
 //DESCOMENTAR PARA FAZER TESTE COM OS MORADORES -- jwt.io
-useEffect(() => {
+/* useEffect(() => {
   const salvarToken = async () => {
     await AsyncStorage.clear();
     await AsyncStorage.setItem(
@@ -88,7 +88,7 @@ useEffect(() => {
   };
 
   salvarToken();
-}, []);
+}, []); */
 
 
   //FUNÇÕES PARA O MODAL
