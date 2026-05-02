@@ -25,6 +25,7 @@ class Settings(BaseSettings):
 
     # Firebase
     FIREBASE_PROJECT_ID: str = ""
+    FIREBASE_SERVICE_ACCOUNT_PATH: str = "dev-sgpc-firebase-service-account.json"
 
     @model_validator(mode="after")
     def validate_email_credentials(self):

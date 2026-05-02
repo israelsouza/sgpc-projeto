@@ -6,7 +6,7 @@ import cloudinary.utils
 import firebase_admin
 import fitz  # PyMuPDF
 import structlog
-from firebase_admin import messaging
+from firebase_admin import credentials, messaging
 
 from app.config import settings
 from app.modules.core.interfaces import (
@@ -93,16 +93,15 @@ class FcmPushAdapter(PushServiceInterface):
             # Tenta obter o app padrão, se não existir, inicializa
             firebase_admin.get_app()
         except ValueError:
-            # Em produção, usaremos as credenciais do arquivo serviceAccountKey.json
-            # ou variáveis de ambiente. Por enquanto, inicializamos de forma padrão
-            # para não travar a inicialização se as chaves não existirem.
+            # Inicializa usando a conta de serviço configurada
             try:
-                firebase_admin.initialize_app()
+                cred = credentials.Certificate(settings.FIREBASE_SERVICE_ACCOUNT_PATH)
+                firebase_admin.initialize_app(cred)
             except Exception as e:
                 logger.warning(
                     "fcm_init_failed",
                     error=str(e),
-                    msg="Push notifications may not work",
+                    msg="Push notifications may not work. Check your firebase-service-account.json",
                 )
 
     async def send_topic_push(

@@ -4,10 +4,13 @@ import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { AuthService } from '@/services/authService';
 import { IRegisterForm } from '@/types';
+import { useNotifications } from './useNotifications';
 
 export function useAuth() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  // se der erro no expo go, comentar a linha a baixo
+  // const { syncToken } = useNotifications();
 
   const handleLogin = async (dados: { email: string; senha: string }) => {
     if (!dados.email || !dados.senha) {
@@ -26,6 +29,10 @@ export function useAuth() {
       await SecureStore.setItemAsync('user_condominio', String(authData.condominio || ""));
       await SecureStore.setItemAsync('user_condominio_id', String(authData.condominio_id || ""));
       await SecureStore.setItemAsync('user_unidade', String(authData.unidade || ""));
+
+      // Tenta sincronizar o Token FCM para notificações
+      // se der erro no expo go, comentar a linha a baixo
+      // await syncToken();
 
       // TODO: Redirecionar para a Home após o login
       Alert.alert("Sucesso", "Login realizado com sucesso!", [
