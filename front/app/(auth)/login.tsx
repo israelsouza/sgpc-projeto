@@ -54,7 +54,7 @@ export default function LoginScreen() {
           <Text style={styles.forgotText}>Esqueci a senha</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.btnPrimary}>
+        <TouchableOpacity style={styles.btnPrimary} onPress={() => router.push('Home/Home')}>
           <Text style={styles.btnPrimaryText}>Entrar</Text>
         </TouchableOpacity>
 

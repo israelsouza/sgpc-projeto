@@ -13,7 +13,7 @@ import { palette } from "@/theme/colors";
 
 // FAZ DISTINÇÃO DE QUAL USUÁRIO ESTARÁ UTILIZANDO
 interface JwtPayload {
-  role: "sindico" | "morador" | "administrador" | "porteiro";
+  role: "sindico" | "morador" | "admin" | "porteiro";
   sub: string;
   tipoCond: "PREDIO" | "HORIZONTAL";
   unidade?: string;
@@ -26,7 +26,7 @@ interface JwtPayload {
 // FUNÇÃO PARA FILTRAR LISTA DE ACORDO COM A ROLE
 function filtrarPorRole(
   items: componenteList[],
-  role: "sindico" | "morador" | "administrador" | "porteiro"
+  role: "sindico" | "morador" | "admin" | "porteiro"
 ): componenteList[] {
   if (role === "porteiro") {
     return items.filter((item) => item.icone === "user");
@@ -39,10 +39,9 @@ interface Props {
 }
 
 export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
-  const [userRole, setUserRole] = useState<
-    "sindico" | "morador" | "administrador" | "porteiro" | null
-  >(null);
+  const [userRole, setUserRole] = useState<"sindico" | "morador" | "admin" | "porteiro" | null>(null);
   const [itemSelecionado, setItemSelecionado] = useState<componenteList | null>(null);
+  const [nomeUsuario, setNomeUsuario] = useState("");
   const [lista, setLista] = useState<componenteList[]>([]);
   const [modalAberta, setModalAberta] = useState(false);
   const [placeHolder] = useState("Escreva sua mensagem em detalhes...");
@@ -60,18 +59,19 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
   const [numero, setNumero] = useState("");
   const [prefixo, setPrefixo] = useState("");
 
-  // DEFINE QUEM É O USUÁRIO
+        //DEFINE QUEM É O USUÁRIO
   useEffect(() => {
     const loadUser = async () => {
-      const token = await AsyncStorage.getItem("token");
-      if (token) {
-        const decoded: any = jwtDecode(token);
-        console.log("ROLE:", decoded.role);
-        setUserRole(decoded.role);
-      }
-    };
-    loadUser();
-    // setUserRole("morador"); // DESCOMENTAR PARA FORÇAR SER PERFIL DE MORADOR
+    const token = await AsyncStorage.getItem("token");
+    if(token){
+      const decoded: any = jwtDecode(token);
+      console.log("ROLE:", decoded.role);
+      setUserRole(decoded.role);
+      setNomeUsuario(decoded.nome ?? decoded.sub)
+        }
+      };
+      loadUser();
+      // setUserRole("morador"); //- DESCOMENTAR PARA FORÇAR SER PERFIL DE MORADOR
   }, []);
 
   // FILTRA LISTA DE ACORDO COM CADA ROLE
@@ -138,6 +138,7 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
       alert("Preencha a mensagem");
       return;
     }
+  
 
     // FORMATO QUE OS DADOS DEVERÃO SER ENVIADOS PARA O BACKEND
     const payload =
@@ -151,6 +152,18 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
     setLista((prev) => [...prev, novoItem]);
     handleFecharModal();
   };
+/* 
+  useEffect(() => {
+        const salvarToken = async () => {
+            await AsyncStorage.clear();
+            await AsyncStorage.setItem(
+            "token",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoibW9yYWRvciIsInN1YiI6InVzZXIxMjMiLCJub21lIjoiTWFyaWEiLCJ0aXBvQ29uZCI6IlBSRURJTyIsInVuaWRhZGUiOiIyMDEiLCJibG9jbyI6IkEiLCJhbmRhciI6IjEifQ.hd7w1jA-MeLvHolf_YAcZDE0K5BQW_ZQ7-agAx8esBE"
+          );
+        };
+
+        salvarToken();
+        }, []); */
 
   function handleFecharModal() {
     setModalAberta(false);
@@ -162,8 +175,26 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
     setLista((prev) => prev.filter((i) => i.id !== id));
   }
 
+       //FILTRA APENAS AS MANIFESTAÇÕES DO USUÁRIO
+        useEffect(() => {
+                if (!userRole || !nomeUsuario) return;
+
+                if( userRole === "morador"){
+                    setLista(
+                        listadoMock.filter(
+                            (item) => item.categoria === "bilhete" && item.autor === nomeUsuario
+                        )
+                    );
+                } else {
+                    setLista(
+                        listadoMock.filter((item) => item.categoria === "bilhete")
+                    );
+                }
+        }, [userRole, nomeUsuario]);
+
+
   // DEFINE QUEM NÃO PODE ADICIONAR
-  const podeAdicionar = userRole !== "porteiro";
+  const podeAdicionar = userRole === "morador";
   const secoes = agruparMes(lista.filter((i) => i.categoria === "bilhete"));
 
   return (
@@ -177,7 +208,7 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
           podeAdicionar ? (
             <Feather name="plus" size={24} color="#fff" />
           ) : (
-            <Feather name="file-text" size={24} color="#fff" />
+            <Feather name="inbox" size={24} color="#fff" />
           )
         }
         onPressRight={
