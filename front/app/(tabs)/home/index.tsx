@@ -1,17 +1,11 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-} from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, StatusBar, } from "react-native";
 import { useRouter } from "expo-router";
+import { useState, useEffect } from "react";
+import * as SecureStore from 'expo-secure-store';
 import { colors } from "@/theme/colors";
 import { styles } from "@/screens/Home/home.styles";
 import { Feather, AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
-import Header from "@/components/Header";
-import { BottomNav } from "@/components/BottomNav";
+import Header  from "@/components/Header";
 import type { ComponentType } from "react";
 
 // ── Tipos dos ícones ──────────────────────────
@@ -28,7 +22,7 @@ interface MenuItem {
 }
 
 // ── Dados dos cards ──────────────────────────
-const menuItems: MenuItem[] = [
+const menuItems: MenuItem[] = [ 
   {
     id: "cadastrados",
     title: "Cadastrados",
@@ -81,7 +75,7 @@ const menuItems: MenuItem[] = [
     icon: { name: "book-open-page-variant", library: "MaterialCommunityIcons" },
     iconBg: "#D6E8F7",
     iconColor: "#5B9BC4",
-    route: "/Documentos",
+    route: "/documentos",
   },
   {
     id: "bilhetes",
@@ -107,13 +101,41 @@ function renderIcon(icon: MenuItem["icon"], color: string) {
 
 export default function HomeScreen() {
   const router = useRouter();
+  
+  const [userName, setUserName] = useState("Usuário");
+  const [userCondo, setUserCondo] = useState("");
+  const [userUnit, setUserUnit] = useState("");
+
+  useEffect(() => {
+    async function loadUserData() {
+      try {
+        const name = await SecureStore.getItemAsync("userName");
+        const condo = await SecureStore.getItemAsync("userCondo");
+        const unit = await SecureStore.getItemAsync("userUnit");
+        
+        if (name) {
+          // Pega o primeiro nome para o "Seja bem vindo"
+          setUserName(name.split(" ")[0]);
+        }
+        if (condo) setUserCondo(condo);
+        if (unit) setUserUnit(unit);
+      } catch (error) {
+        console.error("Erro ao carregar dados do usuário:", error);
+      }
+    }
+    loadUserData();
+  }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.primaryDark} />
 
       {/* ── Header ── */}
-      <Header />
+      <Header 
+        title={userCondo || "Condomínio"} 
+        subtitle={userUnit} 
+        initials={userCondo ? userCondo.substring(0, 2).toUpperCase() : "SG"} 
+      />
 
       {/* ── Conteúdo ── */}
             <View style={styles.centerContainer}>
@@ -146,9 +168,6 @@ export default function HomeScreen() {
           <View style={{ height: 24 }} />
         </ScrollView>
       </View>
-
-      {/*  Bottom Nav  */}
-      <BottomNav activeIndex={0} />
-    </SafeAreaView>
+      </View>
   );
 }

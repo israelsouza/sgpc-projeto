@@ -9,7 +9,7 @@ interface HeaderProps {
   icon?: ReactNode;
 }
 
-export function Header({
+export default function Header({
   title = "Itaim Bibi",
   subtitle = "Unidade 056",
   initials = "IB",
