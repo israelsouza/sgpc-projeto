@@ -223,6 +223,7 @@ model ChaveAcesso {
   
   // Auditoria
   criado_em       DateTime  @default(now()) @map("criado_em")
+  atualizado_em   DateTime  @updatedAt @map("atualizado_em")
   quem_criou      Int?      @map("quem_criou")
 
   @@map("CHAVES_ACESSO")
