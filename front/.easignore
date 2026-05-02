@@ -1,0 +1,6 @@
+# .easignore
+# Ignora node_modules mas permite o envio do google-services.json mesmo que esteja no .gitignore
+node_modules/
+.expo/
+.artifacts/
+build/

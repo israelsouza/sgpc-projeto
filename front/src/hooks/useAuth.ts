@@ -10,7 +10,7 @@ export function useAuth() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   // se der erro no expo go, comentar a linha a baixo
-  // const { syncToken } = useNotifications();
+  const { syncToken } = useNotifications();
 
   const handleLogin = async (dados: { email: string; senha: string }) => {
     if (!dados.email || !dados.senha) {
@@ -32,7 +32,7 @@ export function useAuth() {
 
       // Tenta sincronizar o Token FCM para notificações
       // se der erro no expo go, comentar a linha a baixo
-      // await syncToken();
+      await syncToken();
 
       // TODO: Redirecionar para a Home após o login
       Alert.alert("Sucesso", "Login realizado com sucesso!", [
