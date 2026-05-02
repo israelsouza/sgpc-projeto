@@ -7,7 +7,6 @@ import HeaderFuncApp from "@/components/HeaderFunctions";
 import { colors, palette } from "@/theme/colors";
 import { jwtDecode } from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { BottomNav } from "@/components/BottomNav";
 import * as Sharing from "expo-sharing";
 import { Directory, File, Paths } from "expo-file-system";
 import { WebView } from "react-native-webview";
@@ -211,8 +210,6 @@ const handleDownloadPdf = async () => {
         )}
 
       </View>
-
-      <BottomNav />
 
 
       {/* MODAL APENAS PARA O SINDICO ADICIONAR SEUS DOCS */}

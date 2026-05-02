@@ -45,7 +45,6 @@ export const styles = StyleSheet.create({
     shadowRadius: 3,
     borderRadius: 16,
     borderWidth: 1,
-    width: "105%",
     borderColor: colors.earthAccent,
   },
   listItemLeft: {
