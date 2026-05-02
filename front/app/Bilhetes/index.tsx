@@ -26,7 +26,7 @@ interface JwtPayload {
 // FUNÇÃO PARA FILTRAR LISTA DE ACORDO COM A ROLE
 function filtrarPorRole(
   items: componenteList[],
-  role: "sindico" | "morador" | "administrador" | "porteiro"
+  role: "sindico" | "morador" | "admin" | "porteiro"
 ): componenteList[] {
   if (role === "porteiro") {
     return items.filter((item) => item.icone === "user");
