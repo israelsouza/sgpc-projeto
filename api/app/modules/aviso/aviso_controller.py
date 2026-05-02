@@ -1,9 +1,11 @@
 from fastapi import Depends, UploadFile, status
+from pydantic import ValidationError as PydanticValidationError
 
 from app.db.prisma_client import get_prisma
-from app.modules.aviso.aviso_schema import AvisoCreate, CategoriaAviso
+from app.modules.aviso.aviso_schema import AvisoCreate, AvisoUpdate, CategoriaAviso
 from app.modules.aviso.aviso_service import AvisoService
 from app.modules.core.adapters import CloudinaryAdapter, FcmPushAdapter, PyMuPdfAdapter
+from app.modules.core.core_exception import ValidationError
 from app.modules.core.core_schema import StandardResponse
 from prisma import Prisma
 
@@ -29,7 +31,16 @@ class AvisoController:
         service: AvisoService,
         arquivo: UploadFile | None = None,
     ):
-        dados = AvisoCreate(titulo=titulo, descricao=descricao, categoria=categoria)
+        try:
+            dados = AvisoCreate(titulo=titulo, descricao=descricao, categoria=categoria)
+        except PydanticValidationError as e:
+            # Captura erros do validador (como o strip_whitespace ou min_length)
+            # e retorna uma mensagem amigável
+            erro = e.errors()[0]
+            msg = erro.get("msg", "Dados inválidos.")
+            # Remove o prefixo "Value error, " se existir (gerado pelo Pydantic)
+            msg = msg.replace("Value error, ", "")
+            raise ValidationError(nome="validacao_aviso", mensagem=msg)
 
         arquivo_bytes = None
         filename = None
@@ -95,4 +106,25 @@ class AvisoController:
 
         return StandardResponse(
             message="Aviso removido com sucesso.", status_code=status.HTTP_200_OK
+        )
+
+    @staticmethod
+    async def atualizar_aviso(
+        aviso_id: int,
+        condominio_id: int,
+        usuario_id: int,
+        dados: AvisoUpdate,
+        service: AvisoService,
+    ):
+        aviso = await service.atualizar_aviso(
+            aviso_id=aviso_id,
+            condominio_id=condominio_id,
+            dados=dados,
+            usuario_id=usuario_id,
+        )
+
+        return StandardResponse(
+            message="Aviso atualizado com sucesso.",
+            status_code=status.HTTP_200_OK,
+            data=aviso,
         )

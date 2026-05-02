@@ -15,6 +15,7 @@ from app.modules.aviso.aviso_controller import AvisoController, get_aviso_servic
 from app.modules.aviso.aviso_schema import (
     AvisoListResponse,
     AvisoResponse,
+    AvisoUpdate,
     CategoriaAviso,
 )
 from app.modules.aviso.aviso_service import AvisoService
@@ -44,8 +45,8 @@ def obter_condominio_id(usuario: models.Usuario) -> int:
     dependencies=[Depends(RequirePermission("criar:aviso"))],
 )
 async def criar_aviso(
-    titulo: str = Form(...),
-    descricao: str = Form(...),
+    titulo: str = Form(..., min_length=3, max_length=100),
+    descricao: str = Form(..., min_length=10),
     categoria: CategoriaAviso = Form(...),
     arquivo: UploadFile | None = File(None),
     usuario: models.Usuario = Depends(get_current_user),
@@ -136,6 +137,30 @@ async def deletar_aviso(
     """
     condominio_id = obter_condominio_id(usuario)
     return await AvisoController.deletar_aviso(aviso_id, condominio_id, service)
+
+
+@router.put(
+    "/{aviso_id}",
+    response_model=StandardResponse[AvisoResponse],
+    dependencies=[Depends(RequirePermission("atualizar:aviso"))],
+)
+async def atualizar_aviso(
+    aviso_id: int,
+    dados: AvisoUpdate,
+    usuario: models.Usuario = Depends(get_current_user),
+    service: AvisoService = Depends(get_aviso_service),
+):
+    """
+    Atualiza um aviso existente.
+    """
+    condominio_id = obter_condominio_id(usuario)
+    return await AvisoController.atualizar_aviso(
+        aviso_id=aviso_id,
+        condominio_id=condominio_id,
+        usuario_id=usuario.id,
+        dados=dados,
+        service=service,
+    )
 
 
 # --- WebSocket Route ---

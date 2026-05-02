@@ -4,7 +4,7 @@ import structlog
 
 from app.core.websocket_manager import manager
 from app.modules.aviso.aviso_model import AvisoModel
-from app.modules.aviso.aviso_schema import AvisoCreate
+from app.modules.aviso.aviso_schema import AvisoCreate, AvisoUpdate
 from app.modules.core.core_exception import ValidationError
 from app.modules.core.interfaces import (
     PdfServiceInterface,
@@ -160,3 +160,30 @@ class AvisoService:
         aviso = await self.obter_detalhes(aviso_id, condominio_id)
         await AvisoModel.deletar_logico(aviso["id"], self.db)
         return True
+
+    async def atualizar_aviso(
+        self, aviso_id: int, condominio_id: int, dados: AvisoUpdate, usuario_id: int
+    ):
+        # 1. Valida existência e escopo
+        await self.obter_detalhes(aviso_id, condominio_id)
+
+        # 2. Persistência
+        # Remove campos None para não sobrescrever com null no banco
+        update_data = dados.model_dump(exclude_none=True)
+
+        aviso_atualizado = await AvisoModel.atualizar(aviso_id, self.db, update_data)
+
+        # 3. Notificações (WebSocket)
+        aviso_json = {
+            "type": "UPDATE_AVISO",
+            "data": {
+                "id": aviso_atualizado.id,
+                "titulo": aviso_atualizado.titulo,
+                "categoria": aviso_atualizado.categoria,
+                "criado_em": aviso_atualizado.criado_em.isoformat(),
+            },
+        }
+        await manager.broadcast_to_condominio(aviso_json, condominio_id)
+
+        # Otimização de Cache: o retorno deve conter o is_recente para o front poupar processamento
+        return await self.obter_detalhes(aviso_id, condominio_id)
