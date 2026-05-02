@@ -161,7 +161,7 @@ export const styles = StyleSheet.create({
   },
 
   ModalBotaoExcluirConfirmando: {
-    backgroundColor: palette.accent,
+    backgroundColor: "#C0392B",    
     padding:15,
     gap:10
   },

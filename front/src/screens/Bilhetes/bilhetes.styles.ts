@@ -111,14 +111,14 @@ container: {
   ModalBlur: {
     flex: 1,
   },
-
+  
   ModalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.45)",
     alignItems: "center",
     justifyContent: "center",
   },
-
+  
   ModalCard: {
     width: SCREEN_WIDTH * 0.88,
     backgroundColor: "#FFFFFF",
@@ -233,14 +233,13 @@ container: {
 //ESTILIZAÇÃO PARA MODAL DE ADICIONAR BILHETES
 overlay: {
     flex: 1,
-    justifyContent: "flex-end",
     backgroundColor: "rgba(0,0,0,0.3)",
+    justifyContent: "center",
   },
  
   card: {
     backgroundColor: palette.offWhite,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderRadius: 24,
     padding: 24,
     gap: 14,
     maxHeight: "100%",
@@ -344,6 +343,15 @@ overlay: {
     borderColor: palette.subtle,
   },
 
+  
+  inputAssunto:{
+    padding: 10,
+    borderWidth: 1,
+    borderColor: palette.lightBrown,
+    fontFamily: "InterMedium",
+    fontSize: 14
+  },
+
   containerMensagem: {
     width: "100%",
     gap: 8,
@@ -359,7 +367,7 @@ overlay: {
     height: 140,
     backgroundColor: "#F5F5F5",
     borderRadius: 16,
-    padding: 16,
+    padding: 12,
     fontFamily: "InterMedium",
     fontSize: 14,
     color: palette.darkGray,
@@ -418,7 +426,7 @@ overlay: {
   btnCancelarText: {
     fontFamily: "InterBold",
     fontSize: 14,
-    color: palette.accent,
+    color: palette.negro,
   },
 
 });

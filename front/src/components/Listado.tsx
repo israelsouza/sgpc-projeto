@@ -17,38 +17,76 @@ export type componenteList = {
   mesAno: string;
   cor: string;
   corIcon: string;
+  categoria?: "bilhete" | "documento" | "solicitacao";
+  status?: "Pendente" | "Em Andamento" | "Aguardando" | "Concluído" | "Encerrado";
+  movimentacoes?: Movimentacao[];
+  tipoCond?: "PREDIO" | "HORIZONTAL";
+  unidade?: string;
+  bloco?: string | null;
+  andar?: string;
+  numero?: string;
+  prefixo?: string;
+};
+
+export type StatusSolicitacao =
+  | "Pendente"
+  | "Em Andamento"
+  | "Aguardando"
+  | "Concluído"
+  | "Encerrado";
+
+
+export type Movimentacao = {
+  titulo: string;
+  comentario?: string;
+  data: string;
+  hora?: string;
+  autorRole?: "sindico" | "admin" | "morador";
+  status?: StatusSolicitacao;
 };
 
 export const coresPorCategoria: Record<string, string> = {
-  reforma:     "#B07850",
-  vistoria:    "#5B8DB8",
-  pagamento:   "#6AAB7B",
+  bilhete:   "#6AAB7B",
   documento:   "#E8A838",
   solicitacao: "#9B59B6",
 };
 
 export const coresPorIcone: Record<string, string> = {
-  reforma:     "#5a3113",
-  vistoria:    "#103d64",
-  pagamento:   "#0b461b",
+  bilhete:   "#0b461b",
   documento:   "#593d0e",
   solicitacao: "#310a40",
 };
 
 export const listadoMock: componenteList[] = [
-/*   {
-    id: "1",
-    titulo: "Pedido de reforma",
-    subtitulo: "Formulário enviado",
-    descricao:"Pedido de reforma solicitado",
-    autor:"Paulo",
-    data: "18/03/25",
-    hora: "14:50",
-    icone: "home",
-    mesAno: "Março 2025",
-    cor: coresPorCategoria["reforma"],
-    corIcon: coresPorIcone["reforma"],
-  },
+{
+  id: "1",
+  titulo: "Barulho no apartamento",
+  subtitulo: "Formulário enviado",
+  descricao: "Vizinho fazendo muito barulho após as 22h",
+  autor: "Maria",
+  data: "10/05/2026",
+  hora: "21:30",
+  icone: "alert-circle",
+  mesAno: "Maio 2026",
+  categoria: "solicitacao",
+  status: "Pendente",
+  cor: coresPorCategoria["solicitacao"],
+  corIcon: coresPorIcone["solicitacao"],
+  movimentacoes: [
+    {
+      titulo: "Formulário enviado",
+      comentario: "Morador registrou a ocorrência",
+      data: "10/05/2026",
+      hora: "21:30",
+      autorRole: "morador",
+      status: "Pendente",
+    },
+  ],
+  tipoCond: "PREDIO",
+  unidade: "201",
+  bloco: "A",
+  andar: "1",
+    },
   {
     id: "2",
     titulo: "Vistoria agendada",
@@ -59,8 +97,9 @@ export const listadoMock: componenteList[] = [
     hora: "09:00",
     icone: "calendar",
     mesAno: "Março 2025",
-    cor: coresPorCategoria["vistoria"],
-    corIcon: coresPorIcone["vistoria"],
+    categoria: "solicitacao",
+    cor: coresPorCategoria["solicitacao"],
+    corIcon: coresPorIcone["solicitacao"],
   },
   {
     id: "3",
@@ -72,8 +111,9 @@ export const listadoMock: componenteList[] = [
     hora: "11:30",
     icone: "dollar-sign",
     mesAno: "Abril 2026",
-    cor: coresPorCategoria["pagamento"],
-    corIcon: coresPorIcone["pagamento"],
+    categoria:"solicitacao",
+    cor: coresPorCategoria["solicitacao"],
+    corIcon: coresPorIcone["solicitacao"],
   },
   {
     id: "4",
@@ -85,6 +125,7 @@ export const listadoMock: componenteList[] = [
     hora: "16:20",
     icone: "file",
     mesAno: "Abril 2026",
+    categoria: "documento",
     cor: coresPorCategoria["documento"],
     corIcon: coresPorIcone["documento"],
   },
@@ -98,9 +139,10 @@ export const listadoMock: componenteList[] = [
     hora: "08:45",
     icone: "clock",
     mesAno: "Abril 2026",
+    categoria: "solicitacao",
     cor: coresPorCategoria["solicitacao"],
     corIcon: coresPorIcone["solicitacao"],
-  }, */
+  },
   {
     id: "6",
     titulo: "Bilhete",
@@ -111,8 +153,9 @@ export const listadoMock: componenteList[] = [
     hora: "10:30",
     icone: "user",
     mesAno: "Abril 2023",
-    cor: coresPorCategoria["solicitacao"],
-    corIcon: coresPorIcone["solicitacao"]
+    categoria:"bilhete",
+    cor: coresPorCategoria["bilhete"],
+    corIcon: coresPorIcone["bilhete"]
   }
 ];
 
@@ -121,10 +164,12 @@ export type componenteAgendamento = {
     espaco: string;
     icone: string;
     corIcone: string;
+    categoria: string;
     cor: string;
     data: string;
     hora: string;
     autor:string;
+    
 }
 
 
@@ -144,15 +189,19 @@ export function DetalhesModal({
   item,
   onClose,
   onDelete,
+ 
 }: {
   item: componenteList | null;
   onClose: () => void;
   onDelete?: () => void;
+ 
 }) {
     const [confirmExclusao, setConfirmExclusao] = useState(false);
   
     if (!item) return null;
 
+
+    
     function handleDelete() {
         if (!confirmExclusao){
             setConfirmExclusao(true);
