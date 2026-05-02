@@ -23,12 +23,15 @@ interface JwtPayload {
   prefixo?: string;
 }
 
-//FUNÇÃO PARA PUXAR PELO JWT
-function filtrarPorRole(items: componenteList[], role: "sindico" | "morador" | "administrador" | "porteiro"): componenteList[] {
-    if (role === "porteiro"){
-        return items.filter((item) => item.icone === "user");
-    }
-    return items;
+// FUNÇÃO PARA FILTRAR LISTA DE ACORDO COM A ROLE
+function filtrarPorRole(
+  items: componenteList[],
+  role: "sindico" | "morador" | "administrador" | "porteiro"
+): componenteList[] {
+  if (role === "porteiro") {
+    return items.filter((item) => item.icone === "user");
+  }
+  return items;
 }
 
 interface Props {
@@ -248,8 +251,8 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
                 <Text style={styles.TextData}>{item.hora}</Text>
               </View>
             </TouchableOpacity>
-          )} 
-          />
+          )}
+        />
       </View>
 
       {/* ABRIR DETALHES */}
@@ -385,38 +388,35 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
         animationType="slide"
         onRequestClose={handleFecharModal}
       >
-        <BlurView intensity={40} tint="dark" style={{flex: 1}}>
+        <BlurView intensity={40} tint="dark" style={{ flex: 1 }}>
           <Pressable style={styles.overlay} onPress={handleFecharModal}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={{ width: "100%" }}
-          >
-            <Pressable
-              style={styles.card}
-              onPress={(e) => e.stopPropagation()}
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : "height"}
+              style={{ width: "100%" }}
             >
-              <View style={styles.HeaderCard}>
-                <Text style={styles.tituloCard}>Novo Bilhete</Text>
-                <TouchableOpacity onPress={handleFecharModal}>
-                  <Feather name="x" size={20} color={palette.darkGray} />
-                </TouchableOpacity>
-              </View>
+              <Pressable style={styles.card} onPress={(e) => e.stopPropagation()}>
+                <View style={styles.HeaderCard}>
+                  <Text style={styles.tituloCard}>Novo Bilhete</Text>
+                  <TouchableOpacity onPress={handleFecharModal}>
+                    <Feather name="x" size={20} color={palette.darkGray} />
+                  </TouchableOpacity>
+                </View>
 
-              <View style={styles.Divisao} />
+                <View style={styles.Divisao} />
 
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ gap: 10 }}
-              >
-                <Text style={styles.labelCard}>Informações da Unidade</Text>
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={{ gap: 10 }}
+                >
+                  <Text style={styles.labelCard}>Informações da Unidade</Text>
 
-                {loadingdados ? (
-                  <ActivityIndicator
-                    size="small"
-                    color={palette.accent}
-                    style={{ marginVertical: 8 }} 
+                  {loadingdados ? (
+                    <ActivityIndicator
+                      size="small"
+                      color={palette.accent}
+                      style={{ marginVertical: 8 }}
                     />
-                ) : tipoCondomino === "PREDIO" ? (
+                  ) : tipoCondomino === "PREDIO" ? (
                     <View style={styles.infoUnidadeContainer}>
                       {unidade ? (
                         <View style={[styles.InputDesabilitadoFull, { flex: 1 }]}>
@@ -425,17 +425,17 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
                       ) : null}
 
                       <View style={styles.rowcard}>
-                      {bloco ? (
-                        <View style={[styles.InputDesabilitado, { flex: 1 }]}>
-                          <Text style={styles.InputDesabilitadoText}>Bloco: {bloco}</Text>
-                        </View>
-                      ) : null}
+                        {bloco ? (
+                          <View style={[styles.InputDesabilitado, { flex: 1 }]}>
+                            <Text style={styles.InputDesabilitadoText}>Bloco: {bloco}</Text>
+                          </View>
+                        ) : null}
 
-                      {andar ? (
-                        <View style={[styles.InputDesabilitado, { flex: 1 }]}>
-                          <Text style={styles.InputDesabilitadoText}>Andar: {andar}</Text>
-                        </View>
-                      ) : null}
+                        {andar ? (
+                          <View style={[styles.InputDesabilitado, { flex: 1 }]}>
+                            <Text style={styles.InputDesabilitadoText}>Andar: {andar}</Text>
+                          </View>
+                        ) : null}
                       </View>
                      </View>
                   ) : (
@@ -453,9 +453,24 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
                   <Feather name="upload" size={24} color={palette.accent}/>
                 </TouchableOpacity>
 
-                <View style={styles.botoes}>
-                  <TouchableOpacity style={styles.btnSalvar} onPress={handleEnviar}>
-                    <Text style={styles.btnSalvarText}>Salvar</Text>
+                  CAMPO DE MENSAGEM 
+                  <View style={styles.containerMensagem}>
+                    <Text style={styles.labelMensagem}>Mensagem</Text>
+                    <TextInput
+                      style={[styles.input, styles.inputMensagem]}
+                      placeholder={placeHolder}
+                      placeholderTextColor={palette.gray}
+                      value={mensagem}
+                      onChangeText={setMensagem}
+                      multiline
+                      textAlignVertical="top"
+                    />
+                  </View>
+
+                   ENVIO DE ARQUIVO  QUE É OPCIONAL 
+                  <TouchableOpacity style={styles.arquivoBotao}>
+                    <Text style={styles.arquivoBotaoText}>Enviar Arquivo (Opcional)</Text>
+                    <Feather name="upload" size={24} color={palette.accent} />
                   </TouchableOpacity>
 
                   <TouchableOpacity style={styles.btnCancelar} onPress={handleFecharModal}>
