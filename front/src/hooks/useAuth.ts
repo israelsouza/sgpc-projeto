@@ -95,10 +95,20 @@ export function useAuth() {
     }
   };
 
+  const checkPermission = async (allowedProfiles: string[]) => {
+    try {
+      const userProfile = await SecureStore.getItemAsync('user_perfil');
+      return userProfile ? allowedProfiles.includes(userProfile) : false;
+    } catch {
+      return false;
+    }
+  };
+
   return { 
     loading,
     handleLogin,
     handleValidateKey,
     handleRegistration,
+    checkPermission,
   };
 }

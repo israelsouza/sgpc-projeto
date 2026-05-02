@@ -1,10 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity, StatusBar, ActivityIndicator, RefreshControl } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StatusBar,
+  ActivityIndicator,
+  RefreshControl,
+} from "react-native";
 import { Feather, Entypo } from "@expo/vector-icons";
 import { Header } from "@/components/Header";
 import { styles } from "@/screens/Avisos/avisos.styles";
 import { colors } from "@/theme/colors";
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from "expo-secure-store";
 import { useAviso } from "@/hooks/useAviso";
 import { Aviso } from "@/services/avisoService";
 
@@ -13,15 +21,22 @@ import { useRouter } from "expo-router";
 function AvisoCard({ aviso }: { aviso: Aviso }) {
   const router = useRouter();
   const iconColor = aviso.is_recente ? colors.earthAccent : colors.textMuted;
-  
+
   // Formatação simples de data/hora
   const dataObj = new Date(aviso.criado_em);
-  const dataFormatada = dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' });
-  const horaFormatada = dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const dataFormatada = dataObj.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+  });
+  const horaFormatada = dataObj.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
   return (
-    <TouchableOpacity 
-      activeOpacity={0.75} 
+    <TouchableOpacity
+      activeOpacity={0.75}
       style={styles.card}
       onPress={() => router.push(`/avisos/${aviso.id}`)}
     >
@@ -70,7 +85,26 @@ function AvisoCard({ aviso }: { aviso: Aviso }) {
 
 export default function AvisosScreen() {
   const [userCondo, setUserCondo] = useState("");
-  const { avisos, loading, refresh } = useAviso();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
+  const { 
+    avisos, 
+    loading, 
+    refresh, 
+    page, 
+    totalPages, 
+    hasNextPage, 
+    hasPrevPage, 
+    nextPage, 
+    prevPage 
+  } = useAviso();
+
+  // Efeito para subir ao topo quando a página mudar
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ y: 0, animated: true });
+    }
+  }, [page]);
 
   useEffect(() => {
     async function loadUserData() {
@@ -84,14 +118,23 @@ export default function AvisosScreen() {
     loadUserData();
   }, []);
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await refresh();
+    setIsRefreshing(false);
+  };
+
   const megaphoneIcon = (
     <Entypo name="megaphone" size={24} color={colors.textLight} />
   );
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.primaryDark} />
-      
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor={colors.primaryDark}
+      />
+
       <Header
         title="Mural de avisos"
         subtitle={userCondo || "Condomínio"}
@@ -100,23 +143,61 @@ export default function AvisosScreen() {
 
       <View style={styles.contentWrapper}>
         <ScrollView
+          ref={scrollRef}
           style={styles.content}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.list}
           refreshControl={
-            <RefreshControl refreshing={loading} onRefresh={refresh} colors={[colors.primary]} />
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              colors={[colors.primary]}
+            />
           }
         >
-          {loading && avisos.length === 0 ? (
-            <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 20 }} />
+          {avisos.length === 0 && loading ? (
+            <ActivityIndicator
+              size="large"
+              color={colors.primary}
+              style={{ marginTop: 20 }}
+            />
           ) : avisos.length === 0 ? (
-            <View style={{ alignItems: 'center', marginTop: 50 }}>
-              <Text style={{ color: colors.textMuted }}>Nenhum aviso encontrado.</Text>
+            <View style={{ alignItems: "center", marginTop: 50 }}>
+              <Text style={{ color: colors.textMuted }}>
+                Nenhum aviso encontrado.
+              </Text>
             </View>
           ) : (
-            avisos.map((aviso) => (
-              <AvisoCard key={aviso.id} aviso={aviso} />
-            ))
+            <>
+              {avisos.map((aviso) => <AvisoCard key={aviso.id} aviso={aviso} />)}
+
+              {/* Controles de Paginação */}
+              {totalPages > 1 && (
+                <View style={styles.paginationContainer}>
+                  <TouchableOpacity
+                    style={[styles.pageButton, !hasPrevPage && styles.pageButtonDisabled]}
+                    onPress={prevPage}
+                    disabled={!hasPrevPage || loading}
+                  >
+                    <Feather name="chevron-left" size={16} color={colors.textLight} />
+                    <Text style={styles.pageText}>Anterior</Text>
+                  </TouchableOpacity>
+
+                  <Text style={styles.pageInfo}>
+                    Página {page + 1} de {totalPages}
+                  </Text>
+
+                  <TouchableOpacity
+                    style={[styles.pageButton, !hasNextPage && styles.pageButtonDisabled]}
+                    onPress={nextPage}
+                    disabled={!hasNextPage || loading}
+                  >
+                    <Text style={styles.pageText}>Próxima</Text>
+                    <Feather name="chevron-right" size={16} color={colors.textLight} />
+                  </TouchableOpacity>
+                </View>
+              )}
+            </>
           )}
         </ScrollView>
       </View>
