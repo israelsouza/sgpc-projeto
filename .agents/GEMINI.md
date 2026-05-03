@@ -11,7 +11,7 @@
 |------------|-----------------------------------|
 | Backend    | Python 3.12, FastAPI, Uvicorn     |
 | Banco      | PostgreSQL                        |
-| ORM        | SQLAlchemy + Alembic (migrações)  |
+| ORM        | Prisma ORM (Python)               |
 | Deploy API | Vercel (Serverless Functions)     |
 | Frontend   | React Native, Expo, TypeScript    |
 
@@ -24,7 +24,8 @@ pi/
 │   ├── app/
 │   │   ├── routers/  # Roteadores organizados por recurso
 │   │   ├── models/   # Modelos Pydantic (schemas)
-│   │   └── db/       # Configuração do banco de dados
+│   │   └── db/       # Configuração do cliente Prisma
+│   ├── prisma/       # Schema e migrações do Prisma
 │   ├── index.py      # Entry point da aplicação
 │   ├── requirements.txt
 │   └── vercel.json
@@ -40,9 +41,13 @@ pi/
 ### Backend (Python)
 - Nomenclatura de arquivos: `snake_case`
 - Nomenclatura de classes: `PascalCase`
-- Rotas agrupadas por recurso em `app/routers/<recurso>.py`
-- Schemas Pydantic em `app/models/<recurso>.py`
+- Rotas agrupadas por recurso em `api/app/routers/`
+- Schemas Pydantic em `api/app/models/`
+- Banco de dados gerenciado pelo Prisma (`api/prisma/schema.prisma`)
 - Variáveis de ambiente via `python-dotenv` (`api/.env`)
+- Será usado a arquitetura MVC
+- Os arquivos devem ser organizados por modulos e conterem o sufixo do tipo
+ex: no diretorio `/api/app/modules/usuario` teremos o modulo de usuario, e dentro dele teremos os arquivos `usuario_model.py`, `usuario_controller.py` e `usuario_service.py` por exemplo
 
 ### Frontend (TypeScript)
 - Nomenclatura de componentes: `PascalCase`
@@ -54,5 +59,22 @@ pi/
 - Sempre respeitar a separação entre `api/` e `front/`
 - Novas rotas da API devem ser criadas em `api/app/routers/`
 - Schemas de validação devem usar Pydantic em `api/app/models/`
-- Alterações no banco requerem migration via Alembic
+- Alterações no banco requerem atualização do `schema.prisma` e geração do cliente
 - Nunca commitar o arquivo `.env`
+- Para decisões de deploy, consultar `/vercel-best-practices`
+- O nome das tabelas do banco de dados no Prisma deve usar `@@map("NOME_TABELA")` em MAIÚSCULO e plural
+- O nome dos campos no Prisma deve usar `@map("nome_campo")` em snake_case e português
+- Use nomes de modelos em PascalCase no Prisma (ex: `Usuario`) para manter o padrão do cliente Python
+- O nome das pastas dentro de `/modules` na `API` deve ser em português e no singular (ex: `usuario`, `unidade`, etc)
+- Padrão de Permissões (RBAC): As permissões no banco de dados devem seguir o formato `<acao>:<funcionalidade>` (ex: `criar:veiculo`, `ler:usuario`, `atualizar:morador`, `deletar:unidade`). As ações padrão são: `criar`, `ler`, `atualizar`, `deletar`.
+- Sempre rode o script de lint, formatação e testes automatizados após cada fase concluída para garantir a consistência e integridade do código.
+- Ao avançar para uma nova etapa de um planejamento (ex: 2.4, 2.5), explique obrigatoriamente **o que será feito** e **por que é importante** para a arquitetura e evolução do projeto.
+- Sempre que o usuário demonstrar interesse em compartilhar um tópico, assunto ou abordagem técnica em redes sociais (ex: LinkedIn), prepare obrigatoriamente um prompt otimizado para o Google Gemini criar um post atrativo, fornecendo o contexto técnico necessário do projeto para garantir a qualidade da resposta.
+- Após a conclusão de cada fase de um planejamento (Research, Strategy, Execution ou fases de um documento de plano), você deve obrigatoriamente solicitar ao usuário se deseja realizar o commit das alterações antes de prosseguir para a próxima fase.
+- O terminal utilizado no projeto é o PowerShell. Nunca utilize `&&` para encadear comandos; utilize o ponto e vírgula `;` no lugar.
+- **Arquitetura Frontend (React Native)**: Adotar uma arquitetura de 3 camadas para separação de responsabilidades:
+  1.  **Services (`src/services`)**: Funções que interagem diretamente com a API. Exclusivamente para chamadas HTTP (ex: `AuthService.validarChave`).
+  2.  **Hooks (`src/hooks`)**: Custom Hooks que orquestram a lógica de negócio, controlam estados (loading, error) e interagem com os *Services*.
+  3.  **Componentes/Telas (`app/` ou `src/screens`)**: A camada de UI, que deve ser o mais "burra" possível, consumindo os *Hooks* para obter dados e executar ações.
+- **Log de Dados Sensíveis (PII):** Todo e qualquer log que envolva dados sensíveis (e-mails, CPFs, nomes, telefones) deve utilizar a técnica de *redaction*. Utilize `logger.bind(...)` para definir o contexto e substitua o valor do dado sensível por `"<redacted>"` ou um hash (SHA-256) do valor original. Mantenha o ID do usuário (ex: `usuario_id`) sempre que possível para permitir a rastreabilidade sem expor o dado pessoal.
+
