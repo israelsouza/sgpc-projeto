@@ -1,11 +1,4 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-} from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, StatusBar, } from "react-native";
 import { useRouter } from "expo-router";
 import { useState, useEffect } from "react";
 import * as SecureStore from 'expo-secure-store';
@@ -13,11 +6,13 @@ import { colors } from "@/theme/colors";
 import { styles } from "@/screens/Home/home.styles";
 import { Feather, AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Header } from "@/components/Header";
-import { BottomNav } from "@/components/BottomNav";
+import  BottomNav from "@/components/BottomNav";
 import type { ComponentType } from "react";
 
 // ── Tipos dos ícones ──────────────────────────
 type IconLibrary = "Feather" | "AntDesign" | "MaterialCommunityIcons";
+
+
 
 interface MenuItem {
   id: string;
@@ -74,7 +69,7 @@ const menuItems: MenuItem[] = [
     icon: { name: "message-square", library: "Feather" },
     iconBg: "#F5F0D6",
     iconColor: "#B8A44A",
-    route: "/manifestacao",
+    route: "/Manifestacoes",
   },
   {
     id: "documentos",
@@ -92,7 +87,7 @@ const menuItems: MenuItem[] = [
     icon: { name: "send", library: "Feather" },
     iconBg: "#EDD6F5",
     iconColor: "#9B6BB6",
-    route: "/bilhetes",
+    route: "/Bilhetes",
   },
 ];
 
@@ -146,38 +141,38 @@ export default function HomeScreen() {
       />
 
       {/* ── Conteúdo ── */}
-      <View style={styles.contentWrapper}>
-        <ScrollView
-          style={styles.content}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Boas-vindas */}
-          <View style={styles.welcomeCard}>
-            <Text style={styles.welcomeText}>Seja bem vindo(a) {userName}</Text>
-          </View>
+            <View style={styles.centerContainer}>
+            <ScrollView
+              style={styles.content}
+              showsVerticalScrollIndicator={false}
+            >
+              <View style={styles.welcomeCard}>
+                <Text style={styles.welcomeText}>Seja bem vindo João</Text>
+              </View>
 
-          {/* Grid de cards */}
-          <View style={styles.grid}>
-            {menuItems.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                style={styles.card}
-                onPress={() => router.push(item.route as any)}
-                activeOpacity={0.7}
-              >
-                <View style={[styles.iconBox, { backgroundColor: item.iconBg }]}>
-                  {renderIcon(item.icon, item.iconColor)}
-                </View>
-                <Text style={styles.cardTitle}>{item.title}</Text>
-                <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+              <View style={styles.grid}>
+                {menuItems.map((item) => (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={styles.card}
+                    onPress={() => router.push(item.route as any)}
+                    activeOpacity={0.7}
+                  >
+                    <View style={[styles.iconBox, { backgroundColor: item.iconBg }]}>
+                      {renderIcon(item.icon, item.iconColor)}
+                    </View>
 
-          {/* Espaço no final para o scroll não cortar */}
+                    <Text style={styles.cardTitle}>{item.title}</Text>
+                    <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              
+
           <View style={{ height: 24 }} />
-          </ScrollView>
-          </View>
-          </View>
-          );
-          }
+        </ScrollView>
+      </View>
+      </View>
+  );
+}
