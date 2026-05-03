@@ -5,7 +5,7 @@ import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { styles } from "@/screens/Home/home.styles";
 import { colors } from "@/theme/colors";
 
-export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps) {
+export default function BottomNav({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const inactiveColor = "#B8A89A";
   const activeColor = colors.earthBrown;

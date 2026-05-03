@@ -14,9 +14,9 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-around",
-    },
+},
 
-    ContainerLIcon:{
+ContainerLIcon:{
     width: 56,
     height: 56,
     borderRadius: 14,
@@ -24,9 +24,9 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginLeft: 20,
-    },
-    
-    ContainerRIcon:{
+},
+
+ContainerRIcon:{
     width: 56,
     height: 56,
     borderRadius: 14,
@@ -34,12 +34,13 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginRight: 20,
-    },
+},
 
-    CenterContent:{
+CenterContent:{
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    padding: 20
     },
 
     Title:{

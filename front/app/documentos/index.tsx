@@ -7,7 +7,6 @@ import HeaderFuncApp from "@/components/HeaderFunctions";
 import { colors, palette } from "@/theme/colors";
 import { jwtDecode } from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { BottomNav } from "@/components/BottomNav";
 import * as Sharing from "expo-sharing";
 import { Directory, File, Paths } from "expo-file-system";
 import { WebView } from "react-native-webview";
@@ -116,23 +115,29 @@ const handleDownloadPdf = async () => {
     setShowForm(false);
     setTipoDocumento("");
   };
+      useEffect(() => {
+        const loadUser = async () => {
+          try {
+            const token = await AsyncStorage.getItem("token");
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const token = await AsyncStorage.getItem("token");
+            if (!token) {
+              console.log("Token não encontrado");
+              return;
+            }
 
-      if(token){
-        const decoded: any = jwtDecode(token);
-        setUserRole(decoded.role);
-      }
-    };
-    loadUser();
-  }, []);
- 
+            const decoded: any = jwtDecode(token);
 
- /*  useEffect(() => {
-    setUserRole("sindico");
-  }, []); */ //DESCOMENTAR PARA FAZER TESTE COM USUÁRIO ESPECÍFICO
+            console.log("ROLE:", decoded.role);
+
+            setUserRole(decoded.role);
+
+          } catch (error) {
+            console.log("Erro ao decodificar token:", error);
+          }
+        };
+
+        loadUser();
+      }, []);
 
   return (
     <View style={styles.container}>
@@ -211,8 +216,6 @@ const handleDownloadPdf = async () => {
         )}
 
       </View>
-
-      <BottomNav />
 
 
       {/* MODAL APENAS PARA O SINDICO ADICIONAR SEUS DOCS */}
