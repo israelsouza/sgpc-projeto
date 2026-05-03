@@ -1,12 +1,11 @@
 {
   "expo": {
     "name": "front",
-    "slug": "sgpc",
+    "slug": "front",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "scheme": "sgpc",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -25,14 +24,7 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png",
-      "bundler": "metro"
-    },
-    "plugins": [
-      "expo-router",
-      "expo-asset",
-      "expo-secure-store",
-      "expo-font"
-    ]
+      "favicon": "./assets/favicon.png"
+    }
   }
 }

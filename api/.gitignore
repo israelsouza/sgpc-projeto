@@ -7,6 +7,3 @@ venv/
 dist/
 *.egg-info/
 .pytest_cache/
-
-.vercel
-.env*.local
