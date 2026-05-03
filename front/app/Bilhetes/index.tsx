@@ -164,7 +164,6 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
     handleFecharModal();
   };
 
-
   function handleFecharModal() {
     setModalAberta(false);
     setAssunto("");
@@ -203,7 +202,7 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
         title="Bilhetes"
         subtitle={podeAdicionar ? "Adicione novos bilhetes" : "Visualização"}
         iconLeft={<Feather name="arrow-left" size={24} color="#fff" />}
-        onPressLeft={() => router.push("/Home/Home")}
+        onPressLeft={() => router.push("/home")}
         iconRight={
           podeAdicionar ? (
             <Feather name="plus" size={24} color="#fff" />
