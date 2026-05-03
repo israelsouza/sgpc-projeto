@@ -13,7 +13,7 @@ export default function HomeScreen() {
       {/* IDA PARA TELA DE LOGIN PARA TESTAR O FLUXO DE LOGIN */}
       {/* <Link href="/login" style={styles.link}>  */}
         Ir para Login
-      </Link>
+      </Link> 
     </View>
   );
 }

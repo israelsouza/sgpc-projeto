@@ -5,8 +5,7 @@ import * as SecureStore from 'expo-secure-store';
 import { colors } from "@/theme/colors";
 import { styles } from "@/screens/Home/home.styles";
 import { Feather, AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
-import { Header } from "@/components/Header";
-import  BottomNav from "@/components/BottomNav";
+import { Header }  from "@/components/Header";
 import type { ComponentType } from "react";
 
 // ── Tipos dos ícones ──────────────────────────
@@ -25,7 +24,7 @@ interface MenuItem {
 }
 
 // ── Dados dos cards ──────────────────────────
-const menuItems: MenuItem[] = [
+const menuItems: MenuItem[] = [ 
   {
     id: "cadastrados",
     title: "Cadastrados",
@@ -167,9 +166,6 @@ export default function HomeScreen() {
                   </TouchableOpacity>
                 ))}
               </View>
-
-              
-
           <View style={{ height: 24 }} />
         </ScrollView>
       </View>

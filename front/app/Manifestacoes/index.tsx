@@ -265,7 +265,7 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
                 title="Manifestações"
                 subtitle="Reclamações ou Sugestões"
                 iconLeft={<Feather name="arrow-left" size={24} color="#fff" />}
-                onPressLeft={() => router.push("/Home/Home")}
+                onPressLeft={() => router.push("/home")}
                 iconRight={<Feather name="plus" size={24} color="#fff" />}
                 onPressRight={() => setModalAberta(true)}
             />
