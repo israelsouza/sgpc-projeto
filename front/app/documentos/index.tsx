@@ -153,7 +153,6 @@ const handleDownloadPdf = async () => {
         onPressLeft={showForm ? handleCancelar : () => router.push('/home')}
         onPressRight={ userRole === "sindico" && !showForm ? handleAddDocument : undefined}
       />
-
       <View style={styles.centerContainer}>
 
         {showForm && userRole === "sindico" ? (

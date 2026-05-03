@@ -216,7 +216,6 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
             : () => console.log("Modo visualização do porteiro")
         }
       />
-
       <View style={styles.centerContainer}>
         <SectionList
           style={styles.ContainerFundo}

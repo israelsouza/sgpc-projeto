@@ -269,7 +269,6 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
                 iconRight={<Feather name="plus" size={24} color="#fff" />}
                 onPressRight={() => setModalAberta(true)}
             />
-
             <View style={styles.centerContainer}>
                 <SectionList
                 style={styles.ContainerFundo}
