@@ -26,6 +26,14 @@ export const useNotifications = () => {
         vibrationPattern: [0, 250, 250, 250],
         lightColor: '#FF231F7C',
       });
+
+      await Notifications.setNotificationChannelAsync('sgpc_avisos_urgentes', {
+        name: 'Avisos Urgentes',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+        showBadge: true,
+      });
     }
 
     if (Device.isDevice) {

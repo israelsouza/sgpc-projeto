@@ -115,6 +115,24 @@ class FcmPushAdapter(PushServiceInterface):
                 ),
                 data=data or {},
                 topic=topic,
+                # Configuração para forçar Heads-up no Android
+                android=messaging.AndroidConfig(
+                    priority="high",
+                    notification=messaging.AndroidNotification(
+                        channel_id="sgpc_avisos_urgentes",  # O Mobile DEVE criar este canal
+                        sound="default",
+                    ),
+                ),
+                # Configuração para forçar entrega imediata no iOS
+                apns=messaging.APNSConfig(
+                    payload=messaging.APNSPayload(
+                        aps=messaging.Aps(
+                            sound="default",
+                            content_available=True,
+                        )
+                    ),
+                    headers={"apns-priority": "10"},  # 10 = Prioridade máxima
+                ),
             )
             response = messaging.send(message)
             logger.info("push_sent_successfully", topic=topic, message_id=response)

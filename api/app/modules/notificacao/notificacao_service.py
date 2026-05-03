@@ -1,5 +1,6 @@
-from app.modules.notificacao.notificacao_schema import FCMTokenCreate
 from firebase_admin import messaging
+
+from app.modules.notificacao.notificacao_schema import FCMTokenCreate
 from prisma import Prisma
 
 
@@ -24,7 +25,10 @@ class NotificacaoService:
             # Busca o condomínio do usuário (via morador ou funcionário)
             usuario = await db.usuario.find_unique(
                 where={"id": usuario_id},
-                include={"morador": {"include": {"unidade": True}}, "funcionario": True},
+                include={
+                    "morador": {"include": {"unidade": True}},
+                    "funcionario": True,
+                },
             )
 
             condo_id = None

@@ -82,10 +82,8 @@ class AvisoService:
         topic = f"condominio_{condominio_id}"
         await self.push_service.send_topic_push(
             topic=topic,
-            title=f"Novo Aviso: {novo_aviso.titulo}",
-            body=novo_aviso.descricao[:100] + "..."
-            if len(novo_aviso.descricao) > 100
-            else novo_aviso.descricao,
+            title=f"{novo_aviso.titulo}",
+            body="",
             data={"aviso_id": str(novo_aviso.id), "categoria": novo_aviso.categoria},
         )
 
