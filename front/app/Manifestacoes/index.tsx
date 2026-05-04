@@ -10,6 +10,7 @@ import { router } from "expo-router";
 import { styles } from "@/screens/Manifestacoes/manifestacao";
 import { BlurView } from "expo-blur";
 import { palette } from "@/theme/colors";
+import  BottomNav  from "@/components/BottomNav";
 import { Picker } from "@react-native-picker/picker";   
 
 //FAZ DISTINÇÃO DE QUAL USUÁRIO ESTARÁ UTILIZANDO
@@ -265,11 +266,10 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
                 title="Manifestações"
                 subtitle="Reclamações ou Sugestões"
                 iconLeft={<Feather name="arrow-left" size={24} color="#fff" />}
-                onPressLeft={() => router.push("/Home/Home")}
+                onPressLeft={() => router.push("/home")}
                 iconRight={<Feather name="plus" size={24} color="#fff" />}
                 onPressRight={() => setModalAberta(true)}
             />
-
             <View style={styles.centerContainer}>
                 <SectionList
                 style={styles.ContainerFundo}
@@ -590,6 +590,8 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
                 </Pressable>
             </BlurView>
         </Modal>
+    <BottomNav />
+
     </View>
 
 
