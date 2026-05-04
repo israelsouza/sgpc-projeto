@@ -7,9 +7,9 @@ import { jwtDecode } from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
+import  BottomNav  from "@/components/BottomNav";
 import { BlurView } from "expo-blur";
 import { palette } from "@/theme/colors";
-import { loadAsync } from "expo-font";
 
 // FAZ DISTINÇÃO DE QUAL USUÁRIO ESTARÁ UTILIZANDO
 interface JwtPayload {
@@ -164,7 +164,6 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
     handleFecharModal();
   };
 
-
   function handleFecharModal() {
     setModalAberta(false);
     setAssunto("");
@@ -203,7 +202,7 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
         title="Bilhetes"
         subtitle={podeAdicionar ? "Adicione novos bilhetes" : "Visualização"}
         iconLeft={<Feather name="arrow-left" size={24} color="#fff" />}
-        onPressLeft={() => router.push("/Home/Home")}
+        onPressLeft={() => router.push("/home")}
         iconRight={
           podeAdicionar ? (
             <Feather name="plus" size={24} color="#fff" />
@@ -217,7 +216,6 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
             : () => console.log("Modo visualização do porteiro")
         }
       />
-
       <View style={styles.centerContainer}>
         <SectionList
           style={styles.ContainerFundo}
@@ -382,7 +380,111 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
           </Pressable>
         </BlurView>
       </Modal>
+{/* 
+       ADICIONAR OS BILHETESS 
+      <Modal
+        visible={modalAberta}
+        transparent
+        animationType="slide"
+        onRequestClose={handleFecharModal}
+      >
+        <BlurView intensity={40} tint="dark" style={{ flex: 1 }}>
+          <Pressable style={styles.overlay} onPress={handleFecharModal}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : "height"}
+              style={{ width: "100%" }}
+            >
+              <Pressable style={styles.card} onPress={(e) => e.stopPropagation()}>
+                <View style={styles.HeaderCard}>
+                  <Text style={styles.tituloCard}>Novo Bilhete</Text>
+                  <TouchableOpacity onPress={handleFecharModal}>
+                    <Feather name="x" size={20} color={palette.darkGray} />
+                  </TouchableOpacity>
+                </View>
 
+                <View style={styles.Divisao} />
+
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={{ gap: 10 }}
+                >
+                  <Text style={styles.labelCard}>Informações da Unidade</Text>
+
+                  {loadingdados ? (
+                    <ActivityIndicator
+                      size="small"
+                      color={palette.accent}
+                      style={{ marginVertical: 8 }}
+                    />
+                  ) : tipoCondomino === "PREDIO" ? (
+                    <View style={styles.infoUnidadeContainer}>
+                      {unidade ? (
+                        <View style={[styles.InputDesabilitadoFull, { flex: 1 }]}>
+                          <Text style={styles.InputDesabilitadoText}>Nª Unidade: {unidade}</Text>
+                        </View>
+                      ) : null}
+
+                      <View style={styles.rowcard}>
+                        {bloco ? (
+                          <View style={[styles.InputDesabilitado, { flex: 1 }]}>
+                            <Text style={styles.InputDesabilitadoText}>Bloco: {bloco}</Text>
+                          </View>
+                        ) : null}
+
+                        {andar ? (
+                          <View style={[styles.InputDesabilitado, { flex: 1 }]}>
+                            <Text style={styles.InputDesabilitadoText}>Andar: {andar}</Text>
+                          </View>
+                        ) : null}
+                      </View>
+                     </View>
+                  ) : (
+                  <View style={styles.InputDesabilitado}>
+                    <Text style={styles.InputDesabilitadoText}>
+                      {prefixo} : {numero}
+                    </Text>
+                  </View>
+                )}
+
+
+                ENVIO DOS ARQUIVOS E QUE SERÁ OPCIONAL 
+                <TouchableOpacity style={styles.arquivoBotao}>
+                  <Text style={styles.arquivoBotaoText}>Enviar Arquivo (Opcional)</Text>
+                  <Feather name="upload" size={24} color={palette.accent}/>
+                </TouchableOpacity>
+
+                  CAMPO DE MENSAGEM 
+                  <View style={styles.containerMensagem}>
+                    <Text style={styles.labelMensagem}>Mensagem</Text>
+                    <TextInput
+                      style={[styles.input, styles.inputMensagem]}
+                      placeholder={placeHolder}
+                      placeholderTextColor={palette.gray}
+                      value={mensagem}
+                      onChangeText={setMensagem}
+                      multiline
+                      textAlignVertical="top"
+                    />
+                  </View>
+
+                   ENVIO DE ARQUIVO  QUE É OPCIONAL 
+                  <TouchableOpacity style={styles.arquivoBotao}>
+                    <Text style={styles.arquivoBotaoText}>Enviar Arquivo (Opcional)</Text>
+                    <Feather name="upload" size={24} color={palette.accent} />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity style={styles.btnCancelar} onPress={handleFecharModal}>
+                    <Text style={styles.btnCancelarText}>Cancelar</Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </Pressable>
+          </KeyboardAvoidingView>
+        </Pressable>
+      </BlurView>
+    </Modal> */}
+    
+    <BottomNav/>
     </View>
   );
 }

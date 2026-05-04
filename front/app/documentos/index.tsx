@@ -150,10 +150,9 @@ const handleDownloadPdf = async () => {
             ? <Feather name="plus" size={24} color={colors.textLight} />
             : <Feather name="folder" size={24} color={colors.textLight} />
         }
-        onPressLeft={showForm ? handleCancelar : () => router.push('/home  ')}
+        onPressLeft={showForm ? handleCancelar : () => router.push('/home')}
         onPressRight={ userRole === "sindico" && !showForm ? handleAddDocument : undefined}
       />
-
       <View style={styles.centerContainer}>
 
         {showForm && userRole === "sindico" ? (
