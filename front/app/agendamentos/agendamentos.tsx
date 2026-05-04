@@ -2,7 +2,8 @@ import React from "react";
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { Feather, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { styles } from "@/screens/Agendamentos/agendamentos.styles";
-import { BottomNav } from "@/components/BottomNav";
+import { footerStyles } from "@/screens/Agendamentos/Footer_provisorio";
+// import { BottomNav } from "@/components/BottomNav";
 
 export default function SchedulingSpaces() {
   return (

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Modal, ScrollView, TouchableOpacity } from "react-native";
 import { Ionicons, Feather, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { styles } from "@/screens/Agendamentos/agendamentos.styles";
+import { footerStyles } from "@/screens/Agendamentos/Footer_provisorio";
 
 export default function SchedulingTime() {
     const [showConfirm, setShowConfirm] = useState(false);

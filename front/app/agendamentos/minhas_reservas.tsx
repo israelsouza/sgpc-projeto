@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, ScrollView, TouchableOpacity, SafeAreaView } from "react-native";
 import { Feather, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { styles } from "@/screens/Agendamentos/agendamentos.styles";
+import { footerStyles } from "@/screens/Agendamentos/Footer_provisorio";
 
 export default function MyReservations() {
   return (
