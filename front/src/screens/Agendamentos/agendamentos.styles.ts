@@ -1,0 +1,203 @@
+import { StyleSheet, Platform } from "react-native";
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F7F3EE",
+  },
+  // --- HEADER ---
+  header: {
+    height: 120,
+    backgroundColor: "#8B5E3C",
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'ios' ? 40 : 10,
+  },
+  backButton: {
+    width: 45,
+    height: 45,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerTitleContainer: {
+    flex: 1,
+    alignItems: 'center',
+    marginRight: 45,
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.7)',
+  },
+  // --- CONTEÚDO ---
+  scrollContent: {
+    padding: 20,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#D4A373',
+    marginBottom: 15,
+  },
+  // --- CARDS ---
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 15,
+    padding: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    elevation: 2,
+  },
+  iconBox: {
+    width: 50,
+    height: 50,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#1A202C',
+  },
+  cardDateInfo: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+  dateText: {
+    fontSize: 12,
+    color: '#A0AEC0',
+    textAlign: 'right',
+  },
+  // --- AGENDAMENTO DE HORÁRIOS ---
+  datePickerContainer: {
+    backgroundColor: '#0A191E',
+    borderRadius: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+    marginBottom: 20,
+  },
+  datePickerText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  timeSlot: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#333',
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 8,
+  },
+  timeSlotText: {
+    fontSize: 15,
+    fontWeight: '600',
+    marginLeft: 10,
+  },
+  // --- BOTÕES ---
+  btnFloating: {
+    backgroundColor: '#8B5E3C',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 15,
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  btnFloatingText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  btnOutline: {
+    borderWidth: 1,
+    borderColor: '#8B5E3C',
+    borderRadius: 15,
+    paddingVertical: 15,
+    paddingHorizontal: 60,
+    alignSelf: 'center',
+    marginTop: 20,
+  },
+  btnOutlineText: {
+    color: '#333',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  modalOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0,0,0,0.5)', // Fundo escurecido
+  justifyContent: 'center',
+  padding: 20,
+},
+modalContent: {
+  backgroundColor: 'white',
+  borderRadius: 20,
+  padding: 25,
+  elevation: 5,
+},
+modalTitle: {
+  fontSize: 18,
+  color: '#D4A373',
+  fontWeight: 'bold',
+  marginBottom: 20,
+},
+confirmRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  paddingVertical: 10,
+  borderBottomWidth: 1,
+  borderBottomColor: '#E2E8F0',
+},
+confirmLabel: {
+  color: '#718096',
+  fontSize: 14,
+},
+confirmValue: {
+  color: '#1A202C',
+  fontWeight: 'bold',
+  fontSize: 14,
+},
+modalButtons: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  marginTop: 30,
+},
+btnModalCancel: {
+  flex: 1,
+  borderWidth: 1,
+  borderColor: '#8B5E3C',
+  borderRadius: 12,
+  padding: 15,
+  marginRight: 10,
+  alignItems: 'center',
+},
+btnModalConfirm: {
+  flex: 1,
+  backgroundColor: '#8B5E3C',
+  borderRadius: 12,
+  padding: 15,
+  marginLeft: 10,
+  alignItems: 'center',
+},
+successContainer: {
+  alignItems: 'center',
+  paddingVertical: 30,
+},
+successTitle: {
+  color: '#D4A373',
+  fontSize: 18,
+  marginBottom: 20,
+}
+});
