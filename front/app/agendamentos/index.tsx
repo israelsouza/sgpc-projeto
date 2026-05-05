@@ -1,30 +1,32 @@
 import React from "react";
-import { View, Text, ScrollView, TouchableOpacity, SafeAreaView } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { Feather, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { styles } from "@/screens/Agendamentos/agendamentos.styles";
 import { footerStyles } from "@/screens/Agendamentos/Footer_provisorio";
+// import { componenteList, listadoMock, agruparMes, coresPorCategoria, coresPorIcone, StatusSolicitacao, Movimentacao } from "@/components/Listado";
+// import { BottomNav } from "@/components/BottomNav";
 
-export default function MyReservations() {
+export default function SchedulingSpaces() {
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton}><MaterialIcons name="arrow-back" size={26} color="white" /></TouchableOpacity>
         <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>Minhas Reservas</Text>
+          <Text style={styles.headerTitle}>Agendamento</Text>
           <Text style={styles.headerSubtitle}>2 reservas</Text>
         </View>
         <TouchableOpacity style={{ position: 'absolute', right: 20 }}><Feather name="more-horizontal" size={28} color="white" /></TouchableOpacity>
       </View>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.sectionTitle}>Abril 2026</Text>
+        <Text style={styles.sectionTitle}>Espaços</Text>
         
-        <ReservationCard title="Academia" date="18/03/25" time="11:00 às 12:00" color="#9ED99C" icon="box" />
-        <ReservationCard title="Espaço Gourmet" date="17/03/25" time="12:00 às 14:00" color="#9ED99C" icon="food-steak" />
+        <SpaceCard title="Academia" icon="dumbbell" color="#9ED99C" />
+        <SpaceCard title="Espaço Gourmet" icon="food-steak" color="#A9B2D9" />
 
         <View style={{ height: 40 }} />
         <TouchableOpacity style={styles.btnFloating}>
-          <Text style={styles.btnFloatingText}>cancelar reserva</Text>
+          <Text style={styles.btnFloatingText}>minhas reservas</Text>
         </TouchableOpacity>
       </ScrollView>
 
@@ -35,21 +37,15 @@ export default function MyReservations() {
         <TouchableOpacity style={footerStyles.footerItem}><MaterialIcons name="megaphone-outline" size={26} color="#999" /></TouchableOpacity>
         <TouchableOpacity style={footerStyles.footerItem}><Feather name="user" size={26} color="#999" /></TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
-const ReservationCard = ({ title, date, time, color, icon }: any) => (
+const SpaceCard = ({ title, icon, color }: any) => (
   <TouchableOpacity style={styles.card}>
     <View style={[styles.iconBox, { backgroundColor: color }]}>
       <MaterialCommunityIcons name={icon} size={24} color="black" />
     </View>
-    <View style={{ flex: 1 }}>
-      <Text style={styles.cardTitle}>{title}</Text>
-    </View>
-    <View style={styles.cardDateInfo}>
-      <Text style={styles.dateText}>{date}</Text>
-      <Text style={styles.dateText}>{time}</Text>
-    </View>
+    <Text style={styles.cardTitle}>{title}</Text>
   </TouchableOpacity>
 );
