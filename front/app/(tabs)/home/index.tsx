@@ -1,17 +1,23 @@
-import { View, Text, TouchableOpacity, ScrollView, StatusBar, } from "react-native";
+// app/(tabs)/home/index.tsx
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  StatusBar,
+  Animated,
+} from "react-native";
 import { useRouter } from "expo-router";
-import { useState, useEffect } from "react";
-import * as SecureStore from 'expo-secure-store';
-import { colors } from "@/theme/colors";
-import { styles } from "@/screens/Home/home.styles";
+import { useState, useEffect, useMemo, useRef } from "react";
+import * as SecureStore from "expo-secure-store";
 import { Feather, AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
-import { Header }  from "@/components/Header";
+import { Header } from "@/components/Header";
+import { useTheme } from "@/contexts/ThemeContext";
+import { styles as staticStyles, createStyles } from "@/screens/Home/home.styles";
+import { colors as staticColors } from "@/theme/colors";
 import type { ComponentType } from "react";
 
-// ── Tipos dos ícones ──────────────────────────
 type IconLibrary = "Feather" | "AntDesign" | "MaterialCommunityIcons";
-
-
 
 interface MenuItem {
   id: string;
@@ -23,8 +29,7 @@ interface MenuItem {
   route: string;
 }
 
-// ── Dados dos cards ──────────────────────────
-const menuItems: MenuItem[] = [ 
+const menuItems: MenuItem[] = [
   {
     id: "cadastrados",
     title: "Cadastrados",
@@ -90,20 +95,67 @@ const menuItems: MenuItem[] = [
   },
 ];
 
-// ── Renderizador de ícones ──────────────────────────
 function renderIcon(icon: MenuItem["icon"], color: string) {
   const IconComponent = {
     Feather,
     AntDesign,
     MaterialCommunityIcons,
   }[icon.library] as ComponentType<{ name: string; size: number; color: string }>;
-
   return <IconComponent name={icon.name} size={22} color={color} />;
+}
+
+function AnimatedSwitch({ value }: { value: boolean }) {
+  const anim = useRef(new Animated.Value(value ? 1 : 0)).current;
+
+  useEffect(() => {
+    Animated.timing(anim, {
+      toValue: value ? 1 : 0,
+      duration: 220,
+      useNativeDriver: false,
+    }).start();
+  }, [value]);
+
+  const translateX = anim.interpolate({ inputRange: [0, 1], outputRange: [2, 18] });
+  const bgColor = anim.interpolate({ inputRange: [0, 1], outputRange: ["#CCCCCC", "#FFD700"] });
+
+  return (
+    <Animated.View
+      style={{
+        width: 36,
+        height: 20,
+        borderRadius: 10,
+        backgroundColor: bgColor,
+        justifyContent: "center",
+      }}
+    >
+      <Animated.View
+        style={{
+          width: 16,
+          height: 16,
+          borderRadius: 8,
+          backgroundColor: "#FFFFFF",
+          transform: [{ translateX }],
+        }}
+      />
+    </Animated.View>
+  );
 }
 
 export default function HomeScreen() {
   const router = useRouter();
-  
+  const { colors: themeColors, isHighContrast, toggleHighContrast } = useTheme();
+
+  // Normal: usa o styles estático original (palette/colors do seu projeto)
+  // Alto contraste: usa createStyles com as cores do tema HC
+  const styles = useMemo(
+    () => (isHighContrast ? createStyles(themeColors) : staticStyles),
+    [isHighContrast, themeColors]
+  );
+
+  // Cor do botão de toggle: usa a cor do projeto no modo normal
+  const toggleBorderColor = isHighContrast ? "#FFD700" : staticColors.earthAccent;
+  const toggleTextColor   = isHighContrast ? "#FFD700" : staticColors.earthAccent;
+
   const [userName, setUserName] = useState("Usuário");
   const [userCondo, setUserCondo] = useState("");
   const [userUnit, setUserUnit] = useState("");
@@ -114,11 +166,7 @@ export default function HomeScreen() {
         const name = await SecureStore.getItemAsync("userName");
         const condo = await SecureStore.getItemAsync("userCondo");
         const unit = await SecureStore.getItemAsync("userUnit");
-        
-        if (name) {
-          // Pega o primeiro nome para o "Seja bem vindo"
-          setUserName(name.split(" ")[0]);
-        }
+        if (name) setUserName(name.split(" ")[0]);
         if (condo) setUserCondo(condo);
         if (unit) setUserUnit(unit);
       } catch (error) {
@@ -130,45 +178,77 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.primaryDark} />
+      <StatusBar barStyle="light-content" backgroundColor={staticColors.earthBrown} />
 
-      {/* ── Header ── */}
-      <Header 
-        title={userCondo || "Condomínio"} 
-        subtitle={userUnit} 
-        initials={userCondo ? userCondo.substring(0, 2).toUpperCase() : "SG"} 
+      <Header
+        title={userCondo || "Condomínio"}
+        subtitle={userUnit}
+        initials={userCondo ? userCondo.substring(0, 2).toUpperCase() : "SG"}
       />
 
-      {/* ── Conteúdo ── */}
-            <View style={styles.centerContainer}>
-            <ScrollView
-              style={styles.content}
-              showsVerticalScrollIndicator={false}
+      <View style={styles.centerContainer}>
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+
+          {/* ── Botão de alto contraste ── */}
+          <View style={{ flexDirection: "row", justifyContent: "flex-end", marginBottom: 12 }}>
+            <TouchableOpacity
+              onPress={toggleHighContrast}
+              activeOpacity={0.75}
+              accessibilityLabel="Alternar modo de alto contraste"
+              accessibilityRole="switch"
+              accessibilityState={{ checked: isHighContrast }}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 6,
+                paddingHorizontal: 12,
+                paddingVertical: 7,
+                borderRadius: 20,
+                borderWidth: 1.5,
+                borderColor: toggleBorderColor,
+              }}
             >
-              <View style={styles.welcomeCard}>
-                <Text style={styles.welcomeText}>Seja bem vindo João</Text>
-              </View>
+              <Feather name="eye" size={13} color={toggleTextColor} />
+              <Text style={{ fontSize: 12, fontWeight: "600", color: toggleTextColor }}>
+                {isHighContrast ? "Contraste: ON" : "Alto contraste"}
+              </Text>
+              <AnimatedSwitch value={isHighContrast} />
+            </TouchableOpacity>
+          </View>
 
-              <View style={styles.grid}>
-                {menuItems.map((item) => (
-                  <TouchableOpacity
-                    key={item.id}
-                    style={styles.card}
-                    onPress={() => router.push(item.route as any)}
-                    activeOpacity={0.7}
-                  >
-                    <View style={[styles.iconBox, { backgroundColor: item.iconBg }]}>
-                      {renderIcon(item.icon, item.iconColor)}
-                    </View>
+          {/* ── Boas-vindas ── */}
+          <View style={styles.welcomeCard}>
+            <Text style={styles.welcomeText}>Seja bem vindo {userName}</Text>
+          </View>
 
-                    <Text style={styles.cardTitle}>{item.title}</Text>
-                    <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
+          {/* ── Grid ── */}
+          <View style={styles.grid}>
+            {menuItems.map((item) => {
+              const iconBg    = isHighContrast ? themeColors.iconBgOverride : item.iconBg;
+              const iconColor = isHighContrast ? themeColors.iconColorOverride : item.iconColor;
+
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  style={styles.card}
+                  onPress={() => router.push(item.route as any)}
+                  activeOpacity={0.7}
+                  accessibilityLabel={`${item.title}: ${item.subtitle}`}
+                  accessibilityRole="button"
+                >
+                  <View style={[styles.iconBox, { backgroundColor: iconBg }]}>
+                    {renderIcon(item.icon, iconColor)}
+                  </View>
+                  <Text style={styles.cardTitle}>{item.title}</Text>
+                  <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
           <View style={{ height: 24 }} />
         </ScrollView>
       </View>
-      </View>
+    </View>
   );
 }
