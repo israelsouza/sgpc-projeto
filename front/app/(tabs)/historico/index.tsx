@@ -1,3 +1,4 @@
+// app/(tabs)/historico/index.tsx
 import {
   View,
   Text,
@@ -5,15 +6,14 @@ import {
   ScrollView,
   StatusBar,
 } from "react-native";
-import { useRouter } from "expo-router";
 import { Feather, MaterialCommunityIcons, AntDesign, Entypo } from "@expo/vector-icons";
 import { colors } from "@/theme/colors";
-import { styles } from "@/screens/Historico/historico.styles";
-import { BottomNav } from "@/components/BottomNav";
+import { styles as staticStyles, createStyles } from "@/screens/Historico/historico.styles";
 import { Header } from "@/components/Header";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useMemo } from "react";
 import type { ComponentType } from "react";
 
-// ── Tipos ──────────────────────────────────────────
 type IconLibrary = "Feather" | "MaterialCommunityIcons" | "AntDesign";
 
 interface HistoricoItem {
@@ -28,8 +28,6 @@ interface HistoricoItem {
   hasBadge?: boolean;
 }
 
-// ── Dados mockados ─────────────────────────────────
-// TODO: substituir por chamada à API quando o endpoint estiver pronto
 const historicoItems: HistoricoItem[] = [
   {
     id: "1",
@@ -101,27 +99,26 @@ const historicoItems: HistoricoItem[] = [
     iconColor: "#5B9BC4",
     date: "15/03/25",
     time: "14:50",
-  }
+  },
 ];
 
-// ── Renderizador de ícones (mesmo padrão do Home) ──
 function renderIcon(icon: HistoricoItem["icon"], color: string) {
   const IconComponent = {
     Feather,
     MaterialCommunityIcons,
     AntDesign,
-  }[icon.library] as ComponentType<{
-    name: string;
-    size: number;
-    color: string;
-  }>;
-
+  }[icon.library] as ComponentType<{ name: string; size: number; color: string }>;
   return <IconComponent name={icon.name} size={22} color={color} />;
 }
 
-// ── Tela ───────────────────────────────────────────
 export default function HistoricoScreen() {
-  const router = useRouter();
+  const { colors: themeColors, isHighContrast } = useTheme();
+
+  // Normal: styles original intacto / HC: styles dinâmico
+  const styles = useMemo(
+    () => (isHighContrast ? createStyles(themeColors) : staticStyles),
+    [isHighContrast, themeColors]
+  );
 
   const historyIcon = (
     <Entypo name="back-in-time" size={26} color={colors.textLight} />
@@ -129,58 +126,58 @@ export default function HistoricoScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar
-        barStyle="light-content"
-        backgroundColor={colors.primaryDark}
-      />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primaryDark} />
 
-      {/* ── Header ── */}
-      <Header 
+      <Header
         title="Minhas Ações"
         subtitle={`${historicoItems.length} ações recentes`}
         icon={historyIcon}
       />
 
-      {/* ── Lista ── */}
       <View style={styles.contentWrapper}>
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {historicoItems.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.itemCard}
-              activeOpacity={0.7}
-            >
-              {/* Ícone + badge */}
-              <View style={styles.iconWrapper}>
-                <View
-                  style={[styles.iconBox, { backgroundColor: item.iconBg }]}
-                >
-                  {renderIcon(item.icon, item.iconColor)}
-                </View>
-                {item.hasBadge && (
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>!</Text>
+          {historicoItems.map((item) => {
+            const iconBg    = isHighContrast ? themeColors.iconBgOverride : item.iconBg;
+            const iconColor = isHighContrast ? themeColors.iconColorOverride : item.iconColor;
+
+            return (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.itemCard}
+                activeOpacity={0.7}
+                accessibilityLabel={`${item.title}: ${item.subtitle}`}
+                accessibilityRole="button"
+              >
+                {/* Ícone + badge */}
+                <View style={styles.iconWrapper}>
+                  <View style={[styles.iconBox, { backgroundColor: iconBg }]}>
+                    {renderIcon(item.icon, iconColor)}
                   </View>
-                )}
-              </View>
+                  {item.hasBadge && (
+                    <View style={styles.badge}>
+                      <Text style={styles.badgeText}>!</Text>
+                    </View>
+                  )}
+                </View>
 
-              {/* Texto */}
-              <View style={styles.itemContent}>
-                <Text style={styles.itemTitle} numberOfLines={1}>
-                  {item.title}
-                </Text>
-                <Text style={styles.itemSubtitle} numberOfLines={2}>
-                  {item.subtitle}
-                </Text>
-              </View>
+                {/* Texto */}
+                <View style={styles.itemContent}>
+                  <Text style={styles.itemTitle} numberOfLines={1}>
+                    {item.title}
+                  </Text>
+                  <Text style={styles.itemSubtitle} numberOfLines={2}>
+                    {item.subtitle}
+                  </Text>
+                </View>
 
-              {/* Data e hora */}
-              <View style={styles.itemMeta}>
-                <Text style={styles.itemDate}>{item.date}</Text>
-                <Text style={styles.itemTime}>{item.time}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+                {/* Data e hora */}
+                <View style={styles.itemMeta}>
+                  <Text style={styles.itemDate}>{item.date}</Text>
+                  <Text style={styles.itemTime}>{item.time}</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
 
           <View style={{ height: 24 }} />
         </ScrollView>
