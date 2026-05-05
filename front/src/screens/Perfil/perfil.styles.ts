@@ -67,11 +67,14 @@ export const styles = StyleSheet.create({
   },
 
   // ── Conteúdo ──
-  content: {
+  contentWrapper: {
     flex: 1,
     backgroundColor: colors.sheetBg,
-    paddingHorizontal: 16,
     paddingTop: 16,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 16,
   },
 
   // ── Cards de resumo ──
