@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
+// app/(tabs)/avisos/index.tsx
+import React, { useState, useEffect, useMemo } from "react";
 import { View, Text, ScrollView, TouchableOpacity, StatusBar } from "react-native";
 import { Feather, Entypo } from "@expo/vector-icons";
 import { Header } from "@/components/Header";
-import { BottomNav } from "@/components/BottomNav";
-import { styles } from "@/screens/Avisos/avisos.styles";
+import { styles as staticStyles, createStyles } from "@/screens/Avisos/avisos.styles";
 import { colors } from "@/theme/colors";
-import * as SecureStore from 'expo-secure-store';
+import { useTheme } from "@/contexts/ThemeContext";
+import * as SecureStore from "expo-secure-store";
 
 interface Aviso {
   id: string;
@@ -62,11 +63,24 @@ const avisos: Aviso[] = [
   },
 ];
 
-function AvisoCard({ aviso }: { aviso: Aviso }) {
-  const iconColor = aviso.novo ? colors.earthAccent : colors.textMuted;
-
+// ── Card extraído como componente interno ──────────────────────────────────
+// Recebe o styles e as cores já resolvidos pela tela pai
+function AvisoCard({
+  aviso,
+  styles,
+  iconColor,
+}: {
+  aviso: Aviso;
+  styles: ReturnType<typeof createStyles>;
+  iconColor: string;
+}) {
   return (
-    <TouchableOpacity activeOpacity={0.75} style={styles.card}>
+    <TouchableOpacity
+      activeOpacity={0.75}
+      style={styles.card}
+      accessibilityLabel={aviso.titulo}
+      accessibilityRole="button"
+    >
       {/* Ícone */}
       <View
         style={[
@@ -79,7 +93,6 @@ function AvisoCard({ aviso }: { aviso: Aviso }) {
 
       {/* Corpo */}
       <View style={styles.cardBody}>
-        {/* Título + badge + data na mesma linha */}
         <View style={styles.cardHeader}>
           <View style={styles.cardTitleRow}>
             <Text style={styles.cardTitle} numberOfLines={2}>
@@ -98,15 +111,13 @@ function AvisoCard({ aviso }: { aviso: Aviso }) {
           </View>
         </View>
 
-        {/* Preview */}
         <Text style={styles.cardPreview} numberOfLines={1}>
           {aviso.preview}
         </Text>
 
-        {/* Anexo */}
         {aviso.anexos && aviso.anexos > 0 ? (
           <View style={styles.attachmentRow}>
-            <Feather name="paperclip" size={12} color={colors.textMuted} />
+            <Feather name="paperclip" size={12} color={styles.attachmentText.color as string} />
             <Text style={styles.attachmentText}>
               {aviso.anexos} {aviso.anexos === 1 ? "anexo" : "anexos"}
             </Text>
@@ -117,7 +128,16 @@ function AvisoCard({ aviso }: { aviso: Aviso }) {
   );
 }
 
+// ── Tela ───────────────────────────────────────────────────────────────────
 export default function AvisosScreen() {
+  const { colors: themeColors, isHighContrast } = useTheme();
+
+  // Normal: styles original / HC: styles dinâmico
+  const styles = useMemo(
+    () => (isHighContrast ? createStyles(themeColors) : staticStyles),
+    [isHighContrast, themeColors]
+  );
+
   const [userCondo, setUserCondo] = useState("");
 
   useEffect(() => {
@@ -139,7 +159,7 @@ export default function AvisosScreen() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.primaryDark} />
-      
+
       <Header
         title="Mural de avisos"
         subtitle={userCondo || "Condomínio"}
@@ -152,11 +172,23 @@ export default function AvisosScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.list}
         >
-          {/* <Text style={styles.sectionTitle}>Mural de avisos</Text> */}
+          {avisos.map((aviso) => {
+            // Cor do ícone: HC usa amarelo / normal mantém lógica original
+            const iconColor = isHighContrast
+              ? themeColors.iconColorOverride
+              : aviso.novo
+              ? colors.earthAccent
+              : colors.textMuted;
 
-          {avisos.map((aviso) => (
-            <AvisoCard key={aviso.id} aviso={aviso} />
-          ))}
+            return (
+              <AvisoCard
+                key={aviso.id}
+                aviso={aviso}
+                styles={styles}
+                iconColor={iconColor}
+              />
+            );
+          })}
         </ScrollView>
       </View>
     </View>

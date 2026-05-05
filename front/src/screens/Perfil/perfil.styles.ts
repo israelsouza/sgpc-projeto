@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { colors } from "@/theme/colors";
+import type { ThemeColors } from "@/contexts/ThemeContext";
 
 export const styles = StyleSheet.create({
   container: {
@@ -52,7 +53,6 @@ export const styles = StyleSheet.create({
     fontSize: 13,
   },
 
-  // curva de transição — igual ao Header do projeto
   headerCurve: {
     position: "absolute",
     marginLeft: "2.5%",
@@ -141,3 +141,87 @@ export const styles = StyleSheet.create({
     color: colors.textDark,
   },
 });
+
+// ── Styles dinâmicos — ativados apenas no alto contraste ──────────────────
+export const createStyles = (c: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: c.background,
+    },
+
+    contentWrapper: {
+      flex: 1,
+      backgroundColor: c.surface,
+      paddingTop: 16,
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: 16,
+    },
+
+    // ── Cards de resumo ──
+    statsRow: {
+      flexDirection: "row",
+      gap: 10,
+      marginBottom: 24,
+      marginTop: 8,
+    },
+    statCard: {
+      flex: 1,
+      backgroundColor: c.card,
+      borderRadius: 14,
+      paddingVertical: 14,
+      paddingHorizontal: 8,
+      alignItems: "center",
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    statValue: {
+      fontSize: 22,
+      fontWeight: "700",
+      color: c.text,
+      marginBottom: 4,
+    },
+    statValueHighlight: {
+      // No HC, vermelho puro tem contraste ruim — troca por amarelo
+      color: "#FFD700",
+    },
+    statLabel: {
+      fontSize: 10,
+      fontWeight: "600",
+      color: c.textMuted,
+      textAlign: "center",
+      lineHeight: 14,
+    },
+
+    // ── Menu list ──
+    menuList: {
+      gap: 12,
+    },
+    menuItem: {
+      backgroundColor: c.card,
+      borderRadius: 14,
+      paddingHorizontal: 16,
+      paddingVertical: 16,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    menuIconBox: {
+      width: 36,
+      height: 36,
+      borderRadius: 10,
+      backgroundColor: c.iconBgOverride,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    menuItemTitle: {
+      flex: 1,
+      fontSize: 14,
+      fontWeight: "600",
+      color: c.text,
+    },
+  });
