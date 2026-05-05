@@ -1,10 +1,7 @@
 import React from "react";
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { Feather, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { styles } from "@/screens/Agendamentos/agendamentos.styles";
-import { footerStyles } from "@/screens/Agendamentos/Footer_provisorio";
-// import { componenteList, listadoMock, agruparMes, coresPorCategoria, coresPorIcone, StatusSolicitacao, Movimentacao } from "@/components/Listado";
-// import { BottomNav } from "@/components/BottomNav";
+import { styles } from "@/screens/Agendamentos/agendamentos";
 
 export default function SchedulingSpaces() {
   return (
@@ -25,18 +22,10 @@ export default function SchedulingSpaces() {
         <SpaceCard title="Espaço Gourmet" icon="food-steak" color="#A9B2D9" />
 
         <View style={{ height: 40 }} />
-        <TouchableOpacity style={styles.btnFloating}>
-          <Text style={styles.btnFloatingText}>minhas reservas</Text>
-        </TouchableOpacity>
       </ScrollView>
-
-      {/* Footer Fixo */}
-      <View style={footerStyles.footer}>
-        <TouchableOpacity style={footerStyles.footerItem}><Feather name="home" size={26} color="#999" /></TouchableOpacity>
-        <TouchableOpacity style={footerStyles.footerItem}><MaterialIcons name="history" size={28} color="#999" /></TouchableOpacity>
-        <TouchableOpacity style={footerStyles.footerItem}><MaterialIcons name="megaphone-outline" size={26} color="#999" /></TouchableOpacity>
-        <TouchableOpacity style={footerStyles.footerItem}><Feather name="user" size={26} color="#999" /></TouchableOpacity>
-      </View>
+      <TouchableOpacity style={styles.btnFloating}>
+        <Text style={styles.btnFloatingText}>minhas reservas</Text>
+      </TouchableOpacity>
     </View>
   );
 }

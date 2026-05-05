@@ -1,21 +1,19 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Modal } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, SafeAreaView, Modal } from "react-native";
 import { Ionicons, Feather, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { styles } from "@/screens/Agendamentos/agendamentos.styles";
-import { footerStyles } from "@/screens/Agendamentos/Footer_provisorio";
+import { styles } from "@/screens/Agendamentos/minhas_reservas";
 
 export default function MyReservations() {
   const [showConfirm, setShowConfirm] = useState(false);
-    const [showSuccess, setShowSuccess] = useState(false);
-  
-    const handleConfirm = () => {
-      setShowConfirm(false);
-      setShowSuccess(true);
-      // Fecha o sucesso automaticamente após 2 segundos
-      setTimeout(() => setShowSuccess(false), 2000);
-    };
+const [showSuccess, setShowSuccess] = useState(false);
+
+const handleCancelReservation = () => {
+  setShowConfirm(false);
+  setShowSuccess(true);
+  setTimeout(() => setShowSuccess(false), 2000);
+};
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton}><MaterialIcons name="arrow-back" size={26} color="white" /></TouchableOpacity>
         <View style={styles.headerTitleContainer}>
@@ -28,26 +26,18 @@ export default function MyReservations() {
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scrollContent}>
         <Text style={styles.sectionTitle}>Abril 2026</Text>
         
-        <ReservationCard title="Academia" date="18/03/25" time="11:00 às 12:00" color="#9ED99C" icon="box" />
+        <ReservationCard title="Academia" date="18/03/25" time="11:00 às 12:00" color="#9ED99C" icon="dumbbell" />
         <ReservationCard title="Espaço Gourmet" date="17/03/25" time="12:00 às 14:00" color="#9ED99C" icon="food-steak" />
 
         <View style={{ height: 40 }} />
-        <TouchableOpacity style={styles.btnFloating}>
+      </ScrollView>
+      <TouchableOpacity style={styles.btnFloating}
+      onPress={() => setShowConfirm(true)}
+      >
           <Text style={styles.btnFloatingText}>cancelar reserva</Text>
         </TouchableOpacity>
-      </ScrollView>
 
-<ScrollView contentContainerStyle={styles.scrollContent}>
-         {/* Botão cancelar reserva que dispara o Modal */}
-         <TouchableOpacity 
-           style={styles.btnOutline} 
-           onPress={() => setShowConfirm(true)}
-         >
-            <Text style={styles.btnOutlineText}>cancelar reserva</Text>
-         </TouchableOpacity>
-      </ScrollView>
-
-      {/* --- MODAL DE CONFIRMAÇÃO --- */}
+{/* --- MODAL DE CONFIRMAÇÃO --- */}
       <Modal visible={showConfirm} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -74,7 +64,7 @@ export default function MyReservations() {
               <TouchableOpacity style={styles.btnModalCancel} onPress={() => setShowConfirm(false)}>
                 <Text style={{color: '#333'}}>cancelar</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.btnModalConfirm} onPress={handleConfirm}>
+              <TouchableOpacity style={styles.btnModalConfirm} onPress={handleCancelReservation}>
                 <Text style={{color: 'white', fontWeight: 'bold'}}>confirmar</Text>
               </TouchableOpacity>
             </View>
@@ -93,15 +83,7 @@ export default function MyReservations() {
           </View>
         </View>
       </Modal>
-
-      {/* Footer Fixo */}
-      <View style={footerStyles.footer}>
-        <TouchableOpacity style={footerStyles.footerItem}><Feather name="home" size={26} color="#999" /></TouchableOpacity>
-        <TouchableOpacity style={footerStyles.footerItem}><MaterialIcons name="history" size={28} color="#999" /></TouchableOpacity>
-        <TouchableOpacity style={footerStyles.footerItem}><MaterialIcons name="megaphone-outline" size={26} color="#999" /></TouchableOpacity>
-        <TouchableOpacity style={footerStyles.footerItem}><Feather name="user" size={26} color="#999" /></TouchableOpacity>
-      </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
