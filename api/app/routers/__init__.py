@@ -2,9 +2,9 @@ from fastapi import APIRouter
 
 from app.modules.core.router import router as core_router
 from app.routers.auth import router as auth_router
+from app.routers.condominio import router as condominio_router
 from app.routers.morador import router as morador_router
 from app.routers.unidade import router as unidade_router
-from app.routers.condominio import router as condominio_router
 
 # Agregador de rotas
 router = APIRouter()

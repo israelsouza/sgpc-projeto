@@ -1,8 +1,10 @@
+from app.modules.condominio.condominio_schema import (
+    UnidadeMassResultado,
+    UnidMassCreation,
+)
 from app.modules.core.core_exception import ValidationError
 from app.modules.unidade.unidade_schema import UnidadeCreate, UnidadeUpdate
-from app.modules.condominio.condominio_schema import UnidMassCreation, UnidadeMassResultado
 from prisma import Prisma
-
 
 
 class UnidadeService:
@@ -24,7 +26,7 @@ class UnidadeService:
         unidade = await db.unidade.create(
             data=dados.model_dump()
         )
-        
+
         unidade_criada = await db.unidade.find_unique(
             where={"id": unidade.id},
              include={"moradores": True}
@@ -124,7 +126,7 @@ class UnidadeService:
                     "condominio_id": dados.condominio_id},
                 include={"moradores": True}
             )
-        
+
         return UnidadeMassResultado(
             total_solicitado=len(candidatas),
             total_criado=len(criadas),

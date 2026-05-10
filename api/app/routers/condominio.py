@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
-from prisma import Prisma
 
 from app.db.prisma_client import get_prisma
+from app.modules.condominio.condominio_controller import CondominioController
 from app.modules.condominio.condominio_schema import (
     CondominioCreate,
-    CondominioUpdate,
     CondominioResponse,
+    CondominioUpdate,
 )
-from app.modules.condominio.condominio_controller import CondominioController
+from prisma import Prisma
 
 router = APIRouter(prefix="/condominio", tags=["Condomínio"])
 

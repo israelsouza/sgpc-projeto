@@ -1,9 +1,10 @@
-from prisma import Prisma
-from app.modules.core.core_exception import ValidationError
 from app.modules.condominio.condominio_schema import (
     CondominioCreate,
     CondominioUpdate,
 )
+from app.modules.core.core_exception import ValidationError
+from prisma import Prisma
+
 
 #CRIAR OS CONDOMINIOS
 class CondominioService:

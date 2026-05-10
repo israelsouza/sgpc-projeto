@@ -1,9 +1,12 @@
+from enum import StrEnum
+
 from pydantic import BaseModel, ConfigDict, model_validator
-from enum import Enum
+
 from app.modules.unidade.unidade_schema import UnidadeResponse
 
+
 #DEFINE OS TIPOS EM DOIS QUE SÃO ESTÁTICOS
-class TipoCondominio(str, Enum):
+class TipoCondominio(StrEnum):
     PREDIO = "PREDIO"
     HORIZONTAL = "HORIZONTAL" #SERÁ UTILIZADO EM CONDS RESIDENCIAIS
 
@@ -49,7 +52,7 @@ class CondominioUpdate(BaseModel):
     nome:     str | None = None
     cnpj:     str | None = None
     endereco: str | None = None
-    tipoCond:     TipoCondominio | None = None 
+    tipoCond:     TipoCondominio | None = None
 
 class CondominioResponse(CondominioBase):
     model_config = ConfigDict(from_attributes=True)
@@ -68,7 +71,7 @@ class UnidMassCreation(BaseModel):
         if ambos or nenhum:
             raise ValueError("Informe exatamente uma config: config_predio ou config_horizontal")
         return self
-    
+
 #COMO O RESULTADO SERÁ EXIBIDO
 class UnidadeMassResultado(BaseModel):
     total_solicitado: int

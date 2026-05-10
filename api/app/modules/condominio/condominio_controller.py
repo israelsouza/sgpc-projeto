@@ -1,6 +1,6 @@
-from prisma import Prisma
-from app.modules.condominio.condominio_schema import ( CondominioCreate, CondominioUpdate )
+from app.modules.condominio.condominio_schema import CondominioCreate, CondominioUpdate
 from app.modules.condominio.condominio_service import CondominioService
+from prisma import Prisma
 
 
 class CondominioController:
