@@ -133,6 +133,7 @@ class UsuarioService:
             data={
                 "sub": str(usuario.id),
                 "email": usuario.email,
+                "nome": usuario.morador.nome_completo if usuario.morador else None,
                 "roles": roles,
                 "morador_status": status_morador,
             }

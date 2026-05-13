@@ -8,9 +8,18 @@ from app.modules.usuario.usuario_schema import (
     TokenSchema,
 )
 from prisma import Prisma
+from app.modules.core.auth import get_current_user
 
 router = APIRouter(prefix="/auth", tags=["Autenticação"])
 
+@router.get("/usuario")
+async def get_users(usuario_logado = Depends(get_current_user)):
+    return {
+        "id": usuario_logado["sub"],
+        "email": usuario_logado["email"],
+        "nome": usuario_logado["nome"],
+        "roles": usuario_logado["roles"]
+    }
 
 @router.post("/login", response_model=TokenSchema)
 async def login(dados: LoginSchema, db: Prisma = Depends(get_prisma)):
