@@ -27,6 +27,13 @@ class StorageServiceInterface(ABC):
         """
         pass
 
+    @abstractmethod
+    async def delete_file(self, file_id: str) -> bool:
+        """
+        Deleta um arquivo do armazenamento privado.
+        """
+        pass
+
 
 class PushServiceInterface(ABC):
     @abstractmethod

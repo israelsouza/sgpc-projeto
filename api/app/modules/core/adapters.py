@@ -86,6 +86,17 @@ class CloudinaryAdapter(StorageServiceInterface):
             logger.error("cloudinary_sign_url_failed", error=str(e))
             raise e
 
+    async def delete_file(self, file_id: str) -> bool:
+        """
+        Deleta um arquivo do Cloudinary.
+        """
+        try:
+            result = cloudinary.uploader.destroy(file_id, invalidate=True)
+            return result.get("result") == "ok"
+        except Exception as e:
+            logger.error("cloudinary_delete_failed", file_id=file_id, error=str(e))
+            return False
+
 
 class FcmPushAdapter(PushServiceInterface):
     def __init__(self):
