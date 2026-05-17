@@ -51,14 +51,26 @@
     deletado_em       DateTime? @map("deletado_em")
     quem_criou        Int?      @map("quem_criou")
 
+<<<<<<< HEAD
     // Relacionamentos
     condominio        Condominio @relation(fields: [condominio_id], references: [id])
     moradores         Morador[]
     chaves_acesso     ChaveAcesso[]
+=======
+model Perfil {
+  id    Int    @id @default(autoincrement())
+  nome  String @unique @map("nome")
+  
+  // Relacionamentos
+  usuarios      Usuario[]
+  chaves_acesso ChaveAcesso[]
+  permissoes    Permissao[]
+>>>>>>> 271e21a17c93e14f3c951bb8b987e018725cf5cc
 
     @@map("UNIDADES")
   }
 
+<<<<<<< HEAD
   model Perfil {
     id    Int    @id @default(autoincrement())
     nome  String @unique @map("nome")
@@ -69,6 +81,35 @@
 
     @@map("PERFIS")
   }
+=======
+model Permissao {
+  id        Int       @id @default(autoincrement())
+  nome      String    @unique @map("nome")
+  descricao String?   @map("descricao")
+
+  // Relacionamentos
+  perfis    Perfil[]
+
+  @@map("PERMISSOES")
+}
+
+model Usuario {
+  id             Int       @id @default(autoincrement())
+  email          String    @unique @map("email")
+  senha          String    @map("senha")
+  status         String    @default("ATIVO") @map("status")
+
+  // Auditoria e Soft Delete
+  criado_em      DateTime  @default(now()) @map("criado_em")
+  atualizado_em  DateTime  @updatedAt @map("atualizado_em")
+  deletado_em    DateTime? @map("deletado_em")
+
+  // Relacionamentos
+  perfis         Perfil[]
+  morador        Morador?
+  funcionario    Funcionario?
+  recuperacoes_senha RecuperacaoSenha[]
+>>>>>>> 271e21a17c93e14f3c951bb8b987e018725cf5cc
 
   model Usuario {
     id             Int       @id @default(autoincrement())
@@ -81,10 +122,40 @@
     atualizado_em  DateTime  @updatedAt @map("atualizado_em")
     deletado_em    DateTime? @map("deletado_em")
 
+<<<<<<< HEAD
     // Relacionamentos
     perfis         Perfil[]
     morador        Morador?
     funcionario    Funcionario?
+=======
+model RecuperacaoSenha {
+  id          Int      @id @default(autoincrement())
+  usuario_id  Int      @map("usuario_id")
+  codigo      String   @map("codigo")
+  expira_em   DateTime @map("expira_em")
+  usada       Boolean  @default(false) @map("usada")
+  criado_em   DateTime @default(now()) @map("criado_em")
+
+  usuario     Usuario  @relation(fields: [usuario_id], references: [id])
+
+  @@map("RECUPERACOES_SENHA")
+}
+
+model Morador {
+  id              Int       @id @default(autoincrement())
+  nome_completo   String    @map("nome_completo")
+  celular         String    @unique @map("celular")
+  rg              String?   @map("rg")
+  cpf             String    @unique @map("cpf")
+  data_nascimento String @map("data_nascimento")
+  status          String    @default("PENDENTE") @map("status")
+  
+  // Auditoria e Soft Delete
+  criado_em       DateTime  @default(now()) @map("criado_em")
+  atualizado_em   DateTime  @updatedAt @map("atualizado_em")
+  deletado_em     DateTime? @map("deletado_em")
+  quem_criou      Int?      @map("quem_criou")
+>>>>>>> 271e21a17c93e14f3c951bb8b987e018725cf5cc
 
     @@map("USUARIOS")
   }
@@ -108,6 +179,7 @@
     usuario_id      Int?      @unique @map("usuario_id")
     unidade_id      Int?      @map("unidade_id")
 
+<<<<<<< HEAD
     // Relacionamentos
     usuario         Usuario?  @relation(fields: [usuario_id], references: [id])
     unidade         Unidade?  @relation(fields: [unidade_id], references: [id])
@@ -115,6 +187,23 @@
     
     @@map("MORADORES")
   }
+=======
+model Funcionario {
+  id              Int       @id @default(autoincrement())
+  nome_completo   String   @map("nome_completo")
+  celular         String   @unique @map("celular")
+  rg              String   @map("rg")
+  cpf             String   @unique @map("cpf")
+  data_nascimento String @map("data_nascimento")
+  cargo           String    @map("cargo") // SINDICO, PORTEIRO, ZELADOR, etc.
+  status          String    @default("ATIVO") @map("status")
+  
+  // Auditoria e Soft Delete
+  criado_em       DateTime  @default(now()) @map("criado_em")
+  atualizado_em   DateTime  @updatedAt @map("atualizado_em")
+  deletado_em     DateTime? @map("deletado_em")
+  quem_criou      Int?      @map("quem_criou")
+>>>>>>> 271e21a17c93e14f3c951bb8b987e018725cf5cc
 
   model Funcionario {
     id              Int       @id @default(autoincrement())

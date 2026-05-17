@@ -31,13 +31,14 @@ async def test_registro_morador_chave_expirada(client):
     dados_morador = {
         "nome_completo": "Morador Atrasado",
         "celular": "(11) 99999-9999",
+        "rg": "12.345.678-9",
         "cpf": "111.222.333-44",
+        "data_nascimento": "1990-01-01T00:00:00",
         "email": "atrasado@exemplo.com",
         "senha": "Senha123!",
         "confirmacao_senha": "Senha123!",
         "chave_acesso": chave_expirada.chave,
     }
-
     resp = await client.post("/api/moradores/registrar", json=dados_morador)
 
     # 4. Validar se o sistema bloqueou o registro

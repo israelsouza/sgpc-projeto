@@ -1,18 +1,3 @@
-from datetime import UTC, datetime, timedelta
-
-from fastapi import HTTPException, status
-
-from app.modules.core.auth import create_access_token
-from app.modules.core.core_exception import ValidationError
-from app.modules.core.security import hash_senha, verificar_senha
-from app.modules.usuario.usuario_schema import (
-    ChaveAcessoCreate,
-    LoginSchema,
-    MoradorCreate,
-)
-from prisma import Prisma
-
-
 class UsuarioService:
     @staticmethod
     async def registrar_morador(dados: MoradorCreate, db: Prisma):
