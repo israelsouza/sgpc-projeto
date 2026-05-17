@@ -20,7 +20,6 @@ class BilheteController:
         if not bilhete:
 
             raise NotFoundError(
-            nome="Bilhete_N_Encontrado",
             mensagem="Bilhete não econtrado.",
             acao="Verifique o id informado."
         )

@@ -1,281 +1,222 @@
-  generator client {
-    provider = "prisma-client-py"
-    interface = "asyncio"
-    recursive_type_depth = 5
-  }
+generator client {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+}
 
-  datasource db {
-    provider  = "postgresql"
-    url       = env("DATABASE_URL")
-    directUrl = env("DIRECT_URL")
-  }
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
 
-  enum TipoCondominio {
-    PREDIO
-    HORIZONTAL
-  }
+enum TipoCondominio {
+  PREDIO
+  HORIZONTAL
+}
 
-  model Condominio {
-    id                Int       @id @default(autoincrement())
-    nome              String    @map("nome")
-    tipoCond          TipoCondominio @default(PREDIO)
-    cnpj              String   @unique @map("cnpj")
-    endereco          String   @unique @map("endereco")
-    
-    // Auditoria e Soft Delete
-    criado_em         DateTime  @default(now()) @map("criado_em")
-    atualizado_em     DateTime  @updatedAt @map("atualizado_em")
-    deletado_em       DateTime? @map("deletado_em")
-    quem_criou        Int?      @map("quem_criou")
+model Condominio {
+  id             Int              @id @default(autoincrement())
+  nome           String           @map("nome")
+  tipoCond       TipoCondominio   @default(PREDIO)
+  cnpj           String           @unique @map("cnpj")
+  endereco       String           @unique @map("endereco")
 
-    // Relacionamentos
-    unidades          Unidade[]
-    funcionarios      Funcionario[]
-    chaves_acesso     ChaveAcesso[]
+  // Auditoria
+  criado_em      DateTime         @default(now()) @map("criado_em")
+  atualizado_em  DateTime         @updatedAt @map("atualizado_em")
+  deletado_em    DateTime?        @map("deletado_em")
+  quem_criou     Int?             @map("quem_criou")
 
-    @@map("CONDOMINIOS")
-  }
+  // Relacionamentos
+  unidades       Unidade[]
+  funcionarios   Funcionario[]
+  chaves_acesso  ChaveAcesso[]
 
-  model Unidade {
-    id                Int       @id @default(autoincrement())
-    unidade           String    @unique @map("unidade")
-    bloco             String?   @map("bloco")
-    andar             Int?      @map("andar")
+  @@map("CONDOMINIOS")
+}
 
-    // FKs
-    condominio_id     Int       @map("condominio_id")
-    
-    // Auditoria e Soft Delete
-    criado_em         DateTime  @default(now()) @map("criado_em")
-    atualizado_em     DateTime  @updatedAt @map("atualizado_em")
-    deletado_em       DateTime? @map("deletado_em")
-    quem_criou        Int?      @map("quem_criou")
+model Unidade {
+  id             Int              @id @default(autoincrement())
+  unidade        String           @unique @map("unidade")
+  bloco          String?          @map("bloco")
+  andar          Int?             @map("andar")
 
-<<<<<<< HEAD
-    // Relacionamentos
-    condominio        Condominio @relation(fields: [condominio_id], references: [id])
-    moradores         Morador[]
-    chaves_acesso     ChaveAcesso[]
-=======
+  // FK
+  condominio_id  Int              @map("condominio_id")
+
+  // Auditoria
+  criado_em      DateTime         @default(now()) @map("criado_em")
+  atualizado_em  DateTime         @updatedAt @map("atualizado_em")
+  deletado_em    DateTime?        @map("deletado_em")
+  quem_criou     Int?             @map("quem_criou")
+
+  // Relacionamentos
+  condominio     Condominio       @relation(fields: [condominio_id], references: [id])
+  moradores      Morador[]
+  chaves_acesso  ChaveAcesso[]
+
+  @@map("UNIDADES")
+}
+
 model Perfil {
-  id    Int    @id @default(autoincrement())
-  nome  String @unique @map("nome")
-  
+  id              Int             @id @default(autoincrement())
+  nome            String          @unique @map("nome")
+
   // Relacionamentos
-  usuarios      Usuario[]
-  chaves_acesso ChaveAcesso[]
-  permissoes    Permissao[]
->>>>>>> 271e21a17c93e14f3c951bb8b987e018725cf5cc
+  usuarios        Usuario[]
+  chaves_acesso   ChaveAcesso[]
+  permissoes      Permissao[]
 
-    @@map("UNIDADES")
-  }
+  @@map("PERFIS")
+}
 
-<<<<<<< HEAD
-  model Perfil {
-    id    Int    @id @default(autoincrement())
-    nome  String @unique @map("nome")
-    
-    // Relacionamentos
-    usuarios      Usuario[]
-    chaves_acesso ChaveAcesso[]
-
-    @@map("PERFIS")
-  }
-=======
 model Permissao {
-  id        Int       @id @default(autoincrement())
-  nome      String    @unique @map("nome")
-  descricao String?   @map("descricao")
+  id          Int         @id @default(autoincrement())
+  nome        String      @unique @map("nome")
+  descricao   String?     @map("descricao")
 
   // Relacionamentos
-  perfis    Perfil[]
+  perfis      Perfil[]
 
   @@map("PERMISSOES")
 }
 
 model Usuario {
-  id             Int       @id @default(autoincrement())
-  email          String    @unique @map("email")
-  senha          String    @map("senha")
-  status         String    @default("ATIVO") @map("status")
+  id                    Int                  @id @default(autoincrement())
+  email                 String               @unique @map("email")
+  senha                 String               @map("senha")
+  status                String               @default("ATIVO") @map("status")
 
-  // Auditoria e Soft Delete
-  criado_em      DateTime  @default(now()) @map("criado_em")
-  atualizado_em  DateTime  @updatedAt @map("atualizado_em")
-  deletado_em    DateTime? @map("deletado_em")
+  // Auditoria
+  criado_em             DateTime             @default(now()) @map("criado_em")
+  atualizado_em         DateTime             @updatedAt @map("atualizado_em")
+  deletado_em           DateTime?            @map("deletado_em")
 
   // Relacionamentos
-  perfis         Perfil[]
-  morador        Morador?
-  funcionario    Funcionario?
-  recuperacoes_senha RecuperacaoSenha[]
->>>>>>> 271e21a17c93e14f3c951bb8b987e018725cf5cc
+  perfis                Perfil[]
+  morador               Morador?
+  funcionario           Funcionario?
+  recuperacoes_senha    RecuperacaoSenha[]
 
-  model Usuario {
-    id             Int       @id @default(autoincrement())
-    email          String    @unique @map("email")
-    senha          String    @map("senha")
-    status         String    @default("ATIVO") @map("status")
-    
-    // Auditoria e Soft Delete
-    criado_em      DateTime  @default(now()) @map("criado_em")
-    atualizado_em  DateTime  @updatedAt @map("atualizado_em")
-    deletado_em    DateTime? @map("deletado_em")
+  @@map("USUARIOS")
+}
 
-<<<<<<< HEAD
-    // Relacionamentos
-    perfis         Perfil[]
-    morador        Morador?
-    funcionario    Funcionario?
-=======
 model RecuperacaoSenha {
-  id          Int      @id @default(autoincrement())
-  usuario_id  Int      @map("usuario_id")
-  codigo      String   @map("codigo")
-  expira_em   DateTime @map("expira_em")
-  usada       Boolean  @default(false) @map("usada")
-  criado_em   DateTime @default(now()) @map("criado_em")
+  id           Int        @id @default(autoincrement())
+  usuario_id   Int        @map("usuario_id")
+  codigo       String     @map("codigo")
+  expira_em    DateTime   @map("expira_em")
+  usada        Boolean    @default(false) @map("usada")
+  criado_em    DateTime   @default(now()) @map("criado_em")
 
-  usuario     Usuario  @relation(fields: [usuario_id], references: [id])
+  usuario      Usuario    @relation(fields: [usuario_id], references: [id])
 
   @@map("RECUPERACOES_SENHA")
 }
 
 model Morador {
-  id              Int       @id @default(autoincrement())
-  nome_completo   String    @map("nome_completo")
-  celular         String    @unique @map("celular")
-  rg              String?   @map("rg")
-  cpf             String    @unique @map("cpf")
-  data_nascimento String @map("data_nascimento")
-  status          String    @default("PENDENTE") @map("status")
-  
-  // Auditoria e Soft Delete
-  criado_em       DateTime  @default(now()) @map("criado_em")
-  atualizado_em   DateTime  @updatedAt @map("atualizado_em")
-  deletado_em     DateTime? @map("deletado_em")
-  quem_criou      Int?      @map("quem_criou")
->>>>>>> 271e21a17c93e14f3c951bb8b987e018725cf5cc
+  id                 Int          @id @default(autoincrement())
+  nome_completo      String       @map("nome_completo")
+  celular            String       @unique @map("celular")
+  rg                 String?      @map("rg")
+  cpf                String       @unique @map("cpf")
+  data_nascimento    DateTime?    @map("data_nascimento")
+  status             String       @default("PENDENTE") @map("status")
 
-    @@map("USUARIOS")
-  }
+  // Auditoria
+  criado_em          DateTime     @default(now()) @map("criado_em")
+  atualizado_em      DateTime     @updatedAt @map("atualizado_em")
+  deletado_em        DateTime?    @map("deletado_em")
+  quem_criou         Int?         @map("quem_criou")
 
-  model Morador {
-    id              Int       @id @default(autoincrement())
-    nome_completo   String    @map("nome_completo")
-    celular         String    @map("celular")
-    rg              String?   @map("rg")
-    cpf             String    @unique @map("cpf")
-    data_nascimento DateTime? @map("data_nascimento")
-    status          String    @default("PENDENTE") @map("status")
-    
-    // Auditoria e Soft Delete
-    criado_em       DateTime  @default(now()) @map("criado_em")
-    atualizado_em   DateTime  @updatedAt @map("atualizado_em")
-    deletado_em     DateTime? @map("deletado_em")
-    quem_criou      Int?      @map("quem_criou")
+  // FKs
+  usuario_id         Int?         @unique @map("usuario_id")
+  unidade_id         Int?         @map("unidade_id")
 
-    // FKs
-    usuario_id      Int?      @unique @map("usuario_id")
-    unidade_id      Int?      @map("unidade_id")
+  // Relacionamentos
+  usuario            Usuario?     @relation(fields: [usuario_id], references: [id])
+  unidade            Unidade?     @relation(fields: [unidade_id], references: [id])
+  bilhetes           Bilhetes[]
 
-<<<<<<< HEAD
-    // Relacionamentos
-    usuario         Usuario?  @relation(fields: [usuario_id], references: [id])
-    unidade         Unidade?  @relation(fields: [unidade_id], references: [id])
-    bilhetes        Bilhetes[]
-    
-    @@map("MORADORES")
-  }
-=======
+  @@map("MORADORES")
+}
+
 model Funcionario {
-  id              Int       @id @default(autoincrement())
-  nome_completo   String   @map("nome_completo")
-  celular         String   @unique @map("celular")
-  rg              String   @map("rg")
-  cpf             String   @unique @map("cpf")
-  data_nascimento String @map("data_nascimento")
-  cargo           String    @map("cargo") // SINDICO, PORTEIRO, ZELADOR, etc.
-  status          String    @default("ATIVO") @map("status")
-  
-  // Auditoria e Soft Delete
-  criado_em       DateTime  @default(now()) @map("criado_em")
-  atualizado_em   DateTime  @updatedAt @map("atualizado_em")
-  deletado_em     DateTime? @map("deletado_em")
-  quem_criou      Int?      @map("quem_criou")
->>>>>>> 271e21a17c93e14f3c951bb8b987e018725cf5cc
+  id                 Int          @id @default(autoincrement())
+  nome_completo      String       @map("nome_completo")
+  celular            String       @unique @map("celular")
+  rg                 String?      @map("rg")
+  cpf                String       @unique @map("cpf")
+  data_nascimento    DateTime?    @map("data_nascimento")
+  cargo              String       @map("cargo")
+  status             String       @default("ATIVO") @map("status")
 
-  model Funcionario {
-    id              Int       @id @default(autoincrement())
-    cargo           String    @map("cargo") // SINDICO, PORTEIRO, ZELADOR, etc.
-    status          String    @default("ATIVO") @map("status")
-    
-    // Auditoria e Soft Delete
-    criado_em       DateTime  @default(now()) @map("criado_em")
-    atualizado_em   DateTime  @updatedAt @map("atualizado_em")
-    deletado_em     DateTime? @map("deletado_em")
-    quem_criou      Int?      @map("quem_criou")
+  // Auditoria
+  criado_em          DateTime     @default(now()) @map("criado_em")
+  atualizado_em      DateTime     @updatedAt @map("atualizado_em")
+  deletado_em        DateTime?    @map("deletado_em")
+  quem_criou         Int?         @map("quem_criou")
 
-    // FKs
-    usuario_id      Int       @unique @map("usuario_id")
-    condominio_id   Int       @map("condominio_id")
+  // FKs
+  usuario_id         Int          @unique @map("usuario_id")
+  condominio_id      Int          @map("condominio_id")
 
-    // Relacionamentos
-    usuario         Usuario    @relation(fields: [usuario_id], references: [id])
-    condominio      Condominio @relation(fields: [condominio_id], references: [id])
+  // Relacionamentos
+  usuario            Usuario      @relation(fields: [usuario_id], references: [id])
+  condominio         Condominio   @relation(fields: [condominio_id], references: [id])
 
-    @@map("FUNCIONARIOS")
-  }
+  @@map("FUNCIONARIOS")
+}
 
-  model ChaveAcesso {
-    id              String    @id @default(uuid()) @map("id")
-    chave           String    @unique @default(uuid()) @map("chave")
-    validade        DateTime  @map("validade")
-    usada           Boolean   @default(false) @map("usada")
-    
-    // DNA da Chave
-    perfil_id       Int       @map("perfil_id")
-    condominio_id   Int       @map("condominio_id")
-    unidade_id      Int?      @map("unidade_id")
+model ChaveAcesso {
+  id               String        @id @default(uuid()) @map("id")
+  chave            String        @unique @default(uuid()) @map("chave")
+  validade         DateTime      @map("validade")
+  usada            Boolean       @default(false) @map("usada")
 
-    // Relacionamentos
-    perfil          Perfil     @relation(fields: [perfil_id], references: [id])
-    condominio      Condominio @relation(fields: [condominio_id], references: [id])
-    unidade         Unidade?   @relation(fields: [unidade_id], references: [id])
-    
-    // Auditoria
-    criado_em       DateTime  @default(now()) @map("criado_em")
-    quem_criou      Int?      @map("quem_criou")
+  // DNA da chave
+  perfil_id        Int           @map("perfil_id")
+  condominio_id    Int           @map("condominio_id")
+  unidade_id       Int?          @map("unidade_id")
 
-    @@map("CHAVES_ACESSO")
-  }
+  // Relacionamentos
+  perfil           Perfil        @relation(fields: [perfil_id], references: [id])
+  condominio       Condominio    @relation(fields: [condominio_id], references: [id])
+  unidade          Unidade?      @relation(fields: [unidade_id], references: [id])
 
-  model Bilhetes {
-    id              Int     @id @default(autoincrement())
-    assunto         String  @db.VarChar(120)
-    mensagem        String  @db.VarChar(320)
-    categoria       String  @default("bilhete")
-    autor           String
-    data_criacao    DateTime @default(now())
-    hora_criacao    String
+  // Auditoria
+  criado_em        DateTime      @default(now()) @map("criado_em")
+  quem_criou       Int?          @map("quem_criou")
 
-    //INFORMAÇÕES DA UNIDADES
-    //PREDIO
-    unidade         String?
-    bloco           String?
-    andar           String?
+  @@map("CHAVES_ACESSO")
+}
 
-    //HORIZONTAL - RESIDENCIAL
-    numero          String?
-    prefixo         String?
+model Bilhetes {
+  id               Int           @id @default(autoincrement())
+  assunto          String        @db.VarChar(120)
+  mensagem         String        @db.VarChar(320)
+  categoria        String        @default("bilhete")
+  autor            String
+  data_criacao     DateTime      @default(now())
+  hora_criacao     String
 
-    //Relacionamentos
-    morador_id      Int?
-    morador         Morador? @relation(fields: [morador_id], references: [id])
+  // Informações da unidade
+  unidade          String?
+  bloco            String?
+  andar            String?
 
-    //MODIFICAÇÕES REALIZADAS
-    criado_em       DateTime @default(now()) @map("criado_em")
-    deletado_em     DateTime? @map("deletado_em")
+  // Horizontal
+  numero           String?
+  prefixo          String?
 
-    @@map("BILHETES")
-  }
+  // Relacionamentos
+  morador_id       Int?
+  morador          Morador?      @relation(fields: [morador_id], references: [id])
+
+  // Auditoria
+  criado_em        DateTime      @default(now()) @map("criado_em")
+  deletado_em      DateTime?     @map("deletado_em")
+
+  @@map("BILHETES")
+}

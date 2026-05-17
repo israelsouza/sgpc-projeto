@@ -1,7 +1,7 @@
 
 from pydantic import BaseModel
 
-from app.modules.usuario.usuario_schema import MoradorResponse
+from app.modules.morador.morador_schema import MoradorResponse
 
 
 #CRIAR UNIDADE E MODELO PRINCIPAL

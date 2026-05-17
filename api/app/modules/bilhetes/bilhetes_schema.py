@@ -66,6 +66,6 @@ class BilheteResponse(BilheteBase):
 
     id: int
     autor: str
-    data_criacao: datetime
+    data_criacao: datetime.datetime
     hora_criacao: str
 

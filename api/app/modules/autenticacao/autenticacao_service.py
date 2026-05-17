@@ -97,6 +97,7 @@ class AutenticacaoService:
                 "email": usuario.email,
                 "roles": roles,
                 "morador_status": status_morador,
+                "nome": nome_exibicao,
             }
         )
 

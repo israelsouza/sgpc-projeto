@@ -1,3 +1,23 @@
+from app.modules.core.core_exception import ValidationError
+from app.modules.morador.morador_schema import (
+    MoradorCreate,
+)
+from datetime import UTC, datetime, timedelta
+from prisma import Prisma
+from fastapi import HTTPException, status
+from app.modules.autenticacao.autenticacao_service import (
+    hash_senha,
+    verificar_senha,
+    create_access_token
+)
+from app.modules.autenticacao.autenticacao_controller import (
+    LoginSchema    
+)
+from app.modules.chave.chave_controller import (
+    ChaveAcessoCreate
+)
+
+
 class UsuarioService:
     @staticmethod
     async def registrar_morador(dados: MoradorCreate, db: Prisma):

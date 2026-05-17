@@ -16,7 +16,7 @@ class BilhetesService:
                 acao="Preencha todos os campos corretamente."
             )
             
-        return await db.unidade.create(
+        return await db.bilhetes.create(
             data={
                 **dados.model_dump(),
                 
@@ -28,7 +28,7 @@ class BilhetesService:
     
     @staticmethod
     async def listar_bilhetes(db: Prisma):
-        return await db.bilhete.find_many(
+        return await db.bilhetes.find_many(
             order={
                 "data_criacao": "desc"
             }
@@ -36,7 +36,7 @@ class BilhetesService:
 
     @staticmethod
     async def deletar_bilhetes(bilhete_id: int, db: Prisma):
-        bilhete = await db.bilhete.find_unique(
+        bilhete = await db.bilhetes.find_unique(
             where={
                 "id": bilhete_id
             }
@@ -45,7 +45,7 @@ class BilhetesService:
         if not bilhete:
             return None
 
-        return await db.bilhete.delete(
+        return await db.bilhetes.delete(
             where={
                 "id": bilhete_id
             }
