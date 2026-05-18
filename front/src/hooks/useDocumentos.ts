@@ -37,11 +37,27 @@ export function useDocumentos() {
     }
   }, []);
 
+  const uploadDocumento = useCallback(async (formData: FormData) => {
+    setLoading(true);
+    try {
+      await DocumentoService.criar(formData);
+      Alert.alert('Sucesso', 'Documento enviado com sucesso');
+      return true;
+    } catch (error: any) {
+      const msg = error.response?.data?.mensagem || 'Erro ao enviar documento';
+      Alert.alert('Erro', msg);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     documentos,
     loading,
     downloadingId,
     fetchDocumentos,
     openDocumento,
+    uploadDocumento,
   };
 }
