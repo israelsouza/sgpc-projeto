@@ -51,8 +51,6 @@ export const styles = StyleSheet.create({
   content: {
     flex: 1,
     backgroundColor: palette.offWhite,
-    borderTopLeftRadius: 22,
-    borderTopRightRadius: 22,
     marginTop: -8,
     paddingHorizontal: 16,
     paddingTop: 18,

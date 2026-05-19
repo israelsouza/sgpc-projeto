@@ -4,15 +4,14 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
-  StatusBar,
   Modal,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { colors, palette } from "@/theme/colors";
 import { styles } from "@/screens/Entregas/Entregas.styles";
+import HeaderPage from "@/components/HeaderPage";
 
 // ── Tipos ─────────────────────────────────────────────────
 type Categoria = "carta" | "pacote";
@@ -84,19 +83,13 @@ export default function ResumoEntregaScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={palette.brown} />
-
-      {/* ── Header ── */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Feather name="arrow-left" size={18} color={colors.textLight} />
-        </TouchableOpacity>
-        <View style={styles.headerTitleWrapper}>
-          <Text style={styles.headerTitle}>Resumo da entrega</Text>
-          <Text style={styles.headerSubtitle}>Detalhes de aviso</Text>
-        </View>
-      </View>
+    <View style={styles.container}>
+      <HeaderPage
+        title="Resumo da entrega"
+        subtitle="Detalhes de aviso"
+        iconLeft={<Feather name="arrow-left" size={20} color="white" />}
+        onPressLeft={() => router.back()}
+      />
 
       {/* ── Conteúdo ── */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -264,6 +257,6 @@ export default function ResumoEntregaScreen() {
           </TouchableOpacity>
         </TouchableOpacity>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }

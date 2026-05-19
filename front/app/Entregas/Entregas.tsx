@@ -10,6 +10,7 @@ import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { colors, palette } from "@/theme/colors";
 import { styles } from "@/screens/Entregas/Entregas.styles";
+import HeaderPage from "@/components/HeaderPage";
 
 // ── Tipos ─────────────────────────────────────────────────
 type StatusEntrega = "aguardando" | "retirada";
@@ -55,19 +56,13 @@ export default function EntregasScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={palette.brown} />
-
-      {/* ── Header ── */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Feather name="arrow-left" size={18} color={colors.textLight} />
-        </TouchableOpacity>
-        <View style={styles.headerTitleWrapper}>
-          <Text style={styles.headerTitle}>Entregas</Text>
-          <Text style={styles.headerSubtitle}>Cartas e pacotes</Text>
-        </View>
-      </View>
+    <View style={styles.container}>
+      <HeaderPage
+        title="Entregas"
+        subtitle="Cartas e pacotes"
+        iconLeft={<Feather name="arrow-left" size={20} color="white" />}
+        onPressLeft={() => router.back()}
+      />
 
       {/* ── Lista ── */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -129,6 +124,6 @@ export default function EntregasScreen() {
       >
         <Feather name="plus" size={24} color={colors.textLight} />
       </TouchableOpacity>
-    </SafeAreaView>
+    </View>
   );
 }

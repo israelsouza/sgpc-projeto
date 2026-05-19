@@ -2,18 +2,19 @@ import React from "react";
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { Feather, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { styles } from "@/screens/Agendamentos/agendamentos";
+import { router } from "expo-router";
+import HeaderPage from "@/components/HeaderPage";
 
 export default function SchedulingSpaces() {
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}><MaterialIcons name="arrow-back" size={26} color="white" /></TouchableOpacity>
-        <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>Agendamento</Text>
-          <Text style={styles.headerSubtitle}>2 reservas</Text>
-        </View>
-        <TouchableOpacity style={{ position: 'absolute', right: 20 }}><Feather name="more-horizontal" size={28} color="white" /></TouchableOpacity>
-      </View>
+      <HeaderPage
+        title="Agendamento"
+        subtitle="2 reservas"
+        iconLeft={<MaterialIcons name="arrow-back" size={26} color="white" />}
+        onPressLeft={() => router.back()}
+        iconRight={<Feather name="more-horizontal" size={28} color="white" />}
+      />
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scrollContent}>
         <Text style={styles.sectionTitle}>Espaços</Text>

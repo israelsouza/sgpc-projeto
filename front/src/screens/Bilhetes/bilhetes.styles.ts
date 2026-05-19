@@ -10,13 +10,11 @@ container: {
   },
   
   centerContainer: {
-    width: "95%",
+    width: "100%",
     flex:1,
     backgroundColor: palette.offWhite,
-    borderRadius: 10,
+    borderRadius: 0,
     marginTop: -15,
-    borderTopLeftRadius: 22,
-    borderTopRightRadius: 22,
     paddingTop: 18,
     alignSelf:"center",
   },

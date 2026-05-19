@@ -9,13 +9,11 @@ export const styles = StyleSheet.create({
   
 
   centerContainer: {
-    width: "95%",
+    width: "100%",
     height: "80%",
     backgroundColor: palette.offWhite,
-    borderRadius: 10,
+    borderRadius: 0,
     marginTop: -15,
-    borderTopLeftRadius: 22,
-    borderTopRightRadius: 22,
     paddingTop: 18,
     paddingHorizontal: 19,
     alignSelf:"center" 

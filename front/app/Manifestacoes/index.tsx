@@ -1,4 +1,3 @@
-import HeaderFuncApp from "@/components/HeaderFunctions";
 import { Feather } from "@expo/vector-icons";
 import { View, TouchableOpacity, SectionList, Text, TextInput, Modal, Pressable, KeyboardAvoidingView, ScrollView, ActivityIndicator, Platform } from "react-native";
 import React from "react";
@@ -12,6 +11,7 @@ import { BlurView } from "expo-blur";
 import { palette } from "@/theme/colors";
 import  BottomNav  from "@/components/BottomNav";
 import { Picker } from "@react-native-picker/picker";   
+import HeaderPage from "@/components/HeaderPage";
 
 //FAZ DISTINÇÃO DE QUAL USUÁRIO ESTARÁ UTILIZANDO
 interface JwtPayload {
@@ -262,12 +262,12 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
 
     return(
         <View style={styles.container}>
-            <HeaderFuncApp
+            <HeaderPage
                 title="Manifestações"
                 subtitle="Reclamações ou Sugestões"
-                iconLeft={<Feather name="arrow-left" size={24} color="#fff" />}
+                iconLeft={<Feather name="arrow-left" size={20} color="white" />}
                 onPressLeft={() => router.push("/home")}
-                iconRight={<Feather name="plus" size={24} color="#fff" />}
+                iconRight={<Feather name="plus" size={20} color="white" />}
                 onPressRight={() => setModalAberta(true)}
             />
             <View style={styles.centerContainer}>

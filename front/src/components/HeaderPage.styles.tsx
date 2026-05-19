@@ -4,13 +4,15 @@ import { colors, palette } from "@/theme/colors";
 export const styles = StyleSheet.create({
   // ── Container do header ───────────────────────────────────
   container: {
-    backgroundColor: palette.brown,
+    backgroundColor: palette.accent,
     paddingTop: Platform.OS === "ios" ? 52 : 36,
     paddingBottom: 18,
     paddingHorizontal: 16,
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
   },
 
   // ── Botão esquerdo (back) ─────────────────────────────────

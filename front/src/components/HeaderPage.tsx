@@ -51,7 +51,7 @@ export default function HeaderPage({
 
   return (
     <>
-      <StatusBar barStyle="light-content" backgroundColor={palette.brown} />
+      <StatusBar barStyle="light-content" backgroundColor={palette.accent} />
 
       <View style={[styles.container, { paddingTop: Math.max(insets.top, 16) + 10 }]}>
         {/* ── Botão esquerdo ── */}

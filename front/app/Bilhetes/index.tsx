@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { View, SectionList, Text, TouchableOpacity, ActivityIndicator, Pressable, ScrollView, TextInput, KeyboardAvoidingView, Platform, Modal, } from "react-native";
-import HeaderFuncApp from "@/components/HeaderFunctions";
+import HeaderPage from "@/components/HeaderPage";
 import { componenteList, listadoMock, DetalhesModal, agruparMes, coresPorIcone, coresPorCategoria, } from "@/components/Listado";
 import { styles } from "@/screens/Bilhetes/bilhetes.styles";
 import { jwtDecode } from "jwt-decode";
@@ -198,17 +198,15 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
 
   return (
     <View style={styles.container}>
-      <HeaderFuncApp
+      <HeaderPage
         title="Bilhetes"
         subtitle={podeAdicionar ? "Adicione novos bilhetes" : "Visualização"}
-        iconLeft={<Feather name="arrow-left" size={24} color="#fff" />}
+        iconLeft={<Feather name="arrow-left" size={20} color="white" />}
         onPressLeft={() => router.push("/home")}
         iconRight={
-          podeAdicionar ? (
-            <Feather name="plus" size={24} color="#fff" />
-          ) : (
-            <Feather name="inbox" size={24} color="#fff" />
-          )
+          podeAdicionar 
+            ? <Feather name="plus" size={20} color="white" />
+            : <Feather name="inbox" size={20} color="white" />
         }
         onPressRight={
           podeAdicionar

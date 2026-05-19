@@ -5,22 +5,17 @@ import { Feather, MaterialIcons, Ionicons } from "@expo/vector-icons";
 import { styles } from "@/screens/Nova_Entrega/nova_entrega.styles";
 import BottomNav  from "@/components/BottomNav";
 import { router } from "expo-router";
+import HeaderPage from "@/components/HeaderPage";
 
 export default function NewDeliveryScreen() {
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#8B5E3C" />
-
-      {/* HEADER */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <MaterialIcons name="arrow-back" size={26} color="white" />
-        </TouchableOpacity>
-        <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>Nova Entrega</Text>
-          <Text style={styles.headerSubtitle}>Aviso ao porteiro</Text>
-        </View>
-      </View>
+      <HeaderPage
+        title="Nova Entrega"
+        subtitle="Aviso ao porteiro"
+        iconLeft={<MaterialIcons name="arrow-back" size={26} color="white" />}
+        onPressLeft={() => router.back()}
+      />
 
       <ScrollView contentContainerStyle={styles.formContainer} showsVerticalScrollIndicator={false}>
         {/* DATA E HORÁRIO */}
@@ -82,10 +77,6 @@ export default function NewDeliveryScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-
- 
-
-
     </View>
   );
 }

@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, Modal, Pressable, 
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { styles } from "@/screens/Documentos/documentos.styles";
-import HeaderFuncApp from "@/components/HeaderFunctions";
+import HeaderPage from "@/components/HeaderPage";
 import { colors, palette } from "@/theme/colors";
 import { jwtDecode } from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -141,16 +141,16 @@ const handleDownloadPdf = async () => {
 
   return (
     <View style={styles.container}>
-      <HeaderFuncApp
-        title={"Documentos"}
+      <HeaderPage
+        title="Documentos"
         subtitle={showForm ? undefined : "Selecione a opção desejada"}
-        iconLeft={<Feather name="arrow-left" size={24} color={colors.textLight} />}
+        iconLeft={<Feather name="arrow-left" size={20} color="white" />}
+        onPressLeft={showForm ? handleCancelar : () => router.push('/home')}
         iconRight={
             userRole === "sindico" && !showForm
-            ? <Feather name="plus" size={24} color={colors.textLight} />
-            : <Feather name="folder" size={24} color={colors.textLight} />
+            ? <Feather name="plus" size={20} color="white" />
+            : <Feather name="folder" size={20} color="white" />
         }
-        onPressLeft={showForm ? handleCancelar : () => router.push('/home')}
         onPressRight={ userRole === "sindico" && !showForm ? handleAddDocument : undefined}
       />
       <View style={styles.centerContainer}>
