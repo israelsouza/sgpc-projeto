@@ -59,8 +59,20 @@ model Perfil {
   // Relacionamentos
   usuarios      Usuario[]
   chaves_acesso ChaveAcesso[]
+  permissoes    Permissao[]
 
   @@map("PERFIS")
+}
+
+model Permissao {
+  id        Int       @id @default(autoincrement())
+  nome      String    @unique @map("nome")
+  descricao String?   @map("descricao")
+
+  // Relacionamentos
+  perfis    Perfil[]
+
+  @@map("PERMISSOES")
 }
 
 model Usuario {
@@ -68,7 +80,7 @@ model Usuario {
   email          String    @unique @map("email")
   senha          String    @map("senha")
   status         String    @default("ATIVO") @map("status")
-  
+
   // Auditoria e Soft Delete
   criado_em      DateTime  @default(now()) @map("criado_em")
   atualizado_em  DateTime  @updatedAt @map("atualizado_em")
@@ -78,17 +90,31 @@ model Usuario {
   perfis         Perfil[]
   morador        Morador?
   funcionario    Funcionario?
+  recuperacoes_senha RecuperacaoSenha[]
 
   @@map("USUARIOS")
+}
+
+model RecuperacaoSenha {
+  id          Int      @id @default(autoincrement())
+  usuario_id  Int      @map("usuario_id")
+  codigo      String   @map("codigo")
+  expira_em   DateTime @map("expira_em")
+  usada       Boolean  @default(false) @map("usada")
+  criado_em   DateTime @default(now()) @map("criado_em")
+
+  usuario     Usuario  @relation(fields: [usuario_id], references: [id])
+
+  @@map("RECUPERACOES_SENHA")
 }
 
 model Morador {
   id              Int       @id @default(autoincrement())
   nome_completo   String    @map("nome_completo")
-  celular         String    @map("celular")
+  celular         String    @unique @map("celular")
   rg              String?   @map("rg")
   cpf             String    @unique @map("cpf")
-  data_nascimento DateTime? @map("data_nascimento")
+  data_nascimento String @map("data_nascimento")
   status          String    @default("PENDENTE") @map("status")
   
   // Auditoria e Soft Delete
@@ -110,6 +136,11 @@ model Morador {
 
 model Funcionario {
   id              Int       @id @default(autoincrement())
+  nome_completo   String   @map("nome_completo")
+  celular         String   @unique @map("celular")
+  rg              String   @map("rg")
+  cpf             String   @unique @map("cpf")
+  data_nascimento String @map("data_nascimento")
   cargo           String    @map("cargo") // SINDICO, PORTEIRO, ZELADOR, etc.
   status          String    @default("ATIVO") @map("status")
   

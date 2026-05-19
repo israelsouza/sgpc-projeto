@@ -46,10 +46,10 @@ jobs:
         run: poetry install
 
       - name: Generate Prisma Client
-        run: poetry run prisma generate
+        run: poetry run python -m prisma generate
 
       - name: Setup Database (Push Schema)
-        run: poetry run prisma db push --skip-generate
+        run: poetry run python -m prisma db push --skip-generate
         env:
           DATABASE_URL: postgresql://user:password@localhost:5432/sgpc_test
           DIRECT_URL: postgresql://user:password@localhost:5432/sgpc_test

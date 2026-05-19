@@ -22,10 +22,10 @@ async def test_soft_delete_morador():
             "nome_completo": "Morador para Deletar",
             "celular": "(11) 90000-0000",
             "cpf": cpf_teste,
+            "data_nascimento": "01011990",
             "status": "ATIVO",
         }
     )
-
     # 2. Simular exclusão via Soft Delete
     agora = datetime.now(UTC)
     morador_deletado = await db.morador.update(
