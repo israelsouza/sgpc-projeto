@@ -13,10 +13,9 @@ import { useRouter } from "expo-router";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
-import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
-import BottomNav  from "@/components/BottomNav";
-import { colors } from "@/theme/colors";
-import { styles } from "../../src/screens/Entregas/Entregas.styles";
+import { Feather } from "@expo/vector-icons";
+import { colors, palette } from "@/theme/colors";
+import { styles } from "@/screens/Entregas/Entregas.styles";
 
 // ── Tipos ─────────────────────────────────────────────────
 type Categoria = "carta" | "pacote" | null;
@@ -49,17 +48,14 @@ function calcularPrazo(date: Date, time: Date): string {
 export default function NovaEntregaScreen() {
   const router = useRouter();
 
-  // ── Estado do formulário ──
-  const [data, setData] = useState(new Date());
-  const [horario, setHorario] = useState(new Date());
+  const [data,     setData    ] = useState(new Date());
+  const [horario,  setHorario ] = useState(new Date());
   const [categoria, setCategoria] = useState<Categoria>(null);
   const [mensagem, setMensagem] = useState("");
 
-  // ── Pickers visíveis ──
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
-  // ── Handlers de picker ──
   function onDataChange(_: DateTimePickerEvent, selected?: Date) {
     setShowDatePicker(Platform.OS === "ios");
     if (selected) setData(selected);
@@ -70,7 +66,6 @@ export default function NovaEntregaScreen() {
     if (selected) setHorario(selected);
   }
 
-  // ── Submit ──
   function handleSalvar() {
     if (!categoria) return;
     // TODO: integrar com API
@@ -80,12 +75,12 @@ export default function NovaEntregaScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.primaryDark} />
+      <StatusBar barStyle="light-content" backgroundColor={palette.brown} />
 
-      {/* ── Header com back button ── */}
+      {/* ── Header ── */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Feather name="arrow-left" size={18} color="#FFFFFF" />
+          <Feather name="arrow-left" size={18} color={colors.textLight} />
         </TouchableOpacity>
         <View style={styles.headerTitleWrapper}>
           <Text style={styles.headerTitle}>Nova Entrega</Text>
@@ -111,7 +106,7 @@ export default function NovaEntregaScreen() {
                 activeOpacity={0.7}
               >
                 <Text style={styles.fieldInputText}>{formatDate(data)}</Text>
-                <Feather name="calendar" size={16} color={colors.earthBrown ?? "#8B5E3C"} />
+                <Feather name="calendar" size={16} color={palette.accent} />
               </TouchableOpacity>
             </View>
 
@@ -124,17 +119,15 @@ export default function NovaEntregaScreen() {
                 activeOpacity={0.7}
               >
                 <Text style={styles.fieldInputText}>{formatTime(horario)}</Text>
-                <Feather name="clock" size={16} color={colors.earthBrown ?? "#8B5E3C"} />
+                <Feather name="clock" size={16} color={palette.accent} />
               </TouchableOpacity>
             </View>
           </View>
 
           {/* Prazo calculado */}
-          <Text style={[styles.fieldLabel, { marginTop: 14 }]}>
-            Prazo para retirada
-          </Text>
+          <Text style={styles.fieldLabel}>Prazo para retirada</Text>
           <View style={styles.prazoBox}>
-            <Text style={styles.prazoText}>{calcularPrazo(data, horario)}</Text>
+            <Text style={styles.fieldInputText}>{calcularPrazo(data, horario)}</Text>
           </View>
         </View>
 
@@ -173,11 +166,7 @@ export default function NovaEntregaScreen() {
               <Feather
                 name="mail"
                 size={18}
-                color={
-                  categoria === "carta"
-                    ? (colors.earthBrown ?? "#8B5E3C")
-                    : "#B8A89A"
-                }
+                color={categoria === "carta" ? palette.accent : palette.subtle}
               />
               <Text
                 style={[
@@ -200,11 +189,7 @@ export default function NovaEntregaScreen() {
               <Feather
                 name="box"
                 size={18}
-                color={
-                  categoria === "pacote"
-                    ? (colors.earthBrown ?? "#8B5E3C")
-                    : "#B8A89A"
-                }
+                color={categoria === "pacote" ? palette.accent : palette.subtle}
               />
               <Text
                 style={[
@@ -224,7 +209,7 @@ export default function NovaEntregaScreen() {
           <TextInput
             style={styles.textArea}
             placeholder="Ex: Por favor aguardar minha chegada até 19h"
-            placeholderTextColor="#C5B5AA"
+            placeholderTextColor={palette.subtle}
             value={mensagem}
             onChangeText={setMensagem}
             multiline
@@ -235,7 +220,7 @@ export default function NovaEntregaScreen() {
         {/* ── Botões ── */}
         <View style={styles.buttonsRow}>
           <TouchableOpacity
-            style={styles.btnSalvar}
+            style={[styles.btnSalvar, !categoria && { opacity: 0.5 }]}
             onPress={handleSalvar}
             activeOpacity={0.8}
             disabled={!categoria}
@@ -251,9 +236,6 @@ export default function NovaEntregaScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-
-      {/* ── Bottom Nav ── */}
- 
     </SafeAreaView>
   );
 }

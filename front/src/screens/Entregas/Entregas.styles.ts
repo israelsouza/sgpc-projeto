@@ -1,28 +1,27 @@
-import { StyleSheet } from "react-native";
-import { colors } from "@/theme/colors";
+import { StyleSheet, Dimensions } from "react-native";
+import { colors, palette } from "@/theme/colors";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export const styles = StyleSheet.create({
-  // ── Layout ──────────────────────────────────────────────
+  // ── Layout base ──────────────────────────────────────────
   container: {
     flex: 1,
-    backgroundColor: "#F5F0EB",
+    backgroundColor: palette.offWhite,
   },
 
-  // ── Header customizado (com back button) ─────────────────
+  // ── Header ───────────────────────────────────────────────
   header: {
-    backgroundColor: colors.primaryDark ?? "#5C3D2E",
-    paddingTop: 16,
-    paddingBottom: 24,
-    paddingHorizontal: 16,
+    backgroundColor: palette.accent,
+    paddingTop: 12,
+    paddingBottom: 20,
+    paddingHorizontal: 18,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    position: "relative",
+    gap: 12,
   },
+
   backButton: {
-    position: "absolute",
-    left: 16,
-    top: 16,
     width: 36,
     height: 36,
     borderRadius: 10,
@@ -30,375 +29,437 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+
   headerTitleWrapper: {
-    alignItems: "center",
+    flex: 1,
   },
+
   headerTitle: {
-    color: "#FFFFFF",
+    color: colors.textLight,
+    fontFamily: "InterBold",
     fontSize: 18,
-    fontWeight: "700",
-    letterSpacing: 0.3,
   },
+
   headerSubtitle: {
-    color: "rgba(255,255,255,0.7)",
+    color: "rgba(255,255,255,0.65)",
+    fontFamily: "InterRegular",
     fontSize: 12,
     marginTop: 2,
   },
 
-  // ── Scroll / Conteúdo ─────────────────────────────────────
+  // ── Área de conteúdo (sheet branco com bordas arredondadas) ──
   content: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    backgroundColor: palette.offWhite,
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
+    marginTop: -8,
+    paddingHorizontal: 16,
+    paddingTop: 18,
   },
 
-  // ── Card container (seção) ────────────────────────────────
+  // ── Cards ─────────────────────────────────────────────────
   card: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
+    borderRadius: 14,
     padding: 16,
-    marginBottom: 14,
+    marginBottom: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.07,
     shadowRadius: 6,
     elevation: 2,
   },
 
-  // ── Row com dois campos lado a lado ──────────────────────
+  cardHighlight: {
+    borderLeftWidth: 3,
+    borderLeftColor: palette.accent,
+  },
+
+  // ── Card: topo (ícone + tipo + badge) ────────────────────
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+
+  cardTypeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+
+  cardIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: "#F5F0EB",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  cardTypeLabel: {
+    fontFamily: "InterBold",
+    fontSize: 15,
+    color: palette.negro,
+  },
+
+  // ── Badge de status ───────────────────────────────────────
+  badge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+  },
+
+  badgeText: {
+    fontFamily: "InterSemiBold",
+    fontSize: 12,
+  },
+
+  // ── Linha de prazo ────────────────────────────────────────
+  prazoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+
+  prazoText: {
+    fontFamily: "InterMedium",
+    fontSize: 13,
+    color: "#A08070",
+  },
+
+  mensagemText: {
+    fontFamily: "InterRegular",
+    fontSize: 13,
+    color: "#7A5C45",
+    fontStyle: "italic",
+    backgroundColor: "#F5F0EB",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    lineHeight: 18,
+  },
+
+  // ── Labels e campos de formulário ─────────────────────────
+  fieldLabel: {
+    fontFamily: "InterBold",
+    fontSize: 13,
+    color: palette.lightBrown,
+    marginBottom: 6,
+  },
+
+  fieldInput: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderWidth: 1,
+    borderColor: palette.subtle,
+  },
+
+  fieldInputText: {
+    fontFamily: "InterMedium",
+    fontSize: 14,
+    color: palette.negro,
+  },
+
+  // ── Layout de formulário ──────────────────────────────────
   row: {
     flexDirection: "row",
-    gap: 12,
+    gap: 10,
+    marginBottom: 14,
   },
+
   halfField: {
     flex: 1,
   },
 
-  // ── Campo / Label ─────────────────────────────────────────
-  fieldLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#A08070",
-    marginBottom: 8,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  fieldInput: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#F5F0EB",
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    gap: 8,
-  },
-  fieldInputText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#3D2B1F",
-    flex: 1,
-  },
-
-  // ── Prazo (destaque) ──────────────────────────────────────
   prazoBox: {
-    backgroundColor: "#3D2B1F",
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    alignItems: "center",
-  },
-  prazoText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-
-  // ── Categoria (dropdown-like) ─────────────────────────────
-  categoriaButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
     backgroundColor: "#F5F0EB",
     borderRadius: 10,
-    paddingHorizontal: 14,
     paddingVertical: 12,
-  },
-  categoriaText: {
-    fontSize: 14,
-    color: "#3D2B1F",
-    fontWeight: "500",
-    flex: 1,
-    textAlign: "center",
+    paddingHorizontal: 14,
   },
 
-  // ── Opções de categoria ───────────────────────────────────
+  // ── Seleção de categoria ──────────────────────────────────
   categoriaOptions: {
-    marginTop: 8,
-    gap: 8,
-  },
-  categoriaOption: {
     flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 10,
-    borderWidth: 1.5,
-    borderColor: "#E8DDD5",
     gap: 10,
   },
-  categoriaOptionActive: {
-    borderColor: colors.earthBrown ?? "#8B5E3C",
-    backgroundColor: "#FDF6F0",
-  },
-  categoriaOptionText: {
-    fontSize: 14,
-    color: "#7A5C45",
-    fontWeight: "500",
-  },
-  categoriaOptionTextActive: {
-    color: colors.earthBrown ?? "#8B5E3C",
-    fontWeight: "700",
+
+  categoriaOption: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    paddingVertical: 12,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: palette.subtle,
+    backgroundColor: "#FFFFFF",
   },
 
-  // ── Mensagem (textarea) ───────────────────────────────────
-  textArea: {
-    backgroundColor: "#F5F0EB",
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+  categoriaOptionActive: {
+    borderColor: palette.accent,
+    backgroundColor: "#FDF7F3",
+  },
+
+  categoriaOptionText: {
+    fontFamily: "InterMedium",
     fontSize: 14,
-    color: "#3D2B1F",
+    color: "#B8A89A",
+  },
+
+  categoriaOptionTextActive: {
+    fontFamily: "InterBold",
+    color: palette.accent,
+  },
+
+  // ── Área de texto ─────────────────────────────────────────
+  textArea: {
+    backgroundColor: "#F9F6F3",
+    borderRadius: 10,
+    padding: 12,
+    fontFamily: "InterRegular",
+    fontSize: 14,
+    color: palette.negro,
+    borderWidth: 1,
+    borderColor: palette.subtle,
     minHeight: 100,
     textAlignVertical: "top",
   },
 
-  // ── Botões ────────────────────────────────────────────────
+  // ── Botões principais ─────────────────────────────────────
   buttonsRow: {
     flexDirection: "row",
-    gap: 12,
+    gap: 10,
     marginTop: 4,
-    marginBottom: 28,
+    marginBottom: 24,
   },
+
   btnSalvar: {
     flex: 1,
-    backgroundColor: colors.earthBrown ?? "#8B5E3C",
+    backgroundColor: palette.accent,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: "center",
-    shadowColor: colors.earthBrown ?? "#8B5E3C",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowColor: palette.accent,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
     elevation: 4,
   },
+
   btnSalvarText: {
-    color: "#FFFFFF",
+    fontFamily: "InterBold",
     fontSize: 15,
-    fontWeight: "700",
-    letterSpacing: 0.3,
+    color: "#FFFFFF",
   },
+
   btnCancelar: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "transparent",
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: "center",
     borderWidth: 1.5,
-    borderColor: "#D6C8BE",
+    borderColor: palette.accent,
   },
+
   btnCancelarText: {
-    color: "#7A5C45",
+    fontFamily: "InterBold",
     fontSize: 15,
-    fontWeight: "600",
+    color: palette.negro,
   },
 
-  // ── Resumo: card com borda de destaque ───────────────────
-  cardHighlight: {
-    borderWidth: 1.5,
-    borderColor: "#C9D9E8",
+  btnExcluir: {
+    backgroundColor: "#C0392B",
   },
 
-  // ── Resumo: morador ───────────────────────────────────────
-  moradorRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-    marginTop: 8,
-  },
-  moradorAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "#D6C4B0",
+  // ── FAB ───────────────────────────────────────────────────
+  fab: {
+    position: "absolute",
+    bottom: 24,
+    right: 20,
+    backgroundColor: palette.brown,
+    width: 52,
+    height: 52,
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
-  },
-  moradorAvatarText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  moradorNome: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#3D2B1F",
-  },
-  moradorUnidade: {
-    fontSize: 13,
-    color: "#A08070",
-    marginTop: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
   },
 
-  // ── Resumo: linhas de info ────────────────────────────────
+  // ── Detalhes (ResumoEntrega) ───────────────────────────────
   infoRow: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 10,
+    alignItems: "center",
+    paddingVertical: 8,
   },
+
   infoLabel: {
+    fontFamily: "InterRegular",
     fontSize: 13,
-    color: "#A08070",
+    color: palette.gray,
   },
+
   infoValue: {
+    fontFamily: "InterMedium",
     fontSize: 13,
-    fontWeight: "600",
-    color: "#3D2B1F",
+    color: palette.negro,
   },
+
   infoDivider: {
     height: 1,
-    backgroundColor: "#F0E8E0",
+    backgroundColor: palette.subtle,
   },
 
-  // ── Resumo: prazo com badge ───────────────────────────────
-  prazoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  badge: {
-    backgroundColor: "#B8A44A",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 20,
-  },
-  badgeText: {
-    color: "#FFFFFF",
-    fontSize: 11,
-    fontWeight: "700",
-  },
-
-  // ── Resumo: tipo com ícone ────────────────────────────────
   tipoRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
   },
 
-  // ── Resumo: mensagem ──────────────────────────────────────
-  mensagemText: {
-    fontSize: 14,
-    color: "#5C3D2E",
-    lineHeight: 22,
-    marginTop: 4,
+  moradorRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginTop: 8,
   },
 
-  // ── Resumo: botão excluir ─────────────────────────────────
-  btnExcluir: {
-    backgroundColor: "#7A3B2E",
-    shadowColor: "#7A3B2E",
+  moradorAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: palette.accent,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  moradorAvatarText: {
+    fontFamily: "InterBold",
+    fontSize: 15,
+    color: "#FFFFFF",
+  },
+
+  moradorNome: {
+    fontFamily: "InterBold",
+    fontSize: 15,
+    color: palette.negro,
+  },
+
+  moradorUnidade: {
+    fontFamily: "InterRegular",
+    fontSize: 12,
+    color: palette.gray,
+    marginTop: 2,
   },
 
   // ── Modal de exclusão ─────────────────────────────────────
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.35)",
-    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.45)",
     alignItems: "center",
-    paddingHorizontal: 24,
+    justifyContent: "center",
   },
+
   modalBox: {
-    width: "100%",
+    width: SCREEN_WIDTH * 0.88,
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 20,
+    padding: 24,
+    gap: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 10,
+    shadowRadius: 20,
+    elevation: 12,
   },
+
   modalTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: colors.earthBrown ?? "#8B5E3C",
-    textAlign: "center",
-    marginBottom: 16,
+    fontFamily: "InterBold",
+    fontSize: 16,
+    color: palette.negro,
+    lineHeight: 22,
   },
+
   modalRadioRow: {
     flexDirection: "row",
-    alignItems: "center",
-    gap: 24,
-    marginBottom: 14,
+    gap: 16,
   },
+
   modalRadioOption: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
   },
+
   modalRadioCircle: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    borderWidth: 1.5,
-    borderColor: "#B8A89A",
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: palette.subtle,
     alignItems: "center",
     justifyContent: "center",
-  },
-  modalRadioCircleActive: {
-    borderColor: colors.earthBrown ?? "#8B5E3C",
-  },
-  modalRadioDot: {
-    width: 9,
-    height: 9,
-    borderRadius: 5,
-    backgroundColor: colors.earthBrown ?? "#8B5E3C",
-  },
-  modalRadioLabel: {
-    fontSize: 14,
-    color: "#3D2B1F",
-    fontWeight: "500",
-  },
-  modalTextInput: {
-    borderWidth: 1.5,
-    borderColor: "#E0D5CC",
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    fontSize: 14,
-    color: "#3D2B1F",
-    minHeight: 72,
-    textAlignVertical: "top",
-    marginBottom: 16,
-  },
-  modalTextInputFocused: {
-    borderColor: colors.earthBrown ?? "#8B5E3C",
   },
 
-  // ── Bottom Nav (reaproveitado do home) ────────────────────
-  bottomNav: {
-    flexDirection: "row",
-    backgroundColor: "#FFFFFF",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderTopWidth: 1,
-    borderTopColor: "#EDE5DC",
-    justifyContent: "space-around",
+  modalRadioCircleActive: {
+    borderColor: palette.accent,
   },
-  navItem: {
+
+  modalRadioDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: palette.accent,
+  },
+
+  modalRadioLabel: {
+    fontFamily: "InterMedium",
+    fontSize: 14,
+    color: palette.negro,
+  },
+
+  modalTextInput: {
+    backgroundColor: "#F9F6F3",
+    borderRadius: 10,
+    padding: 12,
+    fontFamily: "InterRegular",
+    fontSize: 14,
+    color: palette.negro,
+    borderWidth: 1,
+    borderColor: palette.subtle,
+    minHeight: 80,
+    textAlignVertical: "top",
+  },
+
+  modalTextInputFocused: {
+    borderColor: palette.accent,
+  },
+
+  // ── Estado vazio ──────────────────────────────────────────
+  emptyState: {
     alignItems: "center",
-    justifyContent: "center",
-    padding: 8,
+    paddingVertical: 40,
+    gap: 10,
+  },
+
+  emptyStateText: {
+    fontFamily: "InterMedium",
+    fontSize: 14,
+    color: palette.gray,
+    textAlign: "center",
   },
 });

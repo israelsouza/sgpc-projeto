@@ -11,9 +11,8 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Feather } from "@expo/vector-icons";
-import  BottomNav  from "@/components/BottomNav";
-import { colors } from "@/theme/colors";
-import { styles } from "../../src/screens/Entregas/Entregas.styles";
+import { colors, palette } from "@/theme/colors";
+import { styles } from "@/screens/Entregas/Entregas.styles";
 
 // ── Tipos ─────────────────────────────────────────────────
 type Categoria = "carta" | "pacote";
@@ -59,7 +58,6 @@ export default function ResumoEntregaScreen() {
   // TODO: buscar entrega pelo `id` via API
   const entrega = mockEntrega;
 
-  // ── Estado do modal ──
   const [modalVisible, setModalVisible] = useState(false);
   const [confirmacao, setConfirmacao] = useState<ConfirmacaoExclusao>("nao");
   const [justificativa, setJustificativa] = useState("");
@@ -87,12 +85,12 @@ export default function ResumoEntregaScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.primaryDark} />
+      <StatusBar barStyle="light-content" backgroundColor={palette.brown} />
 
       {/* ── Header ── */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Feather name="arrow-left" size={18} color="#FFFFFF" />
+          <Feather name="arrow-left" size={18} color={colors.textLight} />
         </TouchableOpacity>
         <View style={styles.headerTitleWrapper}>
           <Text style={styles.headerTitle}>Resumo da entrega</Text>
@@ -134,8 +132,8 @@ export default function ResumoEntregaScreen() {
             <Text style={styles.infoLabel}>Prazo final</Text>
             <View style={styles.prazoRow}>
               {entrega.isPrazoHoje && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>Hoje</Text>
+                <View style={[styles.badge, { backgroundColor: "#F5F0D6" }]}>
+                  <Text style={[styles.badgeText, { color: "#B8A44A" }]}>Hoje</Text>
                 </View>
               )}
               <Text style={styles.infoValue}>{entrega.prazoFinal}</Text>
@@ -150,7 +148,7 @@ export default function ResumoEntregaScreen() {
               <Feather
                 name={entrega.tipo === "pacote" ? "box" : "mail"}
                 size={14}
-                color={colors.earthBrown ?? "#8B5E3C"}
+                color={colors.earthBrown}
               />
               <Text style={styles.infoValue}>
                 {entrega.tipo === "pacote" ? "Pacote" : "Carta"}
@@ -197,12 +195,8 @@ export default function ResumoEntregaScreen() {
           activeOpacity={1}
           onPress={handleFecharModal}
         >
-          {/* Impede fechar ao tocar dentro do box */}
           <TouchableOpacity activeOpacity={1} style={styles.modalBox}>
-
-            <Text style={styles.modalTitle}>
-              Deseja excluir a sua encomenda?
-            </Text>
+            <Text style={styles.modalTitle}>Deseja excluir a sua encomenda?</Text>
 
             {/* Radio buttons */}
             <View style={styles.modalRadioRow}>
@@ -211,10 +205,12 @@ export default function ResumoEntregaScreen() {
                 onPress={() => setConfirmacao("nao")}
                 activeOpacity={0.7}
               >
-                <View style={[
-                  styles.modalRadioCircle,
-                  confirmacao === "nao" && styles.modalRadioCircleActive,
-                ]}>
+                <View
+                  style={[
+                    styles.modalRadioCircle,
+                    confirmacao === "nao" && styles.modalRadioCircleActive,
+                  ]}
+                >
                   {confirmacao === "nao" && <View style={styles.modalRadioDot} />}
                 </View>
                 <Text style={styles.modalRadioLabel}>não</Text>
@@ -225,10 +221,12 @@ export default function ResumoEntregaScreen() {
                 onPress={() => setConfirmacao("sim")}
                 activeOpacity={0.7}
               >
-                <View style={[
-                  styles.modalRadioCircle,
-                  confirmacao === "sim" && styles.modalRadioCircleActive,
-                ]}>
+                <View
+                  style={[
+                    styles.modalRadioCircle,
+                    confirmacao === "sim" && styles.modalRadioCircleActive,
+                  ]}
+                >
                   {confirmacao === "sim" && <View style={styles.modalRadioDot} />}
                 </View>
                 <Text style={styles.modalRadioLabel}>sim</Text>
@@ -242,7 +240,7 @@ export default function ResumoEntregaScreen() {
                 inputFocused && styles.modalTextInputFocused,
               ]}
               placeholder="Justifique"
-              placeholderTextColor="#C5B5AA"
+              placeholderTextColor={palette.subtle}
               value={justificativa}
               onChangeText={setJustificativa}
               onFocus={() => setInputFocused(true)}
@@ -254,6 +252,7 @@ export default function ResumoEntregaScreen() {
             <TouchableOpacity
               style={[
                 styles.btnSalvar,
+                styles.btnExcluir,
                 confirmacao !== "sim" && { opacity: 0.5 },
               ]}
               onPress={handleConfirmarExclusao}
@@ -262,13 +261,9 @@ export default function ResumoEntregaScreen() {
             >
               <Text style={styles.btnSalvarText}>Excluir</Text>
             </TouchableOpacity>
-
           </TouchableOpacity>
         </TouchableOpacity>
       </Modal>
-
-      {/* ── Bottom Nav ── */}
- 
     </SafeAreaView>
   );
 }
