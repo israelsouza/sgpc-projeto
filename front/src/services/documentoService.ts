@@ -33,5 +33,14 @@ export const DocumentoService = {
   obterDownloadUrl: async (documentoId: number): Promise<string> => {
     const response = await api.get(`/documentos/${documentoId}/download`);
     return response.data.data.url;
+  },
+
+  criar: async (formData: FormData): Promise<IDocumento> => {
+    const response = await api.post('/documentos', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data.data;
   }
 };

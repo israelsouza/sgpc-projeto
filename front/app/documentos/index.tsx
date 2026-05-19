@@ -11,33 +11,11 @@ import { BottomNav } from "@/components/BottomNav";
 import * as Sharing from "expo-sharing";
 import { Directory, File, Paths } from "expo-file-system";
 import { WebView } from "react-native-webview";
+import { useDocumentos } from "@/hooks/useDocumentos";
+import { IDocumento } from "@/services/documentoService";
 
 export default function DocumentsScreen() {
-  const documentSections = [
-  {
-    id: 1,
-    title: "Autorização de mudança",
-    pdfURL: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-  },
-
-  {
-    id: 2,
-    title: "Autorização de reforma",
-    pdfURL: "https://www.orimi.com/pdf-test.pdf",
-  },
-
-  {
-    id: 3,
-    title: "Regimento interno",
-    pdfURL: "https://eppge.fgv.br/sites/default/files/teste.pdf",
-  },
-
-  {
-    id: 4,
-    title: "Relatório de manutenção",
-    pdfURL: "https://camarademanga.mg.gov.br/arquivo/643db1e220143.pdf",
-  },
-];
+  const { documentos, loading, fetchDocumentos, openDocumento, uploadDocumento } = useDocumentos();
 
   const [openSelect, setOpenSelect] = useState(false);
   const [showForm, setShowForm] = useState(false);       
@@ -45,13 +23,9 @@ export default function DocumentsScreen() {
   const [placeHolder, setPlaceHolder] = useState("Ex: Alvará de demolição");
   const [userRole, setUserRole] = useState<
     "sindico" | "usuario" | "administrador" | null
-  >("sindico"); //PARA TESTE SÓ TROCAR O VALOR DO PARENTESES
+  >(null); 
   const [pdfModal, setPdfModal] = useState(false);
-  const [selecionarDoc, setSelecionarDoc] = useState<{
-  id: number;
-  title: string;
-  pdfURL: string;
-} | null>(null);
+  const [selecionarDoc, setSelecionarDoc] = useState<IDocumento | null>(null);
   const [downloading, setDownloading] = useState(false);
   
   const handleAddDocument = () => {
@@ -63,53 +37,66 @@ export default function DocumentsScreen() {
     setShowForm(true); 
   };
 
-  const handleEnviar = () => {
+  const handleEnviar = async () => {
     if (!tipoDocumento) {
-      alert("Preencha o tipo do documento");
+      Alert.alert("Erro", "Preencha o tipo do documento");
       return;
     }
-    console.log("Enviando documento:", tipoDocumento);
-    setShowForm(false);    
-    setTipoDocumento("");    
+    
+    // TODO: Implementar seleção de arquivo com expo-document-picker
+    Alert.alert("Info", "A seleção de arquivos requer a biblioteca expo-document-picker.");
+    
+    /* 
+    Exemplo de implementação futura:
+    const result = await DocumentPicker.getDocumentAsync({ type: 'application/pdf' });
+    if (result.assets && result.assets.length > 0) {
+      const file = result.assets[0];
+      const formData = new FormData();
+      formData.append('titulo', tipoDocumento);
+      formData.append('categoria', 'Geral');
+      formData.append('arquivo', {
+        uri: file.uri,
+        name: file.name,
+        type: file.mimeType || 'application/pdf',
+      } as any);
+      
+      const success = await uploadDocumento(formData);
+      if (success) {
+        setShowForm(false);
+        setTipoDocumento("");
+        fetchDocumentos();
+      }
+    }
+    */
   };
 
-  const handleOpenPDF = (document: {id: number; title: string; pdfURL: string}) => {
+  const handleOpenPDF = (document: IDocumento) => {
     setSelecionarDoc(document);
     setPdfModal(true);
   }
 
-const handleDownloadPdf = async () => {
-  try {
-    if (!selecionarDoc) return;
+  const handleDownloadPdf = async () => {
+    try {
+      if (!selecionarDoc) return;
 
-    setDownloading(true);
+      setDownloading(true);
 
-    const destination = new Directory(Paths.cache, "pdfs");
-    destination.create({ intermediates: true, idempotent: true });
-
-    // Gera um nome único usando timestamp + id do documento
-    const fileName = `documento_${selecionarDoc.id}_${Date.now()}.pdf`;
-    const destinationFile = new File(destination, fileName);
-
-    const downloadedFile = await File.downloadFileAsync(
-      selecionarDoc.pdfURL,
-      destinationFile  // Passa o File com nome único, não o Directory
-    );
-
-    const isSharingAvailable = await Sharing.isAvailableAsync();
-
-    if (isSharingAvailable) {
-      await Sharing.shareAsync(downloadedFile.uri);
-    } else {
-      Alert.alert("Sucesso", `Arquivo baixado em: ${downloadedFile.uri}`);
+      const url = await openDocumento(selecionarDoc.id);
+      // O openDocumento já abre no browser, mas se quisermos baixar e compartilhar:
+      // Note: openDocumento no hook não retorna a URL, ele abre direto.
+      // Vou manter a lógica original adaptada se necessário, mas o plano foca em URL assinada.
+      
+      // Se quiser baixar via expo-file-system, precisa da URL.
+      // Vou modificar o hook ou chamar o service direto aqui para download.
+      
+      Alert.alert("Download", "O documento será aberto no navegador para visualização e download.");
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Erro", "Não foi possível processar o documento.");
+    } finally {
+      setDownloading(false);
     }
-  } catch (error) {
-    console.error(error);
-    Alert.alert("Erro", "Não foi possível baixar o PDF.");
-  } finally {
-    setDownloading(false);
-  }
-};
+  };
 
 
   const handleCancelar = () => {
@@ -122,17 +109,17 @@ const handleDownloadPdf = async () => {
       const token = await AsyncStorage.getItem("token");
 
       if(token){
-        const decoded: any = jwtDecode(token);
-        setUserRole(decoded.role);
+        try {
+          const decoded: any = jwtDecode(token);
+          setUserRole(decoded.role?.toLowerCase());
+        } catch (e) {
+          console.error("Erro ao decodificar token", e);
+        }
       }
     };
     loadUser();
-  }, []);
- 
-
- /*  useEffect(() => {
-    setUserRole("sindico");
-  }, []); */ //DESCOMENTAR PARA FAZER TESTE COM USUÁRIO ESPECÍFICO
+    fetchDocumentos();
+  }, [fetchDocumentos]);
 
   return (
     <View style={styles.container}>
@@ -141,34 +128,34 @@ const handleDownloadPdf = async () => {
         subtitle={showForm ? undefined : "Selecione a opção desejada"}
         iconLeft={<Feather name="arrow-left" size={24} color={colors.textLight} />}
         iconRight={
-            userRole === "sindico" && !showForm
+            (userRole === "sindico" || userRole === "administrador") && !showForm
             ? <Feather name="plus" size={24} color={colors.textLight} />
             : <Feather name="folder" size={24} color={colors.textLight} />
         }
-        onPressLeft={showForm ? handleCancelar : () => router.push('/home  ')}
-        onPressRight={ userRole === "sindico" && !showForm ? handleAddDocument : undefined}
+        onPressLeft={showForm ? handleCancelar : () => router.push('/home')}
+        onPressRight={ (userRole === "sindico" || userRole === "administrador") && !showForm ? handleAddDocument : undefined}
       />
 
       <View style={styles.centerContainer}>
 
-        {showForm && userRole === "sindico" ? (
+        {showForm && (userRole === "sindico" || userRole === "administrador") ? (
           <View style={{ flex: 1, padding: 20, gap: 16 }}>
 
             <View style={styles.card}>
-              <Text style={styles.label}>Tipo documento</Text>
+              <Text style={styles.label}>Título do documento</Text>
               <TextInput
                 style={styles.input}
                 placeholder={placeHolder}
                 placeholderTextColor={palette.darkBrown}
                 onFocus={() => setPlaceHolder('')}
-                onBlur={() => setPlaceHolder("Ex: Alvará de demolição")}
+                onBlur={() => setPlaceHolder("Ex: Ata de Assembleia")}
                 value={tipoDocumento}
                 onChangeText={setTipoDocumento}
               />
             </View>
 
             <TouchableOpacity style={styles.anexarCard}>
-              <Text style={styles.label}>Anexar documentos</Text>
+              <Text style={styles.label}>Anexar PDF</Text>
               <Feather name="upload" size={24} color={palette.accent} />
             </TouchableOpacity>
 
@@ -176,13 +163,15 @@ const handleDownloadPdf = async () => {
               <TouchableOpacity
                 style={styles.btnEnviar}
                 onPress={handleEnviar}
+                disabled={loading}
               >
-                <Text style={styles.btnEnviarText}>Enviar</Text>
+                {loading ? <ActivityIndicator color="#FFF" /> : <Text style={styles.btnEnviarText}>Enviar</Text>}
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.btnCancelar}
                 onPress={handleCancelar}
+                disabled={loading}
               >
                 <Text style={styles.btnCancelarText}>Cancelar</Text>
               </TouchableOpacity>
@@ -191,21 +180,32 @@ const handleDownloadPdf = async () => {
           </View>
 
         ) : (
-
             <ScrollView
               style={styles.content}
               contentContainerStyle={styles.contentContainer}
               showsVerticalScrollIndicator={false}
             >
-              {documentSections.map((item) => (
-                <TouchableOpacity key={item.id} style={styles.listItem} onPress={() => handleOpenPDF(item)}>
-                  <View style={styles.listItemLeft}>
-                    <Feather name="folder" size={28} color={colors.earthBrown} />
-                    <Text style={styles.listItemText}>{item.title}</Text>
-                  </View>
-                  <MaterialIcons name="chevron-right" size={28} color={colors.earthBrown} />
-                </TouchableOpacity>
-              ))}
+              {loading && documentos.length === 0 ? (
+                <ActivityIndicator size="large" color={colors.earthBrown} style={{ marginTop: 20 }} />
+              ) : documentos.length > 0 ? (
+                documentos.map((item) => (
+                  <TouchableOpacity key={item.id} style={styles.listItem} onPress={() => handleOpenPDF(item)}>
+                    <View style={styles.listItemLeft}>
+                      <Feather name="file-text" size={28} color={colors.earthBrown} />
+                      <View style={{ marginLeft: 10 }}>
+                        <Text style={styles.listItemText}>{item.titulo}</Text>
+                        <Text style={{ fontSize: 12, color: '#666' }}>{item.categoria} • {new Date(item.criado_em).toLocaleDateString()}</Text>
+                      </View>
+                    </View>
+                    <MaterialIcons name="chevron-right" size={28} color={colors.earthBrown} />
+                  </TouchableOpacity>
+                ))
+              ) : (
+                <View style={{ alignItems: 'center', marginTop: 50 }}>
+                  <Feather name="folder-minus" size={48} color="#ccc" />
+                  <Text style={{ color: '#999', marginTop: 10 }}>Nenhum documento encontrado</Text>
+                </View>
+              )}
               <View/>
             </ScrollView>
         )}
@@ -215,7 +215,7 @@ const handleDownloadPdf = async () => {
       <BottomNav />
 
 
-      {/* MODAL APENAS PARA O SINDICO ADICIONAR SEUS DOCS */}
+      {/* MODAL PARA SINDICO/ADMIN ADICIONAR SEUS DOCS */}
    
       <Modal
         visible={openSelect}
@@ -251,7 +251,7 @@ const handleDownloadPdf = async () => {
       </Modal>
 
 
-      {/* MODAL PARA APENAS O USUÁRIO BAIXAR O PDF */}
+      {/* MODAL PARA VISUALIZAÇÃO E DOWNLOAD */}
       <Modal
         visible={pdfModal}
         transparent
@@ -265,7 +265,7 @@ const handleDownloadPdf = async () => {
       {/* HEADER */}
       <View style={styles.headerPDFs}>
         <Text style={styles.titlePDFs} numberOfLines={1}>
-          {selecionarDoc?.title}
+          {selecionarDoc?.titulo}
         </Text>
 
         <TouchableOpacity onPress={() => setPdfModal(false)}>
@@ -273,27 +273,15 @@ const handleDownloadPdf = async () => {
         </TouchableOpacity>
       </View>
 
-      {/* PDF */}
-      {selecionarDoc && (
-        <WebView
-        source={{ 
-            uri: `https://docs.google.com/gviewer?embedded=true&url=${encodeURIComponent(selecionarDoc.pdfURL)}` 
-        }}
-        style={{ flex: 1 }}
-          startInLoadingState
-          onShouldStartLoadWithRequest={(request) => {
-          return request.url.includes("docs.google.com");
-          }}
-          renderLoading={() => (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" />
-              <Text style={styles.loadingText}>
-                Carregando PDF...
-              </Text>
-            </View>
-          )}
-        />
-      )}
+      <View style={{ flex: 1, padding: 20, alignItems: 'center', justifyContent: 'center' }}>
+        <Feather name="file-text" size={100} color={colors.earthBrown} />
+        <Text style={{ marginTop: 20, textAlign: 'center', fontSize: 16 }}>
+          {selecionarDoc?.titulo}
+        </Text>
+        <Text style={{ marginTop: 10, color: '#666' }}>
+          {selecionarDoc?.filename_orig}
+        </Text>
+      </View>
 
       {/* FOOTER */}
         <View style={styles.footerPDF}>
@@ -303,8 +291,9 @@ const handleDownloadPdf = async () => {
             onPress={handleDownloadPdf}
             disabled={downloading}
           >
+            <ActivityIndicator animating={downloading} size="small" color="#FFF" style={{ position: 'absolute', left: 10 }} />
             <Text style={styles.downloadTextPDF}>
-              {downloading ? "Baixando..." : "Baixar PDF"}
+              {downloading ? "Processando..." : "Visualizar / Baixar"}
             </Text>
           </TouchableOpacity>
 

@@ -21,7 +21,9 @@ class StorageServiceInterface(ABC):
         pass
 
     @abstractmethod
-    def generate_signed_url(self, file_id: str, expires_in: int = 3600) -> str:
+    def generate_signed_url(
+        self, file_id: str, expires_in: int = 3600, params: dict | None = None
+    ) -> str:
         """
         Gera uma URL assinada e temporária para acesso ao arquivo privado.
         """
