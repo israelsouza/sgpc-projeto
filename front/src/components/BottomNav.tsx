@@ -5,36 +5,58 @@ import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { styles } from "@/screens/Home/home.styles";
 import { colors } from "@/theme/colors";
 
-export default function BottomNav({ state, descriptors, navigation }: BottomTabBarProps) {
+const routesInfo = [
+  { name: "home/index", icon: FontAwesome6, iconName: "house" },
+  { name: "historico/index", icon: Entypo, iconName: "back-in-time" },
+  { name: "avisos/index", icon: Entypo, iconName: "megaphone" },
+  { name: "perfil/index", icon: Feather, iconName: "users" },
+];
+
+export default function BottomNav({
+  state,
+  descriptors,
+  navigation,
+}: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const inactiveColor = "#B8A89A";
   const activeColor = colors.earthBrown;
 
-  // As rotas na mesma ordem em que foram declaradas no _layout.tsx das Tabs
-  const routesInfo = [
-    { name: "home/index", icon: FontAwesome6, iconName: "house" },
-    { name: "historico/index", icon: Entypo, iconName: "back-in-time" },
-    { name: "avisos/index", icon: Entypo, iconName: "megaphone" },
-    { name: "perfil/index", icon: Feather, iconName: "users" },
-  ];
+  // Guarda se state não estiver pronto, não renderiza nada
+
+  if (!state || !state.routes) return null;
+
+
+  const visibleRoutes = state.routes.filter((route) => {
+    const options = descriptors[route.key]?.options as any;
+    return options?.href !== null;
+  });
 
   return (
-    <View 
+    <View
       style={[
-        styles.bottomNav, 
-        { 
-          paddingBottom: Platform.OS === 'ios' ? Math.max(insets.bottom, 12) : insets.bottom + 12 
-        }
+        styles.bottomNav,
+        {
+          paddingBottom:
+            Platform.OS === "ios"
+              ? Math.max(insets.bottom, 12)
+              : insets.bottom + 12,
+        },
       ]}
     >
-      {state.routes.map((route, index) => {
-        const isFocused = state.index === index;
-        const iconInfo = routesInfo[index];
+      {visibleRoutes.map((route, tabIndex) => {
+        // Usa o index real do state para checar qual está focado
+        const realIndex = state.routes.indexOf(route);
+        const isFocused = state.index === realIndex;
+        const iconInfo = routesInfo[tabIndex];
+
+        // Segurança: se não tiver ícone mapeado, não renderiza
+        if (!iconInfo) return null;
+
         const IconComponent = iconInfo.icon as any;
 
         const onPress = () => {
           const event = navigation.emit({
-            type: 'tabPress',
+            type: "tabPress",
             target: route.key,
             canPreventDefault: true,
           });
@@ -45,16 +67,16 @@ export default function BottomNav({ state, descriptors, navigation }: BottomTabB
         };
 
         return (
-          <TouchableOpacity 
+          <TouchableOpacity
             key={route.key}
-            style={styles.navItem} 
+            style={styles.navItem}
             activeOpacity={0.7}
             onPress={onPress}
           >
-            <IconComponent 
-              name={iconInfo.iconName} 
-              size={24} 
-              color={isFocused ? activeColor : inactiveColor} 
+            <IconComponent
+              name={iconInfo.iconName}
+              size={24}
+              color={isFocused ? activeColor : inactiveColor}
             />
           </TouchableOpacity>
         );

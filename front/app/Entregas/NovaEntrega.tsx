@@ -14,7 +14,7 @@ import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
-import { BottomNav } from "@/components/BottomNav";
+import BottomNav  from "@/components/BottomNav";
 import { colors } from "@/theme/colors";
 import { styles } from "../../src/screens/Entregas/Entregas.styles";
 
@@ -253,7 +253,7 @@ export default function NovaEntregaScreen() {
       </ScrollView>
 
       {/* ── Bottom Nav ── */}
-      <BottomNav activeIndex={-1} />
+ 
     </SafeAreaView>
   );
 }

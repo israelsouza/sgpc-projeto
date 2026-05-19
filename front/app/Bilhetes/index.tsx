@@ -484,7 +484,7 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
       </BlurView>
     </Modal> */}
     
-    <BottomNav/>
+
     </View>
   );
 }

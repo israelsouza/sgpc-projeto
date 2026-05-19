@@ -4,7 +4,7 @@ import { Ionicons, Feather, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
 import { styles } from "@/screens/Convidar/convidar.styles";
-import { BottomNav } from "@/components/BottomNav";
+import BottomNav  from "@/components/BottomNav";
 
 export default function InviteScreen() {
   return (
@@ -39,7 +39,7 @@ export default function InviteScreen() {
         </TouchableOpacity>
       </View>
 
-      <BottomNav />
+
     </View>
   );
 }

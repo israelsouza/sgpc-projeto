@@ -8,7 +8,9 @@ import { componenteAgendamento } from "@/components/Listado";
 
 /* MOCK — substituir pelos dados reais do banco futuramente */
 const agendamentosMock: componenteAgendamento[] = [
+
   {
+    categoria: "Manifestação",
     id: "1",
     espaco: "Salão de Festas",
     icone: "gift",
@@ -19,6 +21,7 @@ const agendamentosMock: componenteAgendamento[] = [
     autor: "Sandra",
   },
   {
+    categoria: "Bilhete",
     id: "2",
     espaco: "Churrasqueira",
     icone: "bonfire",
@@ -29,6 +32,7 @@ const agendamentosMock: componenteAgendamento[] = [
     autor: "Sandra",
   },
   {
+    categoria: "Bilhete",
     id: "3",
     espaco: "Quadra",
     icone: "basketball",

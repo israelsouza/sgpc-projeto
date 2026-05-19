@@ -86,12 +86,12 @@ const menuItems: MenuItem[] = [
   },
   {
     id: "bilhetes",
-    title: "Bilhetes",
+    title: "bilhetes",
     subtitle: "Avisos para a portaria",
     icon: { name: "send", library: "Feather" },
     iconBg: "#EDD6F5",
     iconColor: "#9B6BB6",
-    route: "/Bilhetes",
+    route: "/bilhetes",
   },
 ];
 

@@ -590,7 +590,7 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
                 </Pressable>
             </BlurView>
         </Modal>
-    <BottomNav />
+
 
     </View>
 

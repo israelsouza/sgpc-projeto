@@ -3,7 +3,7 @@ import BottomNav from "@/components/BottomNav";
 
 export default function TabsLayout() {
   return (
-    <Tabs
+        <Tabs
       screenOptions={{ headerShown: false }}
       tabBar={(props) => <BottomNav {...props} />}
     >
@@ -11,9 +11,13 @@ export default function TabsLayout() {
       <Tabs.Screen name="historico/index" options={{ title: "Histórico" }} />
       <Tabs.Screen name="avisos/index" options={{ title: "Avisos" }} />
       <Tabs.Screen name="perfil/index" options={{ title: "Perfil" }} />
-      <Tabs.Screen name="Bilhetes/index" options={{ title: "Bilhetes" }} />
-      <Tabs.Screen name="documentos/index" options={{ title: "Documentos" }} />
-      <Tabs.Screen name="Manifestacoes/index" options={{ title: "Manifestações" }} />
+
+      {/* Rotas ocultas da tab bar — acessadas via router.push */}
+      <Tabs.Screen name="bilhetes/index" options={{ title: "bilhetes", href: null }} />
+      <Tabs.Screen name="convidar/index" options={{ title: "Convidar", href: null }} />
+      <Tabs.Screen name="documentos/index" options={{ title: "Documentos", href: null }} />
+      <Tabs.Screen name="Entregas/index" options={{ title: "Entregas", href: null }} />
+      <Tabs.Screen name="Manifestacoes/index" options={{ title: "Manifestações", href: null }} />
     </Tabs>
   );
 }
