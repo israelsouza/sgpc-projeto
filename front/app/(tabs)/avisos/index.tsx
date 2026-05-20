@@ -18,50 +18,7 @@ interface Aviso {
   anexos?: number;
 }
 
-const avisos: Aviso[] = [
-  {
-    id: "1",
-    titulo: "Aviso de manutenção preventiva",
-    preview: "Conforme combinado na ...",
-    data: "15/03/25",
-    hora: "14:50",
-    novo: true,
-    anexos: 1,
-  },
-  {
-    id: "2",
-    titulo: "Ata da assembleia 205",
-    preview: "Os assuntos e decisões que...",
-    data: "15/03/25",
-    hora: "14:50",
-    novo: true,
-    anexos: 1,
-  },
-  {
-    id: "3",
-    titulo: "Lorem Ipsum is simply dummy",
-    preview: "Lorem ipsum is simply dummy text...",
-    data: "15/03/25",
-    hora: "14:50",
-    novo: false,
-  },
-  {
-    id: "4",
-    titulo: "Lorem Ipsum is simply dummy",
-    preview: "Lorem ipsum is simply dummy text...",
-    data: "15/03/25",
-    hora: "14:50",
-    novo: false,
-  },
-  {
-    id: "5",
-    titulo: "Lorem Ipsum is simply dummy",
-    preview: "Lorem ipsum is simply dummy text...",
-    data: "15/03/25",
-    hora: "14:50",
-    novo: false,
-  },
-];
+import { useRouter } from "expo-router";
 
 // ── Card extraído como componente interno ──────────────────────────────────
 // Recebe o styles e as cores já resolvidos pela tela pai
@@ -85,20 +42,19 @@ function AvisoCard({
       <View
         style={[
           styles.iconBox,
-          aviso.novo ? styles.iconBoxActive : styles.iconBoxInactive,
+          aviso.is_recente ? styles.iconBoxActive : styles.iconBoxInactive,
         ]}
       >
         <Entypo name="megaphone" size={22} color={iconColor} />
       </View>
 
-      {/* Corpo */}
       <View style={styles.cardBody}>
         <View style={styles.cardHeader}>
           <View style={styles.cardTitleRow}>
             <Text style={styles.cardTitle} numberOfLines={2}>
               {aviso.titulo}
             </Text>
-            {aviso.novo && (
+            {aviso.is_recente && (
               <View style={styles.badgeNovo}>
                 <Text style={styles.badgeNovoText}>novo</Text>
               </View>
@@ -106,8 +62,8 @@ function AvisoCard({
           </View>
 
           <View style={styles.dateBlock}>
-            <Text style={styles.dateText}>{aviso.data}</Text>
-            <Text style={styles.dateText}>{aviso.hora}</Text>
+            <Text style={styles.dateText}>{dataFormatada}</Text>
+            <Text style={styles.dateText}>{horaFormatada}</Text>
           </View>
         </View>
 
@@ -139,11 +95,31 @@ export default function AvisosScreen() {
   );
 
   const [userCondo, setUserCondo] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
+  const { 
+    avisos, 
+    loading, 
+    refresh, 
+    page, 
+    totalPages, 
+    hasNextPage, 
+    hasPrevPage, 
+    nextPage, 
+    prevPage 
+  } = useAviso();
+
+  // Efeito para subir ao topo quando a página mudar
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ y: 0, animated: true });
+    }
+  }, [page]);
 
   useEffect(() => {
     async function loadUserData() {
       try {
-        const condo = await SecureStore.getItemAsync("userCondo");
+        const condo = await SecureStore.getItemAsync("user_condominio");
         if (condo) setUserCondo(condo);
       } catch (error) {
         console.error("Erro ao carregar condomínio do usuário:", error);
@@ -151,6 +127,12 @@ export default function AvisosScreen() {
     }
     loadUserData();
   }, []);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await refresh();
+    setIsRefreshing(false);
+  };
 
   const megaphoneIcon = (
     <Entypo name="megaphone" size={24} color={colors.textLight} />
@@ -168,9 +150,17 @@ export default function AvisosScreen() {
 
       <View style={styles.contentWrapper}>
         <ScrollView
+          ref={scrollRef}
           style={styles.content}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.list}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              colors={[colors.primary]}
+            />
+          }
         >
           {avisos.map((aviso) => {
             // Cor do ícone: HC usa amarelo / normal mantém lógica original

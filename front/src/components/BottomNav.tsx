@@ -10,13 +10,13 @@ export default function BottomNav({ state, descriptors, navigation }: BottomTabB
   const inactiveColor = "#B8A89A";
   const activeColor = colors.earthBrown;
 
-  // As rotas na mesma ordem em que foram declaradas no _layout.tsx das Tabs
-  const routesInfo = [
-    { name: "home/index", icon: FontAwesome6, iconName: "house" },
-    { name: "historico/index", icon: Entypo, iconName: "back-in-time" },
-    { name: "avisos/index", icon: Entypo, iconName: "megaphone" },
-    { name: "perfil/index", icon: Feather, iconName: "users" },
-  ];
+  // Dicionário de ícones por nome de rota
+  const routesConfig: Record<string, { icon: any; iconName: string }> = {
+    "home/index": { icon: FontAwesome6, iconName: "house" },
+    "historico/index": { icon: Entypo, iconName: "back-in-time" },
+    "avisos": { icon: Entypo, iconName: "megaphone" },
+    "perfil/index": { icon: Feather, iconName: "users" },
+  };
 
   return (
     <View 
@@ -28,8 +28,18 @@ export default function BottomNav({ state, descriptors, navigation }: BottomTabB
       ]}
     >
       {state.routes.map((route, index) => {
+        const { options } = descriptors[route.key];
+
+        // Se a rota foi marcada com href: null no _layout, não a exibimos no menu
+        // @ts-ignore
+        if (options.href === null) return null;
+
         const isFocused = state.index === index;
-        const iconInfo = routesInfo[index];
+        const iconInfo = routesConfig[route.name];
+        
+        // Se a rota não tem ícone configurado no nosso dicionário, pulamos
+        if (!iconInfo) return null;
+
         const IconComponent = iconInfo.icon as any;
 
         const onPress = () => {

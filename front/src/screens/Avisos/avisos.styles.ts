@@ -113,6 +113,40 @@ export const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.textMuted,
   },
+
+  // Paginação
+  paginationContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 16,
+    marginBottom: 24,
+    paddingHorizontal: 4,
+  },
+  pageButton: {
+    backgroundColor: colors.earthAccent,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  pageButtonDisabled: {
+    backgroundColor: colors.divider,
+    opacity: 0.5,
+  },
+  pageText: {
+    color: colors.textLight,
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  pageInfo: {
+    fontSize: 12,
+    color: colors.textMuted,
+    fontWeight: "500",
+  },
+});
 });
 
 // ── Styles dinâmicos — ativados apenas no alto contraste ──────────────────
