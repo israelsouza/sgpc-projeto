@@ -7,12 +7,12 @@ from app.modules.chave.chave_router import router as chave_router
 from app.modules.convite.convite_router import router as convite_router
 from app.modules.core.dev_router import router as dev_router
 from app.modules.core.router import router as core_router
-from app.routers.unidade import router as unidade_router
-from app.routers.condominio import router as condominio_router
 from app.modules.documento.documento_router import router as documento_router
 from app.modules.funcionario.funcionario_router import router as funcionario_router
 from app.modules.morador.morador_router import router as morador_router
 from app.modules.notificacao.notificacao_router import router as notificacao_router
+from app.routers.condominio import router as condominio_router
+from app.routers.unidade import router as unidade_router
 
 # Agregador de rotas (Main Router)
 router = APIRouter()

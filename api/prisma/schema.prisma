@@ -32,6 +32,8 @@ model Condominio {
   unidades          Unidade[]
   funcionarios      Funcionario[]
   chaves_acesso     ChaveAcesso[]
+  avisos            Aviso[]
+  documentos        Documento[]
 
   @@map("CONDOMINIOS")
 }
