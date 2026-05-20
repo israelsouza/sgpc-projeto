@@ -4,12 +4,12 @@ import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { AuthService } from '@/services/authService';
 import { IRegisterForm } from '@/types';
-import { useNotifications } from './useNotifications';
+// import { useNotifications } from './useNotifications';
 
 export function useAuth() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { syncToken } = useNotifications();
+  // const { syncToken } = useNotifications();
 
   const handleLogin = async (dados: { email: string; senha: string }) => {
     if (!dados.email || !dados.senha) {
@@ -31,11 +31,11 @@ export function useAuth() {
 
       // Tenta sincronizar o Token FCM para notificações.
       // A falha aqui não deve impedir o login.
-      try {
-        await syncToken();
-      } catch (notificationError) {
-        console.error("Falha ao sincronizar o token de notificação, mas o login continuará:", notificationError);
-      }
+      // try {
+      //   await syncToken();
+      // } catch (notificationError) {
+      //   console.error("Falha ao sincronizar o token de notificação, mas o login continuará:", notificationError);
+      // }
 
       Alert.alert("Sucesso", "Login realizado com sucesso!", [
         { text: "OK", onPress: () => router.replace("/(tabs)/home") }

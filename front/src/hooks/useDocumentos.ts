@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
-import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
 import { DocumentoService, IDocumento } from '../services/documentoService';
 
 export function useDocumentos() {
@@ -26,8 +26,8 @@ export function useDocumentos() {
     try {
       const url = await DocumentoService.obterDownloadUrl(documentoId);
       
-      // Abre a URL assinada no navegador interno de forma segura
-      await WebBrowser.openBrowserAsync(url);
+      // Abre a URL assinada no navegador do sistema de forma segura
+      await Linking.openURL(url);
       
     } catch (error: any) {
       const msg = error.response?.data?.mensagem || 'Erro ao tentar abrir o documento';
