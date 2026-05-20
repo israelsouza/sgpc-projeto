@@ -13,7 +13,7 @@ export default function HomeScreen() {
 
       <Link href="/login" style={styles.link}> 
         Ir para Login
-      </Link>
+      </Link> 
     </View>
   );
 }

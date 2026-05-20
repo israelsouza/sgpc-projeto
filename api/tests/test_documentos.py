@@ -105,9 +105,9 @@ async def test_gerar_url_download_com_flag_cloudinary(
 ):
     service = DocumentoService(db_client, mock_pdf_service, mock_storage_service)
 
-    # Mockando a URL de retorno para ser uma do Cloudinary
+    # Mockando a URL de retorno para ser uma do Cloudinary com a flag de download
     mock_storage_service.generate_signed_url.return_value = (
-        "https://res.cloudinary.com/demo/image/upload/v1/private_id"
+        "https://res.cloudinary.com/demo/image/upload/fl_attachment/private_id"
     )
 
     # Criar um documento para testar o download

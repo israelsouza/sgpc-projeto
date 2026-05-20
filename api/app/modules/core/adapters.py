@@ -1,3 +1,4 @@
+import base64
 import io
 
 import cloudinary
@@ -58,29 +59,51 @@ class CloudinaryAdapter(StorageServiceInterface):
         self, file_bytes: bytes, filename: str, folder: str
     ) -> str:
         """
-        Upload para o Cloudinary com access_mode='authenticated'.
+        Upload para o Cloudinary com access_mode='private'.
         """
         try:
+            # Encode bytes to base64 data URI to ensure correct upload
+            file_base64 = base64.b64encode(file_bytes).decode("utf-8")
+            file_data_uri = f"data:application/pdf;base64,{file_base64}"
+
+            # Combinamos folder e filename para evitar ambiguidades no public_id
+            full_public_id = f"{folder}/{filename}"
+
             upload_result = cloudinary.uploader.upload(
-                file_bytes,
-                public_id=filename,
-                folder=folder,
-                access_mode="authenticated",
-                resource_type="auto",
+                file_data_uri,
+                public_id=full_public_id,
+                access_mode="private",
+                resource_type="raw",
             )
             return upload_result["public_id"]
         except Exception as e:
             logger.error("cloudinary_upload_failed", error=str(e))
             raise e
 
-    def generate_signed_url(self, file_id: str, expires_in: int = 3600) -> str:
+    def generate_signed_url(
+        self, file_id: str, expires_in: int = 3600, params: dict | None = None
+    ) -> str:
         """
         Gera URL assinada para recursos privados.
         """
         try:
-            url, _ = cloudinary.utils.cloudinary_url(
-                file_id, sign_url=True, type="authenticated", secure=True
-            )
+            options = {
+                "sign_url": True,
+                "type": "private",
+                "secure": True,
+                "resource_type": "raw",  # Importante para PDFs e outros arquivos não-imagem
+            }
+            if params:
+                options.update(params)
+
+            url, _ = cloudinary.utils.cloudinary_url(file_id, **options)
+
+            # Para recursos 'raw', o Cloudinary costuma dar 404 se a versão (/v12345678/) estiver presente.
+            # Removemos a versão da URL para garantir a compatibilidade.
+            import re
+
+            url = re.sub(r"/v\d+/", "/", url)
+
             return url
         except Exception as e:
             logger.error("cloudinary_sign_url_failed", error=str(e))

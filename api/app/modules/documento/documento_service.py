@@ -65,8 +65,12 @@ class DocumentoService:
         pdf_comprimido = self.pdf_service.compress_pdf(arquivo_pdf)
         folder = f"condominio_{condominio_id}/documentos"
 
+        # Gerar ID com extensão para garantir consistência no Cloudinary 'raw'
+        file_id_base = f"doc_{datetime.now().timestamp()}"
+        file_id_full = f"{file_id_base}.pdf"
+
         file_id = await self.storage_service.upload_private_file(
-            pdf_comprimido, f"doc_{datetime.now().timestamp()}", folder
+            pdf_comprimido, file_id_full, folder
         )
 
         # 6. Salvar Metadados
@@ -142,16 +146,11 @@ class DocumentoService:
         )
 
         # 3. Gerar URL com expiração curta para evitar vazamentos prolongados (15 minutos)
-        # Assumindo que o provedor base (Cloudinary) injeta headers de attachment via URL (fl_attachment)
-        url = self.storage_service.generate_signed_url(
-            documento.file_id, expires_in=900
+        return self.storage_service.generate_signed_url(
+            documento.file_id,
+            expires_in=900,
+            params={"flags": "attachment"},
         )
-
-        # Adiciona a flag de attachment se for cloudinary (hack rápido, o ideal seria na interface)
-        if "cloudinary" in url and "fl_attachment" not in url:
-            url = url.replace("/upload/", "/upload/fl_attachment/")
-
-        return url
 
     async def deletar_documento(
         self,

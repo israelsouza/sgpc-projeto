@@ -12,7 +12,7 @@ export function useDocumentos() {
     setLoading(true);
     try {
       const response = await DocumentoService.listar(categoria, limit, offset);
-      setDocumentos(response.items);
+      setDocumentos(response.items || []);
     } catch (error: any) {
       const msg = error.response?.data?.mensagem || 'Erro ao buscar documentos';
       Alert.alert('Erro', msg);
@@ -27,6 +27,7 @@ export function useDocumentos() {
       const url = await DocumentoService.obterDownloadUrl(documentoId);
       
       // Abre a URL assinada no navegador interno de forma segura
+      // Abre a URL assinada no navegador do sistema de forma segura
       await Linking.openURL(url);
       
     } catch (error: any) {

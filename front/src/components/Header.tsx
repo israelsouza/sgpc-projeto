@@ -9,7 +9,6 @@ interface HeaderProps {
   title?: string;
   subtitle?: string;
   initials?: string;
-  /** Se fornecido, substitui as iniciais pelo ícone */
   icon?: ReactNode;
   showBackButton?: boolean;
 }
@@ -45,8 +44,6 @@ export function Header({
           <Text style={styles.headerSubtitle}>{subtitle}</Text>
         </View>
       </View>
-
-      <View style={styles.headerCurve} />
     </View>
   );
 }

@@ -7,7 +7,6 @@ import HeaderFuncApp from "@/components/HeaderFunctions";
 import { colors, palette } from "@/theme/colors";
 import { jwtDecode } from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { BottomNav } from "@/components/BottomNav";
 import * as Sharing from "expo-sharing";
 import { Directory, File, Paths } from "expo-file-system";
 import { WebView } from "react-native-webview";
@@ -27,7 +26,8 @@ export default function DocumentsScreen() {
   const [pdfModal, setPdfModal] = useState(false);
   const [selecionarDoc, setSelecionarDoc] = useState<IDocumento | null>(null);
   const [downloading, setDownloading] = useState(false);
-  
+  const [selectedFile, setSelectedFile] = useState<DocumentPicker.DocumentPickerAsset | null>(null);
+
   const handleAddDocument = () => {
     setOpenSelect(true);
   };
@@ -39,35 +39,52 @@ export default function DocumentsScreen() {
 
   const handleEnviar = async () => {
     if (!tipoDocumento) {
-      Alert.alert("Erro", "Preencha o tipo do documento");
+      Alert.alert("Erro", "Preencha o título do documento");
       return;
     }
-    
-    // TODO: Implementar seleção de arquivo com expo-document-picker
-    Alert.alert("Info", "A seleção de arquivos requer a biblioteca expo-document-picker.");
-    
-    /* 
-    Exemplo de implementação futura:
-    const result = await DocumentPicker.getDocumentAsync({ type: 'application/pdf' });
-    if (result.assets && result.assets.length > 0) {
-      const file = result.assets[0];
+
+    if (!selectedFile) {
+      Alert.alert("Erro", "Por favor, selecione um arquivo PDF");
+      return;
+    }
+
+    try {
       const formData = new FormData();
       formData.append('titulo', tipoDocumento);
       formData.append('categoria', 'Geral');
       formData.append('arquivo', {
-        uri: file.uri,
-        name: file.name,
-        type: file.mimeType || 'application/pdf',
+        uri: selectedFile.uri,
+        name: selectedFile.name,
+        type: selectedFile.mimeType || 'application/pdf',
       } as any);
-      
+
       const success = await uploadDocumento(formData);
       if (success) {
         setShowForm(false);
         setTipoDocumento("");
+        setSelectedFile(null);
         fetchDocumentos();
       }
+    } catch (error: any) {
+      const msg = error.response?.data?.mensagem || 'Erro ao enviar documento';
+      Alert.alert("Erro", msg);
     }
-    */
+  };
+
+  const handleSelectFile = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/pdf',
+        copyToCacheDirectory: true,
+      });
+
+      if (!result.canceled) {
+        setSelectedFile(result.assets[0]);
+      }
+    } catch (error) {
+      console.error("Erro ao selecionar arquivo", error);
+      Alert.alert("Erro", "Ocorreu um erro ao selecionar o arquivo.");
+    }
   };
 
   const handleOpenPDF = (document: IDocumento) => {
@@ -103,10 +120,15 @@ export default function DocumentsScreen() {
     setShowForm(false);
     setTipoDocumento("");
   };
+      useEffect(() => {
+        const loadUser = async () => {
+          try {
+            const token = await AsyncStorage.getItem("token");
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const token = await AsyncStorage.getItem("token");
+            if (!token) {
+              console.log("Token não encontrado");
+              return;
+            }
 
       if(token){
         try {
@@ -135,7 +157,6 @@ export default function DocumentsScreen() {
         onPressLeft={showForm ? handleCancelar : () => router.push('/home')}
         onPressRight={ (userRole === "sindico" || userRole === "administrador") && !showForm ? handleAddDocument : undefined}
       />
-
       <View style={styles.centerContainer}>
 
         {showForm && (userRole === "sindico" || userRole === "administrador") ? (
@@ -154,9 +175,13 @@ export default function DocumentsScreen() {
               />
             </View>
 
-            <TouchableOpacity style={styles.anexarCard}>
-              <Text style={styles.label}>Anexar PDF</Text>
-              <Feather name="upload" size={24} color={palette.accent} />
+            <TouchableOpacity style={styles.anexarCard} onPress={handleSelectFile}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <Text style={styles.label}>
+                  {selectedFile ? selectedFile.name : "Anexar PDF"}
+                </Text>
+                <Feather name="upload" size={24} color={palette.accent} />
+              </View>
             </TouchableOpacity>
 
             <View style={styles.containerBotao}>
@@ -212,7 +237,6 @@ export default function DocumentsScreen() {
 
       </View>
 
-      <BottomNav />
 
 
       {/* MODAL PARA SINDICO/ADMIN ADICIONAR SEUS DOCS */}
