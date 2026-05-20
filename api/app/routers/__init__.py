@@ -11,6 +11,8 @@ from app.modules.documento.documento_router import router as documento_router
 from app.modules.funcionario.funcionario_router import router as funcionario_router
 from app.modules.morador.morador_router import router as morador_router
 from app.modules.notificacao.notificacao_router import router as notificacao_router
+from app.routers.condominio import router as condominio_router
+from app.routers.unidade import router as unidade_router
 
 # Agregador de rotas (Main Router)
 router = APIRouter()
@@ -21,6 +23,8 @@ router.include_router(morador_router)
 router.include_router(funcionario_router)
 router.include_router(chave_router)
 router.include_router(auth_router)
+router.include_router(unidade_router)
+router.include_router(condominio_router)
 router.include_router(aviso_router)
 router.include_router(notificacao_router)
 router.include_router(documento_router)
