@@ -26,6 +26,7 @@ export function useDocumentos() {
     try {
       const url = await DocumentoService.obterDownloadUrl(documentoId);
       
+      // Abre a URL assinada no navegador interno de forma segura
       // Abre a URL assinada no navegador do sistema de forma segura
       await Linking.openURL(url);
       

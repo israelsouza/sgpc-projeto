@@ -1,12 +1,20 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StatusBar } from "react-native";
-import { Ionicons, Feather, MaterialIcons } from "@expo/vector-icons";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StatusBar,
+  ActivityIndicator,
+} from "react-native";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
 import { styles } from "@/screens/Convidar/convidar.styles";
-import { BottomNav } from "@/components/BottomNav";
+import { useConvite } from "@/hooks/useConvite";
 
 export default function InviteScreen() {
+  const { loading, convite, gerarECompartilhar } = useConvite();
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#A07050" />
@@ -30,16 +38,32 @@ export default function InviteScreen() {
       {/* ── CONTEÚDO PRINCIPAL ── */}
       <View style={styles.content}>
         <View style={styles.whiteCard}>
-          <Text style={styles.infoText}>Este link de convite expira em</Text>
-          <Text style={styles.timerText}>10m59s</Text>
+          <Text style={styles.infoText}>
+            {convite
+              ? "Convite gerado com sucesso!"
+              : "Gere um link temporário para seu convidado"}
+          </Text>
+          <Text style={styles.timerText}>
+            {convite ? "Válido por 24 horas" : "Pronto para enviar"}
+          </Text>
         </View>
 
-        <TouchableOpacity style={styles.btnInvite} activeOpacity={0.8}>
-          <Text style={styles.btnInviteText}>Enviar link ao convidado</Text>
+        <TouchableOpacity
+          style={[styles.btnInvite, loading && { opacity: 0.7 }]}
+          activeOpacity={0.8}
+          onPress={gerarECompartilhar}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text style={styles.btnInviteText}>
+              {convite ? "Compartilhar novamente" : "Gerar e enviar link"}
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
 
-      <BottomNav />
     </View>
   );
 }

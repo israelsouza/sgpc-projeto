@@ -191,6 +191,38 @@ model RecuperacaoSenha {
   @@map("RECUPERACOES_SENHA")
 }
 
+model Convite {
+  id              Int      @id @default(autoincrement())
+  token           String   @unique @map("token")
+  morador_id      Int      @map("morador_id")
+  data_expiracao  DateTime @map("data_expiracao")
+  status          String   @default("PENDENTE") @map("status") // PENDENTE, UTILIZADO, EXPIRADO
+
+  // Relacionamentos
+  morador Morador @relation(fields: [morador_id], references: [id])
+
+  // Auditoria
+  criado_em DateTime @default(now()) @map("criado_em")
+
+  @@map("CONVITES")
+}
+
+model Visitante {
+  id              Int     @id @default(autoincrement())
+  nome_completo   String  @map("nome_completo")
+  documento       String  @map("documento")
+  celular         String  @map("celular")
+  morador_id      Int     @map("morador_id")
+
+  // Relacionamentos
+  morador Morador @relation("MoradorVisitantes", fields: [morador_id], references: [id])
+
+  // Auditoria
+  criado_em DateTime @default(now()) @map("criado_em")
+
+  @@map("VISITANTES")
+}
+
 model Morador {
   id              Int     @id @default(autoincrement())
   nome_completo   String  @map("nome_completo")
@@ -213,6 +245,8 @@ model Morador {
   // Relacionamentos
   usuario Usuario? @relation(fields: [usuario_id], references: [id])
   unidade Unidade? @relation(fields: [unidade_id], references: [id])
+  convites Convite[]
+  visitantes Visitante[] @relation("MoradorVisitantes")
 
   @@map("MORADORES")
 }

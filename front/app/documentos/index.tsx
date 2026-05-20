@@ -10,6 +10,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Sharing from "expo-sharing";
 import { Directory, File, Paths } from "expo-file-system";
 import { WebView } from "react-native-webview";
+import { useDocumentos } from "@/hooks/useDocumentos";
+import { IDocumento } from "@/services/documentoService";
 
 export default function DocumentsScreen() {
   const { documentos, loading, fetchDocumentos, openDocumento, uploadDocumento } = useDocumentos();
