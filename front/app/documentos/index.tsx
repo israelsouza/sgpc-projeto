@@ -7,10 +7,9 @@ import HeaderFuncApp from "@/components/HeaderFunctions";
 import { colors, palette } from "@/theme/colors";
 import { jwtDecode } from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { BottomNav } from "@/components/BottomNav";
-import * as DocumentPicker from "expo-document-picker";
-import { useDocumentos } from "@/hooks/useDocumentos";
-import { IDocumento } from "@/services/documentoService";
+import * as Sharing from "expo-sharing";
+import { Directory, File, Paths } from "expo-file-system";
+import { WebView } from "react-native-webview";
 
 export default function DocumentsScreen() {
   const { documentos, loading, fetchDocumentos, openDocumento, uploadDocumento } = useDocumentos();
@@ -119,10 +118,15 @@ export default function DocumentsScreen() {
     setShowForm(false);
     setTipoDocumento("");
   };
+      useEffect(() => {
+        const loadUser = async () => {
+          try {
+            const token = await AsyncStorage.getItem("token");
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const token = await AsyncStorage.getItem("token");
+            if (!token) {
+              console.log("Token não encontrado");
+              return;
+            }
 
       if(token){
         try {
@@ -151,7 +155,6 @@ export default function DocumentsScreen() {
         onPressLeft={showForm ? handleCancelar : () => router.push('/home')}
         onPressRight={ (userRole === "sindico" || userRole === "administrador") && !showForm ? handleAddDocument : undefined}
       />
-
       <View style={styles.centerContainer}>
 
         {showForm && (userRole === "sindico" || userRole === "administrador") ? (

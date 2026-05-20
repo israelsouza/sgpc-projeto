@@ -6,23 +6,34 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.primaryDark,
+    backgroundColor: palette.offWhite,
   },
-
-  ContainerFundo: {
+  
+  centerContainer: {
     width: "95%",
-    height: "80%",
+    flex:1,
     backgroundColor: palette.offWhite,
     borderRadius: 10,
+    marginTop: -15,
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
+    paddingTop: 18,
+    alignSelf:"center",
+  },
+  
+  ContainerFundo: {
+  flex: 1,
+  width: "100%",
+  backgroundColor: palette.offWhite,
+  borderRadius: 10,
   },
 
   ContainerFundoContent: {
-    marginTop: 20,
-    alignItems: "stretch",
-    paddingHorizontal: 16,
-    paddingBottom: 24,
-    gap: 20,
-  },
+  marginTop: 20,
+  paddingHorizontal: 16,
+  paddingBottom: 24,
+  gap: 20,
+},
 
   ContainerTextData: {
     justifyContent: "center",
@@ -83,6 +94,7 @@ export const styles = StyleSheet.create({
     alignItems: "flex-end",
     justifyContent: "center",
     gap: 4,
+    minWidth: 80
   },
 
   TextData: {
@@ -149,7 +161,7 @@ export const styles = StyleSheet.create({
   },
 
   ModalBotaoExcluirConfirmando: {
-    backgroundColor: palette.accent,
+    backgroundColor: "#C0392B",    
     padding:15,
     gap:10
   },

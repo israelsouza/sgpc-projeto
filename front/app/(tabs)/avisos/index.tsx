@@ -1,45 +1,44 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StatusBar,
-  ActivityIndicator,
-  RefreshControl,
-} from "react-native";
+// app/(tabs)/avisos/index.tsx
+import React, { useState, useEffect, useMemo } from "react";
+import { View, Text, ScrollView, TouchableOpacity, StatusBar } from "react-native";
 import { Feather, Entypo } from "@expo/vector-icons";
 import { Header } from "@/components/Header";
-import { styles } from "@/screens/Avisos/avisos.styles";
+import { styles as staticStyles, createStyles } from "@/screens/Avisos/avisos.styles";
 import { colors } from "@/theme/colors";
+import { useTheme } from "@/contexts/ThemeContext";
 import * as SecureStore from "expo-secure-store";
-import { useAviso } from "@/hooks/useAviso";
-import { Aviso } from "@/services/avisoService";
+
+interface Aviso {
+  id: string;
+  titulo: string;
+  preview: string;
+  data: string;
+  hora: string;
+  novo: boolean;
+  anexos?: number;
+}
 
 import { useRouter } from "expo-router";
 
-function AvisoCard({ aviso }: { aviso: Aviso }) {
-  const router = useRouter();
-  const iconColor = aviso.is_recente ? colors.earthAccent : colors.textMuted;
-
-  // Formatação simples de data/hora
-  const dataObj = new Date(aviso.criado_em);
-  const dataFormatada = dataObj.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "2-digit",
-  });
-  const horaFormatada = dataObj.toLocaleTimeString("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
+// ── Card extraído como componente interno ──────────────────────────────────
+// Recebe o styles e as cores já resolvidos pela tela pai
+function AvisoCard({
+  aviso,
+  styles,
+  iconColor,
+}: {
+  aviso: Aviso;
+  styles: ReturnType<typeof createStyles>;
+  iconColor: string;
+}) {
   return (
     <TouchableOpacity
       activeOpacity={0.75}
       style={styles.card}
-      onPress={() => router.push(`/avisos/${aviso.id}`)}
+      accessibilityLabel={aviso.titulo}
+      accessibilityRole="button"
     >
+      {/* Ícone */}
       <View
         style={[
           styles.iconBox,
@@ -68,14 +67,16 @@ function AvisoCard({ aviso }: { aviso: Aviso }) {
           </View>
         </View>
 
-        <Text style={styles.cardPreview} numberOfLines={2}>
-          {aviso.descricao}
+        <Text style={styles.cardPreview} numberOfLines={1}>
+          {aviso.preview}
         </Text>
 
-        {aviso.anexo_url ? (
+        {aviso.anexos && aviso.anexos > 0 ? (
           <View style={styles.attachmentRow}>
-            <Feather name="paperclip" size={12} color={colors.textMuted} />
-            <Text style={styles.attachmentText}>Possui anexo</Text>
+            <Feather name="paperclip" size={12} color={styles.attachmentText.color as string} />
+            <Text style={styles.attachmentText}>
+              {aviso.anexos} {aviso.anexos === 1 ? "anexo" : "anexos"}
+            </Text>
           </View>
         ) : null}
       </View>
@@ -83,7 +84,16 @@ function AvisoCard({ aviso }: { aviso: Aviso }) {
   );
 }
 
+// ── Tela ───────────────────────────────────────────────────────────────────
 export default function AvisosScreen() {
+  const { colors: themeColors, isHighContrast } = useTheme();
+
+  // Normal: styles original / HC: styles dinâmico
+  const styles = useMemo(
+    () => (isHighContrast ? createStyles(themeColors) : staticStyles),
+    [isHighContrast, themeColors]
+  );
+
   const [userCondo, setUserCondo] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
@@ -130,10 +140,7 @@ export default function AvisosScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar
-        barStyle="light-content"
-        backgroundColor={colors.primaryDark}
-      />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primaryDark} />
 
       <Header
         title="Mural de avisos"
@@ -155,50 +162,23 @@ export default function AvisosScreen() {
             />
           }
         >
-          {avisos.length === 0 && loading ? (
-            <ActivityIndicator
-              size="large"
-              color={colors.primary}
-              style={{ marginTop: 20 }}
-            />
-          ) : avisos.length === 0 ? (
-            <View style={{ alignItems: "center", marginTop: 50 }}>
-              <Text style={{ color: colors.textMuted }}>
-                Nenhum aviso encontrado.
-              </Text>
-            </View>
-          ) : (
-            <>
-              {avisos.map((aviso) => <AvisoCard key={aviso.id} aviso={aviso} />)}
+          {avisos.map((aviso) => {
+            // Cor do ícone: HC usa amarelo / normal mantém lógica original
+            const iconColor = isHighContrast
+              ? themeColors.iconColorOverride
+              : aviso.novo
+              ? colors.earthAccent
+              : colors.textMuted;
 
-              {/* Controles de Paginação */}
-              {totalPages > 1 && (
-                <View style={styles.paginationContainer}>
-                  <TouchableOpacity
-                    style={[styles.pageButton, !hasPrevPage && styles.pageButtonDisabled]}
-                    onPress={prevPage}
-                    disabled={!hasPrevPage || loading}
-                  >
-                    <Feather name="chevron-left" size={16} color={colors.textLight} />
-                    <Text style={styles.pageText}>Anterior</Text>
-                  </TouchableOpacity>
-
-                  <Text style={styles.pageInfo}>
-                    Página {page + 1} de {totalPages}
-                  </Text>
-
-                  <TouchableOpacity
-                    style={[styles.pageButton, !hasNextPage && styles.pageButtonDisabled]}
-                    onPress={nextPage}
-                    disabled={!hasNextPage || loading}
-                  >
-                    <Text style={styles.pageText}>Próxima</Text>
-                    <Feather name="chevron-right" size={16} color={colors.textLight} />
-                  </TouchableOpacity>
-                </View>
-              )}
-            </>
-          )}
+            return (
+              <AvisoCard
+                key={aviso.id}
+                aviso={aviso}
+                styles={styles}
+                iconColor={iconColor}
+              />
+            );
+          })}
         </ScrollView>
       </View>
     </View>

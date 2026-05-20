@@ -105,7 +105,7 @@ export default function LoginScreen() {
         ) : (
           <>
             <Text style={styles.sheetTitle}>Validar Convite</Text>
-            <Text style={[styles.appSubtitle, { color: colors.text, marginBottom: 20 }]}>
+            <Text style={[styles.appSubtitle, { color: colors.textDark, marginBottom: 20 }]}>
               Insira a chave de acesso que você recebeu
             </Text>
 

@@ -1,13 +1,14 @@
+// src/screens/Historico/historico.styles.ts
 import { StyleSheet } from "react-native";
 import { colors } from "@/theme/colors";
+import type { ThemeColors } from "@/contexts/ThemeContext";
 
+// ── Styles estáticos — padrão original da tela ────────────────────────────
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.primaryDark,
   },
-
-  // ── Header ──
   header: {
     backgroundColor: colors.primaryDark,
     paddingHorizontal: 20,
@@ -26,9 +27,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  headerCenter: {
-    flex: 1,
-  },
+  headerCenter: { flex: 1 },
   headerTitle: {
     color: colors.textLight,
     fontSize: 17,
@@ -49,8 +48,6 @@ export const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
-
-  // ── Conteúdo ──
   contentWrapper: {
     flex: 1,
     backgroundColor: colors.sheetBg,
@@ -60,8 +57,6 @@ export const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
   },
-
-  // ── Card de item ──
   itemCard: {
     flexDirection: "row",
     alignItems: "center",
@@ -73,11 +68,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.earthAccent,
   },
-
-  // ── Ícone com badge opcional ──
-  iconWrapper: {
-    position: "relative",
-  },
+  iconWrapper: { position: "relative" },
   iconBox: {
     width: 48,
     height: 48,
@@ -103,11 +94,7 @@ export const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: "800",
   },
-
-  // ── Texto do item ──
-  itemContent: {
-    flex: 1,
-  },
+  itemContent: { flex: 1 },
   itemTitle: {
     color: colors.textDark,
     fontSize: 14,
@@ -119,8 +106,6 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 16,
   },
-
-  // ── Data/hora ──
   itemMeta: {
     alignItems: "flex-end",
     gap: 2,
@@ -133,8 +118,6 @@ export const styles = StyleSheet.create({
     color: colors.textSubtle,
     fontSize: 11,
   },
-
-  // ── Bottom nav (reaproveitado do home.styles) ──
   bottomNav: {
     flexDirection: "row",
     backgroundColor: colors.textLight,
@@ -150,3 +133,135 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
 });
+
+// ── Styles dinâmicos — ativados apenas no alto contraste ──────────────────
+export const createStyles = (c: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: c.background,
+    },
+    header: {
+      backgroundColor: c.background,
+      paddingHorizontal: 20,
+      paddingTop: 52,
+      paddingBottom: 36,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+      overflow: "visible",
+    },
+    backButton: {
+      width: 36,
+      height: 36,
+      borderRadius: 10,
+      backgroundColor: "rgba(255,255,255,0.15)",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    headerCenter: { flex: 1 },
+    headerTitle: {
+      color: c.text,
+      fontSize: 17,
+      fontWeight: "700",
+    },
+    headerSubtitle: {
+      color: c.textMuted,
+      fontSize: 13,
+      marginTop: 2,
+    },
+    headerCurve: {
+      position: "absolute",
+      left: 20,
+      right: 20,
+      bottom: -1,
+      height: 16,
+      backgroundColor: c.surface,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+    },
+    contentWrapper: {
+      flex: 1,
+      backgroundColor: c.surface,
+      paddingTop: 16,
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: 16,
+    },
+    itemCard: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: c.card,
+      borderRadius: 14,
+      padding: 14,
+      marginBottom: 12,
+      gap: 14,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    iconWrapper: { position: "relative" },
+    iconBox: {
+      width: 48,
+      height: 48,
+      borderRadius: 14,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    badge: {
+      position: "absolute",
+      top: -5,
+      right: -5,
+      width: 18,
+      height: 18,
+      borderRadius: 9,
+      backgroundColor: "#FFD700",
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 1.5,
+      borderColor: c.background,
+    },
+    badgeText: {
+      color: c.background,
+      fontSize: 9,
+      fontWeight: "800",
+    },
+    itemContent: { flex: 1 },
+    itemTitle: {
+      color: c.text,
+      fontSize: 14,
+      fontWeight: "700",
+      marginBottom: 3,
+    },
+    itemSubtitle: {
+      color: c.textMuted,
+      fontSize: 12,
+      lineHeight: 16,
+    },
+    itemMeta: {
+      alignItems: "flex-end",
+      gap: 2,
+    },
+    itemDate: {
+      color: c.textMuted,
+      fontSize: 11,
+    },
+    itemTime: {
+      color: c.textMuted,
+      fontSize: 11,
+    },
+    bottomNav: {
+      flexDirection: "row",
+      backgroundColor: c.card,
+      paddingHorizontal: 24,
+      paddingVertical: 12,
+      justifyContent: "space-between",
+      borderTopColor: c.border,
+      borderTopWidth: 1,
+    },
+    navItem: {
+      alignItems: "center",
+      justifyContent: "center",
+      flex: 1,
+    },
+  });
