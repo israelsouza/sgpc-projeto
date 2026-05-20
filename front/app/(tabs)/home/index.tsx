@@ -38,7 +38,7 @@ const menuItems: MenuItem[] = [
     icon: { name: "users", library: "Feather" },
     iconBg: "#D6E8F7",
     iconColor: "#5B9BC4",
-    route: "/cadastrados",
+    route: "/moradores",
   },
   {
     id: "convidar",

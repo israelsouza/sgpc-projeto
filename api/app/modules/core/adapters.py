@@ -151,3 +151,40 @@ class FcmPushAdapter(PushServiceInterface):
         except Exception as e:
             logger.error("push_send_failed", topic=topic, error=str(e))
             return False
+
+    async def send_direct_push(
+        self, token: str, title: str, body: str, data: dict | None = None
+    ) -> bool:
+        try:
+            message = messaging.Message(
+                notification=messaging.Notification(
+                    title=title,
+                    body=body,
+                ),
+                data=data or {},
+                token=token,
+                android=messaging.AndroidConfig(
+                    priority="high",
+                    notification=messaging.AndroidNotification(
+                        channel_id="sgpc_notificacoes_diretas",
+                        sound="default",
+                    ),
+                ),
+                apns=messaging.APNSConfig(
+                    payload=messaging.APNSPayload(
+                        aps=messaging.Aps(
+                            sound="default",
+                            content_available=True,
+                        )
+                    ),
+                    headers={"apns-priority": "10"},
+                ),
+            )
+            response = messaging.send(message)
+            logger.info(
+                "direct_push_sent_successfully", token="<redacted>", message_id=response
+            )
+            return True
+        except Exception as e:
+            logger.error("direct_push_send_failed", token="<redacted>", error=str(e))
+            return False

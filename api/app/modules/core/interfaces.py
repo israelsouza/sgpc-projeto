@@ -44,3 +44,12 @@ class PushServiceInterface(ABC):
         Envia uma notificação push para um tópico específico (ex: condominio_id).
         """
         pass
+
+    @abstractmethod
+    async def send_direct_push(
+        self, token: str, title: str, body: str, data: dict | None = None
+    ) -> bool:
+        """
+        Envia uma notificação push para um token de dispositivo específico.
+        """
+        pass
