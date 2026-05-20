@@ -1,5 +1,5 @@
-import io
 import base64
+import io
 
 import cloudinary
 import cloudinary.uploader
@@ -63,7 +63,7 @@ class CloudinaryAdapter(StorageServiceInterface):
         """
         try:
             # Encode bytes to base64 data URI to ensure correct upload
-            file_base64 = base64.b64encode(file_bytes).decode('utf-8')
+            file_base64 = base64.b64encode(file_bytes).decode("utf-8")
             file_data_uri = f"data:application/pdf;base64,{file_base64}"
 
             # Combinamos folder e filename para evitar ambiguidades no public_id
@@ -101,7 +101,8 @@ class CloudinaryAdapter(StorageServiceInterface):
             # Para recursos 'raw', o Cloudinary costuma dar 404 se a versão (/v12345678/) estiver presente.
             # Removemos a versão da URL para garantir a compatibilidade.
             import re
-            url = re.sub(r'/v\d+/', '/', url)
+
+            url = re.sub(r"/v\d+/", "/", url)
 
             return url
         except Exception as e:

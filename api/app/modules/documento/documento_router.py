@@ -2,12 +2,12 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, Request, UploadFile
 
+from app.modules.core.security import ForbiddenError, get_current_user
 from app.modules.documento.documento_controller import (
     DocumentoController,
     get_documento_service,
 )
 from app.modules.documento.documento_service import DocumentoService
-from app.modules.core.security import get_current_user, ForbiddenError
 from prisma import models
 
 router = APIRouter(prefix="/documentos", tags=["Documentos"])
@@ -24,7 +24,9 @@ def obter_condominio_id(usuario: models.Usuario) -> int:
 def verificar_permissao_escrita(usuario: models.Usuario):
     roles = [p.nome for p in usuario.perfis]
     if "SINDICO" not in roles and "ADMIN" not in roles:
-        raise ForbiddenError(mensagem="Acesso negado: Apenas síndicos ou administradores podem realizar esta ação.")
+        raise ForbiddenError(
+            mensagem="Acesso negado: Apenas síndicos ou administradores podem realizar esta ação."
+        )
 
 
 @router.post("")
@@ -39,7 +41,7 @@ async def criar_documento(
 ):
     verificar_permissao_escrita(usuario)
     condominio_id = obter_condominio_id(usuario)
-    
+
     return await DocumentoController.criar_documento(
         request=request,
         titulo=titulo,
@@ -110,7 +112,7 @@ async def deletar_documento(
 ):
     verificar_permissao_escrita(usuario)
     condominio_id = obter_condominio_id(usuario)
-    
+
     return await DocumentoController.deletar_documento(
         request=request,
         documento_id=documento_id,

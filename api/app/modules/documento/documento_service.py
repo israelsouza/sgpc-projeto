@@ -64,7 +64,7 @@ class DocumentoService:
         # 5. Comprimir e Upload
         pdf_comprimido = self.pdf_service.compress_pdf(arquivo_pdf)
         folder = f"condominio_{condominio_id}/documentos"
-        
+
         # Gerar ID com extensão para garantir consistência no Cloudinary 'raw'
         file_id_base = f"doc_{datetime.now().timestamp()}"
         file_id_full = f"{file_id_base}.pdf"
@@ -149,6 +149,7 @@ class DocumentoService:
         return self.storage_service.generate_signed_url(
             documento.file_id,
             expires_in=900,
+            params={"flags": "attachment"},
         )
 
     async def deletar_documento(
