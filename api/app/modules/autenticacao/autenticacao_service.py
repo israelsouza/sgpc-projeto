@@ -73,6 +73,7 @@ class AutenticacaoService:
         # Extração de dados de perfil para o app mobile
         nome_exibicao = "Usuário"
         condominio_nome = "Condomínio"
+        condominio_id = 0
         unidade_nome = ""
 
         if usuario.morador:
@@ -86,10 +87,12 @@ class AutenticacaoService:
                 unidade_nome = f"{bloco}Unid. {usuario.morador.unidade.unidade}"
                 if usuario.morador.unidade.condominio:
                     condominio_nome = usuario.morador.unidade.condominio.nome
+                    condominio_id = usuario.morador.unidade.condominio.id
         elif usuario.funcionario:
             nome_exibicao = usuario.funcionario.nome_completo
             if usuario.funcionario.condominio:
                 condominio_nome = usuario.funcionario.condominio.nome
+                condominio_id = usuario.funcionario.condominio.id
 
         access_token = create_access_token(
             data={
@@ -108,6 +111,7 @@ class AutenticacaoService:
             "perfil": roles[0] if roles else "N/A",
             "nome": nome_exibicao,
             "condominio": condominio_nome,
+            "condominio_id": condominio_id,
             "unidade": unidade_nome,
         }
 

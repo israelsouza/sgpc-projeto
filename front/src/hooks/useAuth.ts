@@ -4,10 +4,12 @@ import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { AuthService } from '@/services/authService';
 import { IRegisterForm } from '@/types';
+// import { useNotifications } from './useNotifications';
 
 export function useAuth() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  // const { syncToken } = useNotifications();
 
   const handleLogin = async (dados: { email: string; senha: string }) => {
     if (!dados.email || !dados.senha) {
@@ -24,11 +26,19 @@ export function useAuth() {
       await SecureStore.setItemAsync('user_perfil', String(authData.perfil || ""));
       await SecureStore.setItemAsync('user_nome', String(authData.nome || ""));
       await SecureStore.setItemAsync('user_condominio', String(authData.condominio || ""));
+      await SecureStore.setItemAsync('user_condominio_id', String(authData.condominio_id || ""));
       await SecureStore.setItemAsync('user_unidade', String(authData.unidade || ""));
 
-      // TODO: Redirecionar para a Home após o login
+      // Tenta sincronizar o Token FCM para notificações.
+      // A falha aqui não deve impedir o login.
+      // try {
+      //   await syncToken();
+      // } catch (notificationError) {
+      //   console.error("Falha ao sincronizar o token de notificação, mas o login continuará:", notificationError);
+      // }
+
       Alert.alert("Sucesso", "Login realizado com sucesso!", [
-        { text: "OK", onPress: () => router.replace("/home") }
+        { text: "OK", onPress: () => router.replace("/(tabs)/home") }
       ]);
     } catch (error: any) {
       const msg = error.response?.data?.mensagem || "E-mail ou senha incorretos";
@@ -94,10 +104,20 @@ export function useAuth() {
     }
   };
 
+  const checkPermission = async (allowedProfiles: string[]) => {
+    try {
+      const userProfile = await SecureStore.getItemAsync('user_perfil');
+      return userProfile ? allowedProfiles.includes(userProfile) : false;
+    } catch {
+      return false;
+    }
+  };
+
   return { 
     loading,
     handleLogin,
     handleValidateKey,
     handleRegistration,
+    checkPermission,
   };
 }

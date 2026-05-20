@@ -32,3 +32,11 @@ class MoradorModel:
         return await db.morador.update(
             where={"id": morador_id}, data={"status": status}
         )
+
+    @staticmethod
+    async def listar_por_unidade(unidade_id: int, db: Prisma):
+        """Lista moradores de uma unidade específica."""
+        return await db.morador.find_many(
+            where={"unidade_id": unidade_id, "deletado_em": None},
+            order={"nome_completo": "asc"},
+        )

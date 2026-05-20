@@ -4,13 +4,14 @@ import {
   ScrollView,
   StatusBar,
   TouchableOpacity,
-  Image,
 } from "react-native";
 import { colors } from "@/theme/colors";
-import { styles } from "@/screens/Perfil/perfil.styles";
+import { styles as staticStyles, createStyles } from "@/screens/Perfil/perfil.styles";
 import { BottomNav } from "@/components/BottomNav";
 import { Header } from "@/components/Header";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useMemo } from "react";
 import type { ComponentType } from "react";
 
 // ── Props da tela ──────────────────────────
@@ -18,7 +19,6 @@ interface PerfilScreenProps {
   name?: string;
   email?: string;
   phone?: string;
-  avatarUri?: string;
 }
 
 // ── Dados dos cards de resumo ──────────────────────────
@@ -76,6 +76,13 @@ export default function PerfilScreen({
   email = "joao.silva@gmail.com",
   phone = "11 91234-1234",
 }: PerfilScreenProps) {
+  const { colors: themeColors, isHighContrast } = useTheme();
+
+  // Normal: styles estático original / HC: styles dinâmico
+  const styles = useMemo(
+    () => (isHighContrast ? createStyles(themeColors) : staticStyles),
+    [isHighContrast, themeColors]
+  );
 
   const profileIcon = (
     <Feather name="user" size={32} color={colors.textLight} />
@@ -117,6 +124,11 @@ export default function PerfilScreen({
                 item.library === "Feather" ? Feather : MaterialCommunityIcons
               ) as ComponentType<{ name: string; size: number; color: string }>;
 
+              // Cor do ícone: usa override no HC, marrom padrão no normal
+              const iconColor = isHighContrast
+                ? themeColors.iconColorOverride
+                : colors.earthBrown;
+
               return (
                 <TouchableOpacity
                   key={item.id}
@@ -127,11 +139,11 @@ export default function PerfilScreen({
                     <IconComponent
                       name={item.icon}
                       size={20}
-                      color={colors.earthBrown}
+                      color={iconColor}
                     />
                   </View>
                   <Text style={styles.menuItemTitle}>{item.title}</Text>
-                  <Feather name="chevron-down" size={18} color={colors.earthBrown} />
+                  <Feather name="chevron-down" size={18} color={iconColor} />
                 </TouchableOpacity>
               );
             })}

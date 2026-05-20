@@ -1,14 +1,16 @@
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { styles } from "@/screens/Home/home.styles";
 import { ReactNode } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
 interface HeaderProps {
   title?: string;
   subtitle?: string;
   initials?: string;
-  /** Se fornecido, substitui as iniciais pelo ícone */
   icon?: ReactNode;
+  showBackButton?: boolean;
 }
 
 export function Header({
@@ -16,26 +18,32 @@ export function Header({
   subtitle,
   initials,
   icon,
+  showBackButton = false,
 }: HeaderProps) {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   return (
     <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) + 16 }]}>
       <View style={styles.headerLeft}>
-        <View style={styles.avatar}>
-          {icon ? (
-            icon
-          ) : (
-            <Text style={styles.avatarText}>{initials}</Text>
-          )}
-        </View>
+        {showBackButton ? (
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="#FFF" />
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.avatar}>
+            {icon ? (
+              icon
+            ) : (
+              <Text style={styles.avatarText}>{initials}</Text>
+            )}
+          </View>
+        )}
         <View>
           <Text style={styles.headerTitle}>{title}</Text>
           <Text style={styles.headerSubtitle}>{subtitle}</Text>
         </View>
       </View>
-
-      <View style={styles.headerCurve} />
     </View>
   );
 }

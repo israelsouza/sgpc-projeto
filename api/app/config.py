@@ -18,6 +18,18 @@ class Settings(BaseSettings):
     MAIL_SSL_TLS: bool = False
     MAIL_FROM_NAME: str = "SGPC"
 
+    # Cloudinary
+    CLOUDINARY_CLOUD_NAME: str = ""
+    CLOUDINARY_API_KEY: str = ""
+    CLOUDINARY_API_SECRET: str = ""
+
+    # Firebase
+    FIREBASE_PROJECT_ID: str = ""
+    FIREBASE_SERVICE_ACCOUNT_PATH: str = "dev-sgpc-firebase-service-account.json"
+
+    # URL base para links externos (ex: convites)
+    BASE_URL: str = "http://localhost:8000"
+
     @model_validator(mode="after")
     def validate_email_credentials(self):
         # Em produção, ou quando o ambiente não for "development", obriga credenciais de e-mail válidas

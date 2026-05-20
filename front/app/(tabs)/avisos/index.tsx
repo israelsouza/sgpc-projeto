@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
+// app/(tabs)/avisos/index.tsx
+import React, { useState, useEffect, useMemo } from "react";
 import { View, Text, ScrollView, TouchableOpacity, StatusBar } from "react-native";
 import { Feather, Entypo } from "@expo/vector-icons";
 import { Header } from "@/components/Header";
-import { BottomNav } from "@/components/BottomNav";
-import { styles } from "@/screens/Avisos/avisos.styles";
+import { styles as staticStyles, createStyles } from "@/screens/Avisos/avisos.styles";
 import { colors } from "@/theme/colors";
-import * as SecureStore from 'expo-secure-store';
+import { useTheme } from "@/contexts/ThemeContext";
+import * as SecureStore from "expo-secure-store";
 
 interface Aviso {
   id: string;
@@ -17,75 +18,43 @@ interface Aviso {
   anexos?: number;
 }
 
-const avisos: Aviso[] = [
-  {
-    id: "1",
-    titulo: "Aviso de manutenção preventiva",
-    preview: "Conforme combinado na ...",
-    data: "15/03/25",
-    hora: "14:50",
-    novo: true,
-    anexos: 1,
-  },
-  {
-    id: "2",
-    titulo: "Ata da assembleia 205",
-    preview: "Os assuntos e decisões que...",
-    data: "15/03/25",
-    hora: "14:50",
-    novo: true,
-    anexos: 1,
-  },
-  {
-    id: "3",
-    titulo: "Lorem Ipsum is simply dummy",
-    preview: "Lorem ipsum is simply dummy text...",
-    data: "15/03/25",
-    hora: "14:50",
-    novo: false,
-  },
-  {
-    id: "4",
-    titulo: "Lorem Ipsum is simply dummy",
-    preview: "Lorem ipsum is simply dummy text...",
-    data: "15/03/25",
-    hora: "14:50",
-    novo: false,
-  },
-  {
-    id: "5",
-    titulo: "Lorem Ipsum is simply dummy",
-    preview: "Lorem ipsum is simply dummy text...",
-    data: "15/03/25",
-    hora: "14:50",
-    novo: false,
-  },
-];
+import { useRouter } from "expo-router";
 
-function AvisoCard({ aviso }: { aviso: Aviso }) {
-  const iconColor = aviso.novo ? colors.earthAccent : colors.textMuted;
-
+// ── Card extraído como componente interno ──────────────────────────────────
+// Recebe o styles e as cores já resolvidos pela tela pai
+function AvisoCard({
+  aviso,
+  styles,
+  iconColor,
+}: {
+  aviso: Aviso;
+  styles: ReturnType<typeof createStyles>;
+  iconColor: string;
+}) {
   return (
-    <TouchableOpacity activeOpacity={0.75} style={styles.card}>
+    <TouchableOpacity
+      activeOpacity={0.75}
+      style={styles.card}
+      accessibilityLabel={aviso.titulo}
+      accessibilityRole="button"
+    >
       {/* Ícone */}
       <View
         style={[
           styles.iconBox,
-          aviso.novo ? styles.iconBoxActive : styles.iconBoxInactive,
+          aviso.is_recente ? styles.iconBoxActive : styles.iconBoxInactive,
         ]}
       >
         <Entypo name="megaphone" size={22} color={iconColor} />
       </View>
 
-      {/* Corpo */}
       <View style={styles.cardBody}>
-        {/* Título + badge + data na mesma linha */}
         <View style={styles.cardHeader}>
           <View style={styles.cardTitleRow}>
             <Text style={styles.cardTitle} numberOfLines={2}>
               {aviso.titulo}
             </Text>
-            {aviso.novo && (
+            {aviso.is_recente && (
               <View style={styles.badgeNovo}>
                 <Text style={styles.badgeNovoText}>novo</Text>
               </View>
@@ -93,20 +62,18 @@ function AvisoCard({ aviso }: { aviso: Aviso }) {
           </View>
 
           <View style={styles.dateBlock}>
-            <Text style={styles.dateText}>{aviso.data}</Text>
-            <Text style={styles.dateText}>{aviso.hora}</Text>
+            <Text style={styles.dateText}>{dataFormatada}</Text>
+            <Text style={styles.dateText}>{horaFormatada}</Text>
           </View>
         </View>
 
-        {/* Preview */}
         <Text style={styles.cardPreview} numberOfLines={1}>
           {aviso.preview}
         </Text>
 
-        {/* Anexo */}
         {aviso.anexos && aviso.anexos > 0 ? (
           <View style={styles.attachmentRow}>
-            <Feather name="paperclip" size={12} color={colors.textMuted} />
+            <Feather name="paperclip" size={12} color={styles.attachmentText.color as string} />
             <Text style={styles.attachmentText}>
               {aviso.anexos} {aviso.anexos === 1 ? "anexo" : "anexos"}
             </Text>
@@ -117,13 +84,42 @@ function AvisoCard({ aviso }: { aviso: Aviso }) {
   );
 }
 
+// ── Tela ───────────────────────────────────────────────────────────────────
 export default function AvisosScreen() {
+  const { colors: themeColors, isHighContrast } = useTheme();
+
+  // Normal: styles original / HC: styles dinâmico
+  const styles = useMemo(
+    () => (isHighContrast ? createStyles(themeColors) : staticStyles),
+    [isHighContrast, themeColors]
+  );
+
   const [userCondo, setUserCondo] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
+  const { 
+    avisos, 
+    loading, 
+    refresh, 
+    page, 
+    totalPages, 
+    hasNextPage, 
+    hasPrevPage, 
+    nextPage, 
+    prevPage 
+  } = useAviso();
+
+  // Efeito para subir ao topo quando a página mudar
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ y: 0, animated: true });
+    }
+  }, [page]);
 
   useEffect(() => {
     async function loadUserData() {
       try {
-        const condo = await SecureStore.getItemAsync("userCondo");
+        const condo = await SecureStore.getItemAsync("user_condominio");
         if (condo) setUserCondo(condo);
       } catch (error) {
         console.error("Erro ao carregar condomínio do usuário:", error);
@@ -132,6 +128,12 @@ export default function AvisosScreen() {
     loadUserData();
   }, []);
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await refresh();
+    setIsRefreshing(false);
+  };
+
   const megaphoneIcon = (
     <Entypo name="megaphone" size={24} color={colors.textLight} />
   );
@@ -139,7 +141,7 @@ export default function AvisosScreen() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.primaryDark} />
-      
+
       <Header
         title="Mural de avisos"
         subtitle={userCondo || "Condomínio"}
@@ -148,15 +150,35 @@ export default function AvisosScreen() {
 
       <View style={styles.contentWrapper}>
         <ScrollView
+          ref={scrollRef}
           style={styles.content}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.list}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              colors={[colors.primary]}
+            />
+          }
         >
-          {/* <Text style={styles.sectionTitle}>Mural de avisos</Text> */}
+          {avisos.map((aviso) => {
+            // Cor do ícone: HC usa amarelo / normal mantém lógica original
+            const iconColor = isHighContrast
+              ? themeColors.iconColorOverride
+              : aviso.novo
+              ? colors.earthAccent
+              : colors.textMuted;
 
-          {avisos.map((aviso) => (
-            <AvisoCard key={aviso.id} aviso={aviso} />
-          ))}
+            return (
+              <AvisoCard
+                key={aviso.id}
+                aviso={aviso}
+                styles={styles}
+                iconColor={iconColor}
+              />
+            );
+          })}
         </ScrollView>
       </View>
     </View>
