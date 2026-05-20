@@ -12,7 +12,7 @@ export function useDocumentos() {
     setLoading(true);
     try {
       const response = await DocumentoService.listar(categoria, limit, offset);
-      setDocumentos(response.items);
+      setDocumentos(response.items || []);
     } catch (error: any) {
       const msg = error.response?.data?.mensagem || 'Erro ao buscar documentos';
       Alert.alert('Erro', msg);
