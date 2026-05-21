@@ -147,7 +147,6 @@ export const styles = StyleSheet.create({
     fontWeight: "500",
   },
 });
-});
 
 // ── Styles dinâmicos — ativados apenas no alto contraste ──────────────────
 export const createStyles = (c: ThemeColors) =>

@@ -120,28 +120,25 @@ export default function DocumentsScreen() {
     setShowForm(false);
     setTipoDocumento("");
   };
-      useEffect(() => {
+
+      (useEffect(() => {
         const loadUser = async () => {
           try {
             const token = await AsyncStorage.getItem("token");
-
             if (!token) {
               console.log("Token não encontrado");
               return;
             }
-
-      if(token){
-        try {
-          const decoded: any = jwtDecode(token);
-          setUserRole(decoded.role?.toLowerCase());
-        } catch (e) {
-          console.error("Erro ao decodificar token", e);
-        }
-      }
-    };
-    loadUser();
-    fetchDocumentos();
-  }, [fetchDocumentos]);
+            const decoded: any = jwtDecode(token);
+            setUserRole(decoded.role?.toLowerCase());
+          } catch (e) {
+            console.error("Erro ao decodificar token", e);
+          }
+        };
+        loadUser();
+        fetchDocumentos();
+      }),
+        [fetchDocumentos]);
 
   return (
     <View style={styles.container}>

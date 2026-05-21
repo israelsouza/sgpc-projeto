@@ -7,7 +7,6 @@ import { jwtDecode } from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
-import  BottomNav  from "@/components/BottomNav";
 import { BlurView } from "expo-blur";
 import { palette } from "@/theme/colors";
 
@@ -484,7 +483,6 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
       </BlurView>
     </Modal> */}
     
-    <BottomNav/>
     </View>
   );
 }
