@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Feather } from "@expo/vector-icons";
-import { BottomNav } from "@/components/BottomNav";
 import { colors } from "@/theme/colors";
 import { styles } from "../../src/screens/Entregas/Entregas.styles";
 
@@ -268,7 +267,6 @@ export default function ResumoEntregaScreen() {
       </Modal>
 
       {/* ── Bottom Nav ── */}
-      <BottomNav activeIndex={-1} />
     </SafeAreaView>
   );
 }

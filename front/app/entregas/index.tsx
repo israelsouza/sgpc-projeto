@@ -3,7 +3,6 @@ import { View, Text, TouchableOpacity, StatusBar, ScrollView, TextInput } from "
 import { Feather, MaterialIcons, Ionicons } from "@expo/vector-icons";
 
 import { styles } from "@/screens/Nova_Entrega/nova_entrega.styles";
-import { BottomNav } from "@/components/BottomNav";
 import { router } from "expo-router";
 
 export default function NewDeliveryScreen() {
@@ -83,7 +82,6 @@ export default function NewDeliveryScreen() {
         </View>
       </ScrollView>
 
-     <BottomNav />
 
 
     </View>

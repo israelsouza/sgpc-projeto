@@ -7,7 +7,6 @@ import {
 } from "react-native";
 import { colors } from "@/theme/colors";
 import { styles as staticStyles, createStyles } from "@/screens/Perfil/perfil.styles";
-import { BottomNav } from "@/components/BottomNav";
 import { Header } from "@/components/Header";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "@/contexts/ThemeContext";
