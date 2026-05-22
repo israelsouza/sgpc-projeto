@@ -1,6 +1,6 @@
 generator client {
-  provider = "prisma-client-py"
-  interface = "asyncio"
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
   recursive_type_depth = 5
 }
 
@@ -16,54 +16,54 @@ enum TipoCondominio {
 }
 
 model Condominio {
-  id                Int       @id @default(autoincrement())
-  nome              String    @map("nome")
-  tipoCond          TipoCondominio @default(PREDIO)
-  cnpj              String?   @unique @map("cnpj")
-  endereco          String?   @map("endereco")
-  
+  id       Int            @id @default(autoincrement())
+  nome     String         @map("nome")
+  tipoCond TipoCondominio @default(PREDIO)
+  cnpj     String?        @unique @map("cnpj")
+  endereco String?        @map("endereco")
+
   // Auditoria e Soft Delete
-  criado_em         DateTime  @default(now()) @map("criado_em")
-  atualizado_em     DateTime  @updatedAt @map("atualizado_em")
-  deletado_em       DateTime? @map("deletado_em")
-  quem_criou        Int?      @map("quem_criou")
+  criado_em     DateTime  @default(now()) @map("criado_em")
+  atualizado_em DateTime  @updatedAt @map("atualizado_em")
+  deletado_em   DateTime? @map("deletado_em")
+  quem_criou    Int?      @map("quem_criou")
 
   // Relacionamentos
-  unidades          Unidade[]
-  funcionarios      Funcionario[]
-  chaves_acesso     ChaveAcesso[]
-  avisos            Aviso[]
-  documentos        Documento[]
+  unidades      Unidade[]
+  funcionarios  Funcionario[]
+  chaves_acesso ChaveAcesso[]
+  avisos        Aviso[]
+  documentos    Documento[]
 
   @@map("CONDOMINIOS")
 }
 
 model Unidade {
-  id                Int       @id @default(autoincrement())
-  unidade           String    @unique @map("unidade")
-  bloco             String?   @map("bloco")
-  andar             Int?      @map("andar")
+  id      Int     @id @default(autoincrement())
+  unidade String  @unique @map("unidade")
+  bloco   String? @map("bloco")
+  andar   Int?    @map("andar")
 
   // FKs
-  condominio_id     Int       @map("condominio_id")
-  
+  condominio_id Int @map("condominio_id")
+
   // Auditoria e Soft Delete
-  criado_em         DateTime  @default(now()) @map("criado_em")
-  atualizado_em     DateTime  @updatedAt @map("atualizado_em")
-  deletado_em       DateTime? @map("deletado_em")
-  quem_criou        Int?      @map("quem_criou")
+  criado_em     DateTime  @default(now()) @map("criado_em")
+  atualizado_em DateTime  @updatedAt @map("atualizado_em")
+  deletado_em   DateTime? @map("deletado_em")
+  quem_criou    Int?      @map("quem_criou")
 
   // Relacionamentos
-  condominio        Condominio @relation(fields: [condominio_id], references: [id])
-  moradores         Morador[]
-  chaves_acesso     ChaveAcesso[]
+  condominio    Condominio    @relation(fields: [condominio_id], references: [id])
+  moradores     Morador[]
+  chaves_acesso ChaveAcesso[]
 
   @@map("UNIDADES")
 }
 
 model Perfil {
-  id    Int    @id @default(autoincrement())
-  nome  String @unique @map("nome")
+  id   Int    @id @default(autoincrement())
+  nome String @unique @map("nome")
 
   // Relacionamentos
   usuarios      Usuario[]
@@ -74,31 +74,31 @@ model Perfil {
 }
 
 model Permissao {
-  id        Int       @id @default(autoincrement())
-  nome      String    @unique @map("nome")
-  descricao String?   @map("descricao")
+  id        Int     @id @default(autoincrement())
+  nome      String  @unique @map("nome")
+  descricao String? @map("descricao")
 
   // Relacionamentos
-  perfis    Perfil[]
+  perfis Perfil[]
 
   @@map("PERMISSOES")
 }
 
 model Usuario {
-  id             Int       @id @default(autoincrement())
-  email          String    @unique @map("email")
-  senha          String    @map("senha")
-  status         String    @default("ATIVO") @map("status")
+  id     Int    @id @default(autoincrement())
+  email  String @unique @map("email")
+  senha  String @map("senha")
+  status String @default("ATIVO") @map("status")
 
   // Auditoria e Soft Delete
-  criado_em      DateTime  @default(now()) @map("criado_em")
-  atualizado_em  DateTime  @updatedAt @map("atualizado_em")
-  deletado_em    DateTime? @map("deletado_em")
+  criado_em     DateTime  @default(now()) @map("criado_em")
+  atualizado_em DateTime  @updatedAt @map("atualizado_em")
+  deletado_em   DateTime? @map("deletado_em")
 
   // Relacionamentos
-  perfis         Perfil[]
-  morador        Morador?
-  funcionario    Funcionario?
+  perfis             Perfil[]
+  morador            Morador?
+  funcionario        Funcionario?
   recuperacoes_senha RecuperacaoSenha[]
   fcm_tokens         FCMToken[]
   documentos_criados Documento[]
@@ -186,24 +186,24 @@ model FCMToken {
 }
 
 model RecuperacaoSenha {
-  id          Int      @id @default(autoincrement())
-  usuario_id  Int      @map("usuario_id")
-  codigo      String   @map("codigo")
-  expira_em   DateTime @map("expira_em")
-  usada       Boolean  @default(false) @map("usada")
-  criado_em   DateTime @default(now()) @map("criado_em")
+  id         Int      @id @default(autoincrement())
+  usuario_id Int      @map("usuario_id")
+  codigo     String   @map("codigo")
+  expira_em  DateTime @map("expira_em")
+  usada      Boolean  @default(false) @map("usada")
+  criado_em  DateTime @default(now()) @map("criado_em")
 
-  usuario     Usuario  @relation(fields: [usuario_id], references: [id])
+  usuario Usuario @relation(fields: [usuario_id], references: [id])
 
   @@map("RECUPERACOES_SENHA")
 }
 
 model Convite {
-  id              Int      @id @default(autoincrement())
-  token           String   @unique @map("token")
-  morador_id      Int      @map("morador_id")
-  data_expiracao  DateTime @map("data_expiracao")
-  status          String   @default("PENDENTE") @map("status") // PENDENTE, UTILIZADO, EXPIRADO
+  id             Int      @id @default(autoincrement())
+  token          String   @unique @map("token")
+  morador_id     Int      @map("morador_id")
+  data_expiracao DateTime @map("data_expiracao")
+  status         String   @default("PENDENTE") @map("status") // PENDENTE, UTILIZADO, EXPIRADO
 
   // Relacionamentos
   morador Morador @relation(fields: [morador_id], references: [id])
@@ -215,11 +215,11 @@ model Convite {
 }
 
 model Visitante {
-  id              Int     @id @default(autoincrement())
-  nome_completo   String  @map("nome_completo")
-  documento       String  @map("documento")
-  celular         String  @map("celular")
-  morador_id      Int     @map("morador_id")
+  id            Int    @id @default(autoincrement())
+  nome_completo String @map("nome_completo")
+  documento     String @map("documento")
+  celular       String @map("celular")
+  morador_id    Int    @map("morador_id")
 
   // Relacionamentos
   morador Morador @relation("MoradorVisitantes", fields: [morador_id], references: [id])
@@ -250,10 +250,11 @@ model Morador {
   unidade_id Int? @map("unidade_id")
 
   // Relacionamentos
-  usuario Usuario? @relation(fields: [usuario_id], references: [id])
-  unidade Unidade? @relation(fields: [unidade_id], references: [id])
-  convites Convite[]
+  usuario    Usuario?    @relation(fields: [usuario_id], references: [id])
+  unidade    Unidade?    @relation(fields: [unidade_id], references: [id])
+  convites   Convite[]
   visitantes Visitante[] @relation("MoradorVisitantes")
+  entregas   Entrega[]
 
   @@map("MORADORES")
 }
@@ -307,4 +308,37 @@ model ChaveAcesso {
   quem_criou    Int?     @map("quem_criou")
 
   @@map("CHAVES_ACESSO")
+}
+
+enum StatusEntrega {
+  AGUARDANDO
+  RECEBIDA
+  RETIRADA
+  CANCELADA
+}
+
+enum CategoriaEntrega {
+  CARTA
+  PACOTE
+}
+
+model Entrega {
+  id                         Int              @id @default(autoincrement())
+  morador_id                 Int              @map("morador_id")
+  tipo                       CategoriaEntrega @map("tipo")
+  status                     StatusEntrega    @default(AGUARDANDO) @map("status")
+  prazo_retirada             DateTime         @map("prazo_retirada")
+  mensagem                   String?          @map("mensagem")
+  observacao_porteiro        String?          @map("observacao_porteiro")
+  justificativa_cancelamento String?          @map("justificativa_cancelamento")
+
+  criado_em     DateTime  @default(now()) @map("criado_em")
+  atualizado_em DateTime  @updatedAt @map("atualizado_em")
+  deletado_em   DateTime? @map("deletado_em")
+  quem_criou    Int?      @map("quem_criou")
+  quem_recebeu  Int?      @map("quem_recebeu")
+
+  morador Morador @relation(fields: [morador_id], references: [id])
+
+  @@map("ENTREGAS")
 }
