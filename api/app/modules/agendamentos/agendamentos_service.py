@@ -1,4 +1,4 @@
-from app.modules.agendamentos.agendamentos_schema import ReservaCreate, EspacoCreate
+from app.modules.agendamentos.agendamentos_schema import ReservaCreate, EspacoCreate, ReservaUpdate
 from prisma import Prisma
 from fastapi import HTTPException
 
@@ -47,6 +47,32 @@ class AgendamentoService:
 
         return reserva
     
+    @staticmethod
+    async def atualizar_reserva(reserva_id: int, dados: ReservaUpdate, db: Prisma):
+        reserva = await db.reserva.find_unique(
+            where={
+                "id": reserva_id
+            }
+        )
+
+        if not reserva:
+            raise HTTPException(
+                status_code=404,
+                detail="Reserva não encontrada"
+            )
+
+        reserva_atualizada = await db.reserva.update(
+                where={"id": reserva_id},
+                data={
+                "espaco_id": dados.espaco_id,
+                "usuario_id": dados.usuario_id,
+                "data_reserva": dados.data_reserva
+            }
+        )
+
+        return reserva_atualizada
+
+
     @staticmethod
     async def listar_reserva(db: Prisma):
         return await db.reserva.find_many(

@@ -1,5 +1,5 @@
 from app.modules.agendamentos.agendamentos_service import AgendamentoService
-from app.modules.agendamentos.agendamentos_schema import EspacoCreate, ReservaCreate, ReservaResponse
+from app.modules.agendamentos.agendamentos_schema import EspacoCreate, ReservaCreate, ReservaResponse, ReservaUpdate
 from prisma import Prisma
 from app.modules.core.core_exception import NotFoundError
 from fastapi import HTTPException
@@ -25,6 +25,18 @@ class AgendamentoController:
     async def listar_reserva(db: Prisma):
         return await AgendamentoService.listar_reserva(db)
     
+    @staticmethod
+    async def atualizar_reserva(reserva_id: int, dados: ReservaUpdate, db: Prisma):
+        reserva = await AgendamentoService.atualizar_reserva(reserva_id, dados, db)
+
+        if not reserva:
+            raise NotFoundError(
+                mensagem="Reserva não encontrada",
+                acao="Verifique o id informado"
+            )
+        
+        return reserva
+
     @staticmethod
     async def deletar_reserva(reserva_id: int, db: Prisma):
         reserva = await AgendamentoService.deletar_reserva(reserva_id, db)

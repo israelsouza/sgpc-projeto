@@ -26,9 +26,9 @@ class ReservaCreate(ReservaBase):
     pass
 
 class ReservaUpdate(BaseModel):
-    espaco_id: int | None
-    data_reserva: datetime
-    usuario_id: int
+    espaco_id: int | None = None
+    data_reserva: datetime | None = None
+    usuario_id: int | None = None
 
 class ReservaResponse(ReservaBase):
     model_config = ConfigDict(from_attributes=True)
