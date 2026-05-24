@@ -1,6 +1,7 @@
 from fastapi import status
 
 from app.modules.core.core_schema import StandardResponse
+from app.modules.morador.morador_model import MoradorModel
 from app.modules.morador.morador_schema import MoradorCreate
 from app.modules.morador.morador_service import MoradorService
 from prisma import Prisma
@@ -24,3 +25,14 @@ class MoradorController:
             status_code=status.HTTP_200_OK,
             data=resultado,
         )
+
+    @staticmethod
+    async def listar_moradores_unidade(usuario_id: int, db: Prisma):
+        # Buscar o morador vinculado ao usuário de forma segura
+        morador = await db.morador.find_unique(where={"usuario_id": usuario_id})
+
+        if not morador or not morador.unidade_id:
+            return []
+
+        moradores = await MoradorModel.listar_por_unidade(morador.unidade_id, db)
+        return [m.model_dump() for m in moradores]

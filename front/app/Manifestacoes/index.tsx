@@ -10,7 +10,6 @@ import { router } from "expo-router";
 import { styles } from "@/screens/Manifestacoes/manifestacao";
 import { BlurView } from "expo-blur";
 import { palette } from "@/theme/colors";
-import  BottomNav  from "@/components/BottomNav";
 import { Picker } from "@react-native-picker/picker";   
 
 //FAZ DISTINÇÃO DE QUAL USUÁRIO ESTARÁ UTILIZANDO
@@ -590,7 +589,6 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
                 </Pressable>
             </BlurView>
         </Modal>
-    <BottomNav />
 
     </View>
 

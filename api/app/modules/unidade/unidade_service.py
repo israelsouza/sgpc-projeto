@@ -150,4 +150,3 @@ class UnidadeService:
             {"unidade": f"{cfg.prefixo} {n}", "andar": None, "bloco": None}
             for n in range(cfg.numero_inicio, cfg.numero_fim + 1)
         ]
-    

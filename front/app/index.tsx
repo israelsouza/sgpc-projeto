@@ -7,11 +7,11 @@ export default function HomeScreen() {
       <Text style={styles.title}>Bem-vindo ao SGPC</Text>
       <Text style={styles.subtitle}>Home Screen</Text>
       
-      {/* IDA PARA PAGINA PRINCIPAL -- OU TROQUE 'home' PELO NOME DA PÁGINA QUE ESTA FAZENDO */}
-      <Link href="/home" style={styles.link}> 
+      <Link href="/(tabs)/home" style={styles.link}> 
+        Ir para Home
+      </Link>
 
-      {/* IDA PARA TELA DE LOGIN PARA TESTAR O FLUXO DE LOGIN */}
-      {/* <Link href="/login" style={styles.link}>  */}
+      <Link href="/login" style={styles.link}> 
         Ir para Login
       </Link> 
     </View>

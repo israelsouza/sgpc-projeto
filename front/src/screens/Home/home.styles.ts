@@ -26,6 +26,14 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
   },
+  backButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
   avatar: {
     width: 72,

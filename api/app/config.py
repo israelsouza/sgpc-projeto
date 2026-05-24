@@ -3,8 +3,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    DATABASE_URL: str = "postgresql://sgpc_admin:123456@localhost:5432/sgpc_db"
     ENVIRONMENT: str = "development"
-    DATABASE_URL: str = "postgresql://user:password@localhost:5432/sgpc"
     DIRECT_URL: str | None = None
     SECRET_KEY: str = "changeme"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
@@ -17,6 +17,18 @@ class Settings(BaseSettings):
     MAIL_STARTTLS: bool = True
     MAIL_SSL_TLS: bool = False
     MAIL_FROM_NAME: str = "SGPC"
+
+    # Cloudinary
+    CLOUDINARY_CLOUD_NAME: str = ""
+    CLOUDINARY_API_KEY: str = ""
+    CLOUDINARY_API_SECRET: str = ""
+
+    # Firebase
+    FIREBASE_PROJECT_ID: str = ""
+    FIREBASE_SERVICE_ACCOUNT_PATH: str = "dev-sgpc-firebase-service-account.json"
+
+    # URL base para links externos (ex: convites)
+    BASE_URL: str = "http://localhost:8000"
 
     @model_validator(mode="after")
     def validate_email_credentials(self):

@@ -1,6 +1,7 @@
 from enum import StrEnum
 import re
-
+from pydantic import BaseModel, ConfigDict, model_validator
+from app.modules.unidade.unidade_schema import UnidadeResponse
 from pydantic import BaseModel, ConfigDict, model_validator, field_validator
 
 from app.modules.unidade.unidade_schema import UnidadeResponse
@@ -128,6 +129,14 @@ class CondominioUpdate(BaseModel):
             raise ValueError("Endereço Inválido")
         
         return endereco
+
+# PARA ATUALIZAR INFOS
+class CondominioUpdate(BaseModel):
+    nome: str | None = None
+    cnpj: str | None = None
+    endereco: str | None = None
+    tipoCond: TipoCondominio | None = None
+
 
 class CondominioResponse(CondominioBase):
     model_config = ConfigDict(from_attributes=True)

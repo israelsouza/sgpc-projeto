@@ -8,7 +8,6 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
-import { BottomNav } from "@/components/BottomNav";
 import { colors } from "@/theme/colors";
 import { styles } from "../../src/screens/Entregas/Entregas.styles";
 
@@ -210,7 +209,6 @@ export default function EntregasScreen() {
       </TouchableOpacity>
 
       {/* ── Bottom Nav ── */}
-      <BottomNav activeIndex={-1} />
     </SafeAreaView>
   );
 }

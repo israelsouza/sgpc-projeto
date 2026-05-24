@@ -17,6 +17,7 @@ export interface AuthResponse {
   perfil: string;
   nome: string;
   condominio: string;
+  condominio_id: number;
   unidade: string;
 }
 

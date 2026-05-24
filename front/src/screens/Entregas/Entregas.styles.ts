@@ -384,21 +384,5 @@ export const styles = StyleSheet.create({
   },
   modalTextInputFocused: {
     borderColor: colors.earthBrown ?? "#8B5E3C",
-  },
-
-  // ── Bottom Nav (reaproveitado do home) ────────────────────
-  bottomNav: {
-    flexDirection: "row",
-    backgroundColor: "#FFFFFF",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderTopWidth: 1,
-    borderTopColor: "#EDE5DC",
-    justifyContent: "space-around",
-  },
-  navItem: {
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 8,
-  },
+  }
 });
