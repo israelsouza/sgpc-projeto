@@ -144,20 +144,18 @@ function AnimatedSwitch({ value }: { value: boolean }) {
 export default function HomeScreen() {
   const { colors: themeColors, isHighContrast, toggleHighContrast } = useTheme();
 
-  // Normal: usa o styles estático original (palette/colors do seu projeto)
-  // Alto contraste: usa createStyles com as cores do tema HC
   const styles = useMemo(
     () => (isHighContrast ? createStyles(themeColors) : staticStyles),
     [isHighContrast, themeColors]
   );
 
-  // Cor do botão de toggle: usa a cor do projeto no modo normal
   const toggleBorderColor = isHighContrast ? "#FFD700" : staticColors.earthAccent;
   const toggleTextColor   = isHighContrast ? "#FFD700" : staticColors.earthAccent;
 
   const [userName, setUserName] = useState("Usuário");
   const [userCondo, setUserCondo] = useState("");
   const [userUnit, setUserUnit] = useState("");
+  const [userProfile, setUserProfile] = useState("");
 
   useEffect(() => {
     async function loadUserData() {
@@ -165,9 +163,12 @@ export default function HomeScreen() {
         const name = await storage.getItemAsync("user_nome");
         const condo = await storage.getItemAsync("user_condominio");
         const unit = await storage.getItemAsync("user_unidade");
+        const profile = await storage.getItemAsync("user_perfil");
+        
         if (name) setUserName(name.split(" ")[0]);
         if (condo) setUserCondo(condo);
         if (unit) setUserUnit(unit);
+        if (profile) setUserProfile(profile);
       } catch (error) {
         console.error("Erro ao carregar dados do usuário:", error);
       }
@@ -175,27 +176,49 @@ export default function HomeScreen() {
     loadUserData();
   }, []);
 
+  const handleLogout = async () => {
+    await storage.deleteItemAsync("user_token");
+    await storage.deleteItemAsync("user_perfil");
+    await storage.deleteItemAsync("user_nome");
+    await storage.deleteItemAsync("user_condominio");
+    await storage.deleteItemAsync("user_condominio_id");
+    await storage.deleteItemAsync("user_unidade");
+    navigation.replace("/login");
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={staticColors.earthBrown} />
 
       <Header
         title={userCondo || "Condomínio"}
-        subtitle={userUnit}
+        subtitle={userUnit ? `Unidade ${userUnit}` : userProfile}
         initials={userCondo ? userCondo.substring(0, 2).toUpperCase() : "SG"}
       />
 
       <View style={styles.centerContainer}>
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
 
-          {/* ── Botão de alto contraste ── */}
-          <View style={{ flexDirection: "row", justifyContent: "flex-end", marginBottom: 12 }}>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <TouchableOpacity
+                onPress={handleLogout}
+                style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 6,
+                    paddingHorizontal: 12,
+                    paddingVertical: 7,
+                    borderRadius: 20,
+                    backgroundColor: "#F8D7DA",
+                }}
+            >
+                <Feather name="log-out" size={13} color="#DC3545" />
+                <Text style={{ fontSize: 12, fontWeight: "600", color: "#DC3545" }}>Sair</Text>
+            </TouchableOpacity>
+
             <TouchableOpacity
               onPress={toggleHighContrast}
               activeOpacity={0.75}
-              accessibilityLabel="Alternar modo de alto contraste"
-              accessibilityRole="switch"
-              accessibilityState={{ checked: isHighContrast }}
               style={{
                 flexDirection: "row",
                 alignItems: "center",
@@ -217,7 +240,12 @@ export default function HomeScreen() {
 
           {/* ── Boas-vindas ── */}
           <View style={styles.welcomeCard}>
-            <Text style={styles.welcomeText}>Seja bem vindo {userName}</Text>
+            <View>
+                <Text style={styles.welcomeText}>Olá, {userName}!</Text>
+                <Text style={{ color: staticColors.textMuted, fontSize: 12, marginTop: 2 }}>
+                    Perfil: {userProfile === "MORADOR" ? "Morador" : "Portaria"}
+                </Text>
+            </View>
           </View>
 
           {/* ── Grid ── */}

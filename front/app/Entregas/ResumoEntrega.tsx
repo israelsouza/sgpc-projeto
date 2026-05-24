@@ -10,12 +10,14 @@ import {
   Modal,
   ActivityIndicator,
   Alert,
+  Platform,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { colors } from "@/theme/colors";
 import { styles } from "../../src/screens/Entregas/Entregas.styles";
 import { useEntrega } from "@/hooks/useEntrega";
+import { storage } from "@/utils/storage";
 
 // ── Tipos ─────────────────────────────────────────────────
 type ConfirmacaoExclusao = "sim" | "nao";
@@ -55,54 +57,99 @@ function verificarHoje(isoString: string): boolean {
 export default function ResumoEntregaScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { obterPorId, atualizarStatus } = useEntrega("morador");
+  
+  const [userProfile, setUserProfile] = useState<string | null>(null);
+  const [isProfileLoading, setIsProfileLoading] = useState(true);
+
+  useEffect(() => {
+    async function getProfile() {
+      try {
+        const profile = await storage.getItemAsync("user_perfil");
+        setUserProfile(profile);
+      } finally {
+        setIsProfileLoading(false);
+      }
+    }
+    getProfile();
+  }, []);
+
+  const isPorter = userProfile && userProfile !== "MORADOR";
+  const vision = isProfileLoading ? undefined : (isPorter ? "condominio" : "morador");
+  
+  const { obterPorId, atualizarStatus } = useEntrega(vision);
 
   const [entrega, setEntrega] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // ── Estado do modal ──
+  // ── Estado do modal (Morador) ──
   const [modalVisible, setModalVisible] = useState(false);
   const [confirmacao, setConfirmacao] = useState<ConfirmacaoExclusao>("nao");
   const [justificativa, setJustificativa] = useState("");
-  const [inputFocused, setInputFocused] = useState(false);
-  const [isCancelling, setIsCancelling] = useState(false);
+  
+  // ── Estado do Porteiro ──
+  const [observacao, setObservacao] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     async function carregar() {
-      if (!id) return;
+      if (!id || isProfileLoading) return;
       try {
         const data = await obterPorId(Number(id));
         setEntrega(data);
-      } catch (error) {
-        Alert.alert("Erro", "Não foi possível carregar os detalhes da entrega.");
+        if (data.observacao_porteiro) setObservacao(data.observacao_porteiro);
+      } catch (error: any) {
+        const errorMsg = error.response?.data?.mensagem || "Não foi possível carregar os detalhes da entrega.";
+        if (Platform.OS === 'web') alert(errorMsg);
+        else Alert.alert("Erro", errorMsg);
         router.back();
       } finally {
         setLoading(false);
       }
     }
     carregar();
-  }, [id]);
+  }, [id, isProfileLoading]);
 
   async function handleConfirmarCancelamento() {
     if (confirmacao !== "sim") return;
     if (!justificativa.trim()) {
-      Alert.alert("Atenção", "A justificativa é obrigatória para cancelar.");
+      if (Platform.OS === 'web') alert("A justificativa é obrigatória para cancelar.");
+      else Alert.alert("Atenção", "A justificativa é obrigatória para cancelar.");
       return;
     }
 
     try {
-      setIsCancelling(true);
+      setIsUpdating(true);
       await atualizarStatus(Number(id), {
         status: "CANCELADA",
         justificativa_cancelamento: justificativa,
       });
       setModalVisible(false);
-      Alert.alert("Sucesso", "Entrega cancelada.");
+      if (Platform.OS === 'web') alert("Entrega cancelada.");
+      else Alert.alert("Sucesso", "Entrega cancelada.");
       router.back();
     } catch (error) {
-      Alert.alert("Erro", "Ocorreu um erro ao cancelar a entrega.");
+       if (Platform.OS === 'web') alert("Ocorreu um erro ao cancelar a entrega.");
+       else Alert.alert("Erro", "Ocorreu um erro ao cancelar a entrega.");
     } finally {
-      setIsCancelling(false);
+      setIsUpdating(false);
+    }
+  }
+
+  async function handleUpdateStatus(novoStatus: "RECEBIDA" | "RETIRADA") {
+    try {
+      setIsUpdating(true);
+      await atualizarStatus(Number(id), {
+        status: novoStatus,
+        observacao_porteiro: observacao,
+      });
+      if (Platform.OS === 'web') alert(`Status atualizado para ${novoStatus}`);
+      else Alert.alert("Sucesso", `Status atualizado para ${novoStatus}`);
+      router.back();
+    } catch (error) {
+      if (Platform.OS === 'web') alert("Erro ao atualizar status.");
+      else Alert.alert("Erro", "Erro ao atualizar status.");
+    } finally {
+      setIsUpdating(false);
     }
   }
 
@@ -112,7 +159,7 @@ export default function ResumoEntregaScreen() {
     setJustificativa("");
   }
 
-  if (loading || !entrega) {
+  if (loading || isProfileLoading || !entrega) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
         <StatusBar barStyle="light-content" backgroundColor={colors.primaryDark} />
@@ -121,7 +168,6 @@ export default function ResumoEntregaScreen() {
     );
   }
 
-  // Prepara dados formatados
   const criadoEm = formatarDataSimples(entrega.criado_em);
   const prazoFinal = formatarDataCompleta(entrega.prazo_retirada);
   const isPrazoHoje = verificarHoje(entrega.prazo_retirada);
@@ -130,7 +176,8 @@ export default function ResumoEntregaScreen() {
   const unidade = morador.unidade ? morador.unidade.unidade : "N/A";
   const bloco = morador.unidade ? morador.unidade.bloco : "N/A";
 
-  const podeCancelar = entrega.status === "AGUARDANDO";
+  const podeCancelar = !isPorter && entrega.status === "AGUARDANDO";
+  const podeMudarStatus = isPorter && (entrega.status === "AGUARDANDO" || entrega.status === "RECEBIDA");
 
   return (
     <SafeAreaView style={styles.container}>
@@ -160,7 +207,7 @@ export default function ResumoEntregaScreen() {
 
         {/* ── Card: Morador ── */}
         <View style={[styles.card, styles.cardHighlight]}>
-          <Text style={styles.fieldLabel}>Morador</Text>
+          <Text style={styles.fieldLabel}>Destinatário (Morador)</Text>
           <View style={styles.moradorRow}>
             <View style={styles.moradorAvatar}>
               <Text style={styles.moradorAvatarText}>{iniciais}</Text>
@@ -176,7 +223,7 @@ export default function ResumoEntregaScreen() {
 
         {/* ── Card: Datas ── */}
         <View style={styles.card}>
-          <Text style={styles.fieldLabel}>Datas</Text>
+          <Text style={styles.fieldLabel}>Informações</Text>
 
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Criado em</Text>
@@ -214,31 +261,65 @@ export default function ResumoEntregaScreen() {
           </View>
         </View>
 
-        {/* ── Card: Mensagem ── */}
+        {/* ── Card: Mensagem do Morador ── */}
         {entrega.mensagem && (
           <View style={styles.card}>
-            <Text style={styles.fieldLabel}>Mensagem (Sua)</Text>
+            <Text style={styles.fieldLabel}>Mensagem do Morador</Text>
             <Text style={styles.mensagemText}>{entrega.mensagem}</Text>
           </View>
         )}
 
-        {/* ── Card: Observação Porteiro ── */}
-        {entrega.observacao_porteiro && (
-          <View style={[styles.card, { backgroundColor: "#F5F0D6" }]}>
-            <Text style={[styles.fieldLabel, { color: "#B8A44A" }]}>Observação do Porteiro</Text>
-            <Text style={{ color: "#8B5E3C", marginTop: 8 }}>{entrega.observacao_porteiro}</Text>
+        {/* ── Área do Porteiro ── */}
+        {isPorter && podeMudarStatus && (
+          <View style={styles.card}>
+            <Text style={styles.fieldLabel}>Ações do Porteiro</Text>
+            <TextInput
+              style={[styles.modalTextInput, { marginTop: 10, minHeight: 80 }]}
+              placeholder="Adicionar observação interna (opcional)"
+              placeholderTextColor="#C5B5AA"
+              value={observacao}
+              onChangeText={setObservacao}
+              multiline
+            />
+
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 15 }}>
+              {entrega.status === "AGUARDANDO" && (
+                <TouchableOpacity
+                  style={[styles.btnSalvar, { flex: 1, backgroundColor: "#4CAF73" }]}
+                  onPress={() => handleUpdateStatus("RECEBIDA")}
+                  disabled={isUpdating}
+                >
+                  <Text style={styles.btnSalvarText}>Marcar RECEBIDA</Text>
+                </TouchableOpacity>
+              )}
+              
+              {entrega.status === "RECEBIDA" && (
+                <TouchableOpacity
+                  style={[styles.btnSalvar, { flex: 1, backgroundColor: "#6C757D" }]}
+                  onPress={() => handleUpdateStatus("RETIRADA")}
+                  disabled={isUpdating}
+                >
+                  <Text style={styles.btnSalvarText}>Marcar RETIRADA</Text>
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
         )}
 
-        {/* ── Card: Justificativa (se cancelada) ── */}
-        {entrega.justificativa_cancelamento && (
-          <View style={[styles.card, { backgroundColor: "#F8D7DA" }]}>
-            <Text style={[styles.fieldLabel, { color: "#721C24" }]}>Justificativa de Cancelamento</Text>
-            <Text style={{ color: "#721C24", marginTop: 8 }}>{entrega.justificativa_cancelamento}</Text>
+        {/* ── Histórico de Observações (Visualização) ── */}
+        {!podeMudarStatus && (entrega.observacao_porteiro || entrega.justificativa_cancelamento) && (
+          <View style={styles.card}>
+             <Text style={styles.fieldLabel}>Histórico/Observações</Text>
+             {entrega.observacao_porteiro && (
+               <Text style={{ color: "#7A5C45", marginTop: 8 }}>Porteiro: {entrega.observacao_porteiro}</Text>
+             )}
+             {entrega.justificativa_cancelamento && (
+               <Text style={{ color: "#DC3545", marginTop: 8 }}>Cancelamento: {entrega.justificativa_cancelamento}</Text>
+             )}
           </View>
         )}
 
-        {/* ── Botões ── */}
+        {/* ── Botão de Cancelamento (Morador) ── */}
         {podeCancelar && (
           <View style={styles.buttonsRow}>
             <TouchableOpacity
@@ -253,7 +334,7 @@ export default function ResumoEntregaScreen() {
 
       </ScrollView>
 
-      {/* ── Modal de exclusão/cancelamento ── */}
+      {/* ── Modal de Cancelamento (Morador) ── */}
       <Modal
         visible={modalVisible}
         transparent
@@ -266,71 +347,36 @@ export default function ResumoEntregaScreen() {
           onPress={handleFecharModal}
         >
           <TouchableOpacity activeOpacity={1} style={styles.modalBox}>
-
-            <Text style={styles.modalTitle}>
-              Deseja cancelar o aviso de encomenda?
-            </Text>
-
+            <Text style={styles.modalTitle}>Deseja cancelar o aviso?</Text>
             <View style={styles.modalRadioRow}>
-              <TouchableOpacity
-                style={styles.modalRadioOption}
-                onPress={() => setConfirmacao("nao")}
-                activeOpacity={0.7}
-              >
-                <View style={[
-                  styles.modalRadioCircle,
-                  confirmacao === "nao" && styles.modalRadioCircleActive,
-                ]}>
+              <TouchableOpacity style={styles.modalRadioOption} onPress={() => setConfirmacao("nao")}>
+                <View style={[styles.modalRadioCircle, confirmacao === "nao" && styles.modalRadioCircleActive]}>
                   {confirmacao === "nao" && <View style={styles.modalRadioDot} />}
                 </View>
                 <Text style={styles.modalRadioLabel}>Não</Text>
               </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.modalRadioOption}
-                onPress={() => setConfirmacao("sim")}
-                activeOpacity={0.7}
-              >
-                <View style={[
-                  styles.modalRadioCircle,
-                  confirmacao === "sim" && styles.modalRadioCircleActive,
-                ]}>
+              <TouchableOpacity style={styles.modalRadioOption} onPress={() => setConfirmacao("sim")}>
+                <View style={[styles.modalRadioCircle, confirmacao === "sim" && styles.modalRadioCircleActive]}>
                   {confirmacao === "sim" && <View style={styles.modalRadioDot} />}
                 </View>
                 <Text style={styles.modalRadioLabel}>Sim</Text>
               </TouchableOpacity>
             </View>
-
             <TextInput
-              style={[
-                styles.modalTextInput,
-                inputFocused && styles.modalTextInputFocused,
-              ]}
-              placeholder="Justifique o cancelamento"
+              style={styles.modalTextInput}
+              placeholder="Justificativa obrigatória"
               placeholderTextColor="#C5B5AA"
               value={justificativa}
               onChangeText={setJustificativa}
-              onFocus={() => setInputFocused(true)}
-              onBlur={() => setInputFocused(false)}
               multiline
             />
-
             <TouchableOpacity
-              style={[
-                styles.btnSalvar,
-                (confirmacao !== "sim" || isCancelling) && { opacity: 0.5 },
-              ]}
+              style={[styles.btnSalvar, confirmacao !== "sim" && { opacity: 0.5 }]}
               onPress={handleConfirmarCancelamento}
-              activeOpacity={0.8}
-              disabled={confirmacao !== "sim" || isCancelling}
+              disabled={confirmacao !== "sim" || isUpdating}
             >
-              {isCancelling ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
-              ) : (
-                <Text style={styles.btnSalvarText}>Confirmar</Text>
-              )}
+              <Text style={styles.btnSalvarText}>Confirmar</Text>
             </TouchableOpacity>
-
           </TouchableOpacity>
         </TouchableOpacity>
       </Modal>

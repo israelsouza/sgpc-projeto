@@ -58,6 +58,31 @@ async def listar_entregas_morador(
     )
 
 
+@router.get("/condominio")
+async def listar_entregas_condominio(
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    current_user=Depends(get_current_user),
+    service: EntregaService = Depends(get_entrega_service),
+):
+    """Lista as entregas do condomínio (para porteiros/síndicos)."""
+    condominio_id = None
+    if current_user.funcionario:
+        condominio_id = current_user.funcionario.condominio_id
+    elif current_user.morador and current_user.morador.unidade:
+        condominio_id = current_user.morador.unidade.condominio_id
+
+    if not condominio_id:
+        raise ForbiddenError("Usuário não associado a um condomínio.")
+
+    return await EntregaController.listar_entregas_condominio(
+        condominio_id=condominio_id,
+        limit=limit,
+        offset=offset,
+        service=service,
+    )
+
+
 @router.get("/{entrega_id}")
 async def obter_detalhes(
     entrega_id: int,
@@ -79,33 +104,6 @@ async def obter_detalhes(
     )
 
 
-@router.get("/condominio")
-async def listar_entregas_condominio(
-    limit: int = Query(20, ge=1, le=100),
-    offset: int = Query(0, ge=0),
-    current_user=Depends(get_current_user),
-    service: EntregaService = Depends(get_entrega_service),
-):
-    """Lista as entregas do condomínio (para porteiros/síndicos)."""
-    condominio_id = None
-    if current_user.funcionario:
-        condominio_id = current_user.funcionario.condominio_id
-    elif current_user.morador and current_user.morador.unidade:
-        condominio_id = current_user.morador.unidade.condominio_id
-
-    if not condominio_id:
-        raise ForbiddenError("Usuário não associado a um condomínio.")
-
-    # Idealmente checar RBAC aqui (ex: permissao 'ler:entrega')
-
-    return await EntregaController.listar_entregas_condominio(
-        condominio_id=condominio_id,
-        limit=limit,
-        offset=offset,
-        service=service,
-    )
-
-
 @router.patch("/{entrega_id}/status")
 async def atualizar_status(
     entrega_id: int,
@@ -117,9 +115,6 @@ async def atualizar_status(
     Atualiza o status da entrega.
     Pode ser usado pelo porteiro (marcar RECEBIDA) ou morador (marcar RETIRADA/CANCELADA).
     """
-    # A verificação rigorosa de quem pode atualizar o que,
-    # poderia ser expandida no service com base nos perfis do current_user.
-
     return await EntregaController.atualizar_status(
         entrega_id=entrega_id,
         dados=dados,
@@ -135,7 +130,6 @@ async def deletar_entrega(
     service: EntregaService = Depends(get_entrega_service),
 ):
     """Deleta (logicamente) uma entrega."""
-    # Apenas morador dono da entrega (ou admin) deveria poder deletar
     return await EntregaController.deletar_entrega(
         entrega_id=entrega_id,
         service=service,

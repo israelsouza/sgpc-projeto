@@ -5,17 +5,23 @@ import { storage } from "@/utils/storage";
 let listaCacheMorador: Entrega[] = [];
 let listaCacheCondominio: Entrega[] = [];
 
-export const useEntrega = (tipoVisao: "morador" | "condominio" = "morador", limit: number = 20) => {
+/**
+ * Hook para gerenciar entregas com suporte a visões de morador e condomínio (porteiro).
+ * @param tipoVisao Se omitido, o hook não carregará os dados automaticamente até que seja definido.
+ */
+export const useEntrega = (tipoVisao?: "morador" | "condominio", limit: number = 20) => {
   const [entregas, setEntregas] = useState<Entrega[]>(
-    tipoVisao === "morador" ? listaCacheMorador : listaCacheCondominio
+    tipoVisao === "morador" ? listaCacheMorador : tipoVisao === "condominio" ? listaCacheCondominio : []
   );
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
 
   const carregarEntregas = useCallback(
     async (targetPage: number = 0, silent = false) => {
+      if (!tipoVisao) return;
+
       try {
         if (!silent) setLoading(true);
         const offset = targetPage * limit;
@@ -30,7 +36,7 @@ export const useEntrega = (tipoVisao: "morador" | "condominio" = "morador", limi
         
         if (targetPage === 0) {
           if (tipoVisao === "morador") listaCacheMorador = data.items;
-          else listaCacheCondominio = data.items;
+          else if (tipoVisao === "condominio") listaCacheCondominio = data.items;
         }
 
         setError(null);
@@ -45,6 +51,8 @@ export const useEntrega = (tipoVisao: "morador" | "condominio" = "morador", limi
   );
 
   useEffect(() => {
+    if (!tipoVisao) return;
+
     carregarEntregas(0, 
       (tipoVisao === "morador" && listaCacheMorador.length > 0) || 
       (tipoVisao === "condominio" && listaCacheCondominio.length > 0)
@@ -52,6 +60,8 @@ export const useEntrega = (tipoVisao: "morador" | "condominio" = "morador", limi
   }, [carregarEntregas, tipoVisao]);
 
   useEffect(() => {
+    if (!tipoVisao) return;
+
     let socket: WebSocket | null = null;
 
     const setupWebSocket = async () => {
@@ -61,14 +71,14 @@ export const useEntrega = (tipoVisao: "morador" | "condominio" = "morador", limi
       const wsUrl =
         (
           process.env.EXPO_PUBLIC_API_URL || "http://localhost:8000/api"
-        ).replace("http", "ws") + `/avisos/ws/${condoId}`; // O WebSocket geral do condomínio fica em avisos/ws
+        ).replace("http", "ws") + `/avisos/ws/${condoId}`;
 
       socket = new WebSocket(wsUrl);
 
       socket.onmessage = (event) => {
         const message = JSON.parse(event.data);
         if (message.type === "NEW_ENTREGA" || message.type === "UPDATE_ENTREGA") {
-          carregarEntregas(0, true); // Atualiza silenciosamente via WS na primeira página
+          carregarEntregas(0, true);
         }
       };
     };
@@ -78,7 +88,7 @@ export const useEntrega = (tipoVisao: "morador" | "condominio" = "morador", limi
     return () => {
       if (socket) socket.close();
     };
-  }, [carregarEntregas]);
+  }, [carregarEntregas, tipoVisao]);
 
   const criarEntrega = async (dados: CreateEntregaDTO) => {
     try {

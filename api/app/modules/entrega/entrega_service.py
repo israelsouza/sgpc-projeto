@@ -69,15 +69,20 @@ class EntregaService:
         if dados.status == StatusEntrega.RECEBIDA:
             # Precisa obter o usuário atrelado ao morador
             if entrega.morador and entrega.morador.usuario_id:
-                mensagem_push = (
-                    f"Sua entrega ({entrega.tipo}) acabou de chegar na portaria!"
-                )
-                await self.push_adapter.send_push(
-                    usuario_id=entrega.morador.usuario_id,
-                    title="Entrega Recebida",
-                    body=mensagem_push,
-                    data={"entrega_id": str(entrega.id), "tipo": "ENTREGA_RECEBIDA"},
-                )
+                try:
+                    mensagem_push = (
+                        f"Sua entrega ({entrega.tipo}) acabou de chegar na portaria!"
+                    )
+                    await self.push_adapter.send_push(
+                        usuario_id=entrega.morador.usuario_id,
+                        title="Entrega Recebida",
+                        body=mensagem_push,
+                        data={"entrega_id": str(entrega.id), "tipo": "ENTREGA_RECEBIDA"},
+                    )
+                except Exception as e:
+                    # Falha no push não deve impedir a atualização do status
+                    from app.modules.core.logger import logger
+                    logger.error("Falha ao enviar push notification", error=str(e))
 
         # Disparar evento WS para atualizar listas
         if (
@@ -85,14 +90,18 @@ class EntregaService:
             and entrega.morador.unidade
             and entrega.morador.unidade.condominio_id
         ):
-            await manager.broadcast_to_condominio(
-                {
-                    "type": "UPDATE_ENTREGA",
-                    "entrega_id": entrega.id,
-                    "status": entrega_atualizada.status,
-                },
-                entrega.morador.unidade.condominio_id,
-            )
+            try:
+                await manager.broadcast_to_condominio(
+                    {
+                        "type": "UPDATE_ENTREGA",
+                        "entrega_id": entrega.id,
+                        "status": entrega_atualizada.status,
+                    },
+                    entrega.morador.unidade.condominio_id,
+                )
+            except Exception as e:
+                from app.modules.core.logger import logger
+                logger.error("Falha ao disparar broadcast WebSocket", error=str(e))
 
         return entrega_atualizada
 
@@ -109,11 +118,15 @@ class EntregaService:
             and entrega.morador.unidade
             and entrega.morador.unidade.condominio_id
         ):
-            await manager.broadcast_to_condominio(
-                {
-                    "type": "UPDATE_ENTREGA",
-                    "entrega_id": entrega.id,
-                    "status": "DELETADA",
-                },
-                entrega.morador.unidade.condominio_id,
-            )
+            try:
+                await manager.broadcast_to_condominio(
+                    {
+                        "type": "UPDATE_ENTREGA",
+                        "entrega_id": entrega.id,
+                        "status": "DELETADA",
+                    },
+                    entrega.morador.unidade.condominio_id,
+                )
+            except Exception as e:
+                from app.modules.core.logger import logger
+                logger.error("Falha ao disparar broadcast WebSocket na deleção", error=str(e))

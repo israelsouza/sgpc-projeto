@@ -9,10 +9,12 @@ import {
   RefreshControl,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import { Feather } from "@expo/vector-icons";
 import { colors } from "@/theme/colors";
 import { styles } from "../../src/screens/Entregas/Entregas.styles";
 import { useEntrega } from "@/hooks/useEntrega";
+import { storage } from "@/utils/storage";
 
 // ── Helpers ───────────────────────────────────────────────
 const statusConfig = {
@@ -42,7 +44,27 @@ function formatarDataHora(isoString: string): string {
 // ── Componente principal ──────────────────────────────────
 export default function EntregasScreen() {
   const router = useRouter();
-  const { entregas, loading, refresh } = useEntrega("morador");
+  const [userProfile, setUserProfile] = useState<string | null>(null);
+  const [isProfileLoading, setIsProfileLoading] = useState(true);
+  
+  useEffect(() => {
+    async function getProfile() {
+      try {
+        const profile = await storage.getItemAsync("user_perfil");
+        console.log("Perfil carregado em Entregas:", profile);
+        setUserProfile(profile);
+      } finally {
+        setIsProfileLoading(false);
+      }
+    }
+    getProfile();
+  }, []);
+
+  // Consideramos qualquer perfil que não seja MORADOR como perfil de gestão/portaria
+  const isPorter = userProfile && userProfile !== "MORADOR";
+  const vision = isProfileLoading ? undefined : (isPorter ? "condominio" : "morador");
+  
+  const { entregas, loading, refresh } = useEntrega(vision);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -55,12 +77,14 @@ export default function EntregasScreen() {
         </TouchableOpacity>
         <View style={styles.headerTitleWrapper}>
           <Text style={styles.headerTitle}>Entregas</Text>
-          <Text style={styles.headerSubtitle}>Cartas e pacotes</Text>
+          <Text style={styles.headerSubtitle}>
+            {isProfileLoading ? "Carregando..." : (isPorter ? "Gestão do condomínio" : "Cartas e pacotes")}
+          </Text>
         </View>
       </View>
 
       {/* ── Lista ── */}
-      {loading && entregas.length === 0 ? (
+      {(loading || isProfileLoading) && entregas.length === 0 ? (
         <View style={[styles.content, { justifyContent: "center", alignItems: "center" }]}>
           <ActivityIndicator size="large" color={colors.earthBrown ?? "#8B5E3C"} />
         </View>
@@ -87,6 +111,8 @@ export default function EntregasScreen() {
             entregas.map((entrega) => {
               const tipo = tipoConfig[entrega.tipo];
               const status = statusConfig[entrega.status];
+              const morador = (entrega as any).morador;
+
               return (
                 <TouchableOpacity
                   key={entrega.id}
@@ -128,15 +154,22 @@ export default function EntregasScreen() {
                           color={colors.earthBrown ?? "#8B5E3C"}
                         />
                       </View>
-                      <Text
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "700",
-                          color: "#3D2B1F",
-                        }}
-                      >
-                        {tipo.label}
-                      </Text>
+                      <View>
+                        <Text
+                          style={{
+                            fontSize: 15,
+                            fontWeight: "700",
+                            color: "#3D2B1F",
+                          }}
+                        >
+                          {tipo.label}
+                        </Text>
+                        {isPorter && morador && (
+                          <Text style={{ fontSize: 11, color: "#7A5C45" }}>
+                            Unidade {morador.unidade?.unidade || "N/A"}
+                          </Text>
+                        )}
+                      </View>
                     </View>
 
                     {/* Badge de status */}
@@ -160,7 +193,7 @@ export default function EntregasScreen() {
                     </View>
                   </View>
 
-                  {/* Prazo */}
+                  {/* Prazo / Data */}
                   <View
                     style={{
                       flexDirection: "row",
@@ -171,7 +204,9 @@ export default function EntregasScreen() {
                   >
                     <Feather name="clock" size={13} color="#A08070" />
                     <Text style={{ fontSize: 13, color: "#A08070" }}>
-                      Prazo: {formatarDataHora(entrega.prazo_retirada)}
+                      {entrega.status === "AGUARDANDO" 
+                        ? `Prazo: ${formatarDataHora(entrega.prazo_retirada)}`
+                        : `Atualizado em: ${formatarDataHora(entrega.atualizado_em)}`}
                     </Text>
                   </View>
 
@@ -186,10 +221,17 @@ export default function EntregasScreen() {
                         borderRadius: 8,
                         paddingHorizontal: 10,
                         paddingVertical: 8,
+                        marginTop: 4,
                       }}
                     >
                       "{entrega.mensagem}"
                     </Text>
+                  )}
+                  
+                  {isPorter && morador && (
+                     <Text style={{ fontSize: 13, color: "#3D2B1F", marginTop: 8, fontWeight: '500' }}>
+                        Destinatário: {morador.nome_completo}
+                     </Text>
                   )}
                 </TouchableOpacity>
               );
@@ -200,31 +242,31 @@ export default function EntregasScreen() {
         </ScrollView>
       )}
 
-      {/* ── FAB: Nova entrega ── */}
-      <TouchableOpacity
-        style={{
-          position: "absolute",
-          bottom: 80,
-          right: 24,
-          backgroundColor: colors.earthBrown ?? "#8B5E3C",
-          width: 52,
-          height: 52,
-          borderRadius: 16,
-          alignItems: "center",
-          justifyContent: "center",
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.2,
-          shadowRadius: 8,
-          elevation: 6,
-        }}
-        onPress={() => router.push("/Entregas/NovaEntrega")}
-        activeOpacity={0.8}
-      >
-        <Feather name="plus" size={24} color="#FFFFFF" />
-      </TouchableOpacity>
-
-      {/* ── Bottom Nav ── */}
+      {/* ── FAB: Nova entrega (Apenas para Moradores) ── */}
+      {!isPorter && !isProfileLoading && (
+        <TouchableOpacity
+          style={{
+            position: "absolute",
+            bottom: 80,
+            right: 24,
+            backgroundColor: colors.earthBrown ?? "#8B5E3C",
+            width: 52,
+            height: 52,
+            borderRadius: 16,
+            alignItems: "center",
+            justifyContent: "center",
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.2,
+            shadowRadius: 8,
+            elevation: 6,
+          }}
+          onPress={() => router.push("/Entregas/NovaEntrega")}
+          activeOpacity={0.8}
+        >
+          <Feather name="plus" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+      )}
     </SafeAreaView>
   );
 }
