@@ -8,6 +8,7 @@ from app.modules.convite.convite_router import router as convite_router
 from app.modules.core.dev_router import router as dev_router
 from app.modules.core.router import router as core_router
 from app.modules.documento.documento_router import router as documento_router
+from app.modules.entrega.entrega_router import router as entrega_router
 from app.modules.funcionario.funcionario_router import router as funcionario_router
 from app.modules.morador.morador_router import router as morador_router
 from app.modules.notificacao.notificacao_router import router as notificacao_router
@@ -29,6 +30,7 @@ router.include_router(aviso_router)
 router.include_router(notificacao_router)
 router.include_router(documento_router)
 router.include_router(convite_router)
+router.include_router(entrega_router)
 
 # Rotas exclusivas de desenvolvimento
 if settings.ENVIRONMENT == "development":
