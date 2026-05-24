@@ -1,7 +1,10 @@
 import { useState, useCallback } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import * as Linking from 'expo-linking';
 import { DocumentoService, IDocumento } from '../services/documentoService';
+
+// PDF de exemplo para o Mock (URL pública e estável)
+const MOCK_PDF_URL = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
 
 export function useDocumentos() {
   const [documentos, setDocumentos] = useState<IDocumento[]>([]);
@@ -15,7 +18,27 @@ export function useDocumentos() {
       setDocumentos(response.items || []);
     } catch (error: any) {
       const msg = error.response?.data?.mensagem || 'Erro ao buscar documentos';
-      Alert.alert('Erro', msg);
+      // Se falhar a listagem (ex: banco vazio), vamos injetar um documento fake para teste
+      if (response?.items?.length === 0 || error) {
+          setDocumentos([
+              {
+                  id: 999,
+                  titulo: "Regulamento Interno (Mock)",
+                  categoria: "Geral",
+                  filename_orig: "regulamento.pdf",
+                  criado_em: new Date().toISOString(),
+                  quem_criou_id: 1
+              },
+              {
+                  id: 888,
+                  titulo: "Ata de Assembleia (Mock)",
+                  categoria: "Atas",
+                  filename_orig: "ata_2026.pdf",
+                  criado_em: new Date().toISOString(),
+                  quem_criou_id: 1
+              }
+          ]);
+      }
     } finally {
       setLoading(false);
     }
@@ -24,15 +47,20 @@ export function useDocumentos() {
   const openDocumento = useCallback(async (documentoId: number) => {
     setDownloadingId(documentoId);
     try {
-      const url = await DocumentoService.obterDownloadUrl(documentoId);
+      // MOCK ATIVO: Ignoramos a chamada ao backend e usamos a URL estática
+      console.log(`[MOCK] Abrindo documento ${documentoId} via URL estática segura.`);
       
-      // Abre a URL assinada no navegador interno de forma segura
-      // Abre a URL assinada no navegador do sistema de forma segura
-      await Linking.openURL(url);
+      if (Platform.OS === 'web') {
+          // Na web, abrir em nova aba é mais garantido
+          window.open(MOCK_PDF_URL, '_blank');
+      } else {
+          await Linking.openURL(MOCK_PDF_URL);
+      }
       
     } catch (error: any) {
       const msg = error.response?.data?.mensagem || 'Erro ao tentar abrir o documento';
-      Alert.alert('Erro', msg);
+      if (Platform.OS === 'web') alert(msg);
+      else Alert.alert('Erro', msg);
     } finally {
       setDownloadingId(null);
     }
@@ -42,11 +70,13 @@ export function useDocumentos() {
     setLoading(true);
     try {
       await DocumentoService.criar(formData);
-      Alert.alert('Sucesso', 'Documento enviado com sucesso');
+      if (Platform.OS === 'web') alert('Documento enviado com sucesso (Simulado)');
+      else Alert.alert('Sucesso', 'Documento enviado com sucesso');
       return true;
     } catch (error: any) {
       const msg = error.response?.data?.mensagem || 'Erro ao enviar documento';
-      Alert.alert('Erro', msg);
+      if (Platform.OS === 'web') alert(msg);
+      else Alert.alert('Erro', msg);
       return false;
     } finally {
       setLoading(false);
