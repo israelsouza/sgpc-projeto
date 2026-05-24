@@ -51,6 +51,22 @@ async def listar_visitantes(usuario: models.Usuario = Depends(get_current_user))
     )
 
 
+@router.get(
+    "/visitantes/condominio",
+    response_model=StandardResponse[list[VisitanteResponse]],
+)
+async def listar_visitantes_condominio(usuario: models.Usuario = Depends(get_current_user)):
+    """
+    Lista todos os visitantes do condomínio (Restrito a funcionários).
+    """
+    resultado = await ConviteController.listar_visitantes_condominio(usuario.id)
+    return StandardResponse(
+        message="Visitantes do condomínio listados com sucesso.",
+        status_code=status.HTTP_200_OK,
+        data=resultado,
+    )
+
+
 @router.patch(
     "/visitantes/{visitante_id}",
     response_model=StandardResponse[VisitanteResponse],

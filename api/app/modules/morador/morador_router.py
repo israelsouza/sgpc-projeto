@@ -53,3 +53,22 @@ async def listar_moradores_unidade(
         status_code=status.HTTP_200_OK,
         data=resultado,
     )
+
+
+@router.get(
+    "/condominio",
+    response_model=StandardResponse[list],
+)
+async def listar_moradores_condominio(
+    usuario: models.Usuario = Depends(get_current_user),
+    db: Prisma = Depends(get_prisma),
+):
+    """
+    Lista todos os moradores do condomínio (Restrito a funcionários).
+    """
+    resultado = await MoradorController.listar_moradores_condominio(usuario.id, db)
+    return StandardResponse(
+        message="Moradores do condomínio listados com sucesso.",
+        status_code=status.HTTP_200_OK,
+        data=resultado,
+    )

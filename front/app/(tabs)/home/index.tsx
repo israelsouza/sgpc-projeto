@@ -157,6 +157,15 @@ export default function HomeScreen() {
   const [userUnit, setUserUnit] = useState("");
   const [userProfile, setUserProfile] = useState("");
 
+  const profileLabels: Record<string, string> = {
+    "ADMIN": "Administrador",
+    "SINDICO": "Síndico",
+    "PORTEIRO": "Porteiro",
+    "MORADOR": "Morador",
+  };
+
+  const friendlyProfile = profileLabels[userProfile] || "Usuário";
+
   useEffect(() => {
     async function loadUserData() {
       try {
@@ -192,7 +201,7 @@ export default function HomeScreen() {
 
       <Header
         title={userCondo || "Condomínio"}
-        subtitle={userUnit ? `Unidade ${userUnit}` : userProfile}
+        subtitle={userUnit ? `Unidade ${userUnit}` : friendlyProfile}
         initials={userCondo ? userCondo.substring(0, 2).toUpperCase() : "SG"}
       />
 
@@ -243,7 +252,7 @@ export default function HomeScreen() {
             <View>
                 <Text style={styles.welcomeText}>Olá, {userName}!</Text>
                 <Text style={{ color: staticColors.textMuted, fontSize: 12, marginTop: 2 }}>
-                    Perfil: {userProfile === "MORADOR" ? "Morador" : "Portaria"}
+                    Perfil: {friendlyProfile}
                 </Text>
             </View>
           </View>

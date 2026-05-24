@@ -17,6 +17,7 @@ import { colors, palette } from "@/theme/colors";
 import { useFonts } from "expo-font";
 import { moradorService } from "@/services/moradorService";
 import { conviteService, Visitante } from "@/services/conviteService";
+import { storage } from "@/utils/storage";
 
 interface CadastradoItem {
   id: string;
@@ -26,11 +27,13 @@ interface CadastradoItem {
   tipoOriginal: string;
   icone: keyof typeof Ionicons.glyphMap;
   isVisitante: boolean;
+  unidadeInfo?: string;
 }
 
 export default function CadastradosScreen() {
   const [loading, setLoading] = useState(true);
   const [cadastrados, setCadastrados] = useState<CadastradoItem[]>([]);
+  const [userProfile, setUserProfile] = useState<string | null>(null);
   
   // Estados para Gestão
   const [selectedItem, setSelectedItem] = useState<CadastradoItem | null>(null);
@@ -48,9 +51,14 @@ export default function CadastradosScreen() {
   const fetchData = async () => {
     try {
       setLoading(true);
+      const profile = await storage.getItemAsync("user_perfil");
+      setUserProfile(profile);
+
+      const isStaff = profile && profile !== "MORADOR";
+
       const [moradoresRes, visitantesRes] = await Promise.all([
-        moradorService.listarMoradoresUnidade(),
-        conviteService.listarVisitantes()
+        isStaff ? moradorService.listarMoradoresCondominio() : moradorService.listarMoradoresUnidade(),
+        isStaff ? conviteService.listarVisitantesCondominio() : conviteService.listarVisitantes()
       ]);
 
       const moradoresMapped = (moradoresRes?.data || []).map((m: any) => ({
@@ -61,17 +69,22 @@ export default function CadastradosScreen() {
         tipoOriginal: "MORADOR",
         icone: "person-outline" as const,
         isVisitante: false,
+        unidadeInfo: m.unidade ? `Unidade ${m.unidade.unidade}${m.unidade.bloco ? ` · Bloco ${m.unidade.bloco}` : ""}` : undefined
       }));
 
-      const visitantesMapped = (visitantesRes?.data || []).map((v: Visitante) => ({
-        id: `v-${v.id}`,
-        originalId: v.id,
-        nome: v.nome_completo,
-        tipo: v.tipo === "PRESTADOR_SERVICO" ? "Prestador" : "Visitante",
-        tipoOriginal: v.tipo,
-        icone: v.tipo === "PRESTADOR_SERVICO" ? "build-outline" : "walk-outline" as const,
-        isVisitante: true,
-      }));
+      const visitantesMapped = (visitantesRes?.data || []).map((v: Visitante) => {
+        const unidade = v.morador?.unidade;
+        return {
+            id: `v-${v.id}`,
+            originalId: v.id,
+            nome: v.nome_completo,
+            tipo: v.tipo === "PRESTADOR_SERVICO" ? "Prestador" : "Visitante",
+            tipoOriginal: v.tipo,
+            icone: v.tipo === "PRESTADOR_SERVICO" ? "build-outline" : "walk-outline" as const,
+            isVisitante: true,
+            unidadeInfo: unidade ? `Unidade ${unidade.unidade}${unidade.bloco ? ` · Bloco ${unidade.bloco}` : ""}` : undefined
+        };
+      });
 
       setCadastrados([...moradoresMapped, ...visitantesMapped]);
     } catch (err: any) {
@@ -88,7 +101,8 @@ export default function CadastradosScreen() {
   }, [loaded]);
 
   const handleOpenOptions = (item: CadastradoItem) => {
-    if (!item.isVisitante) return;
+    // Apenas moradores podem gerenciar seus visitantes. Funcionários apenas visualizam.
+    if (!item.isVisitante || userProfile !== "MORADOR") return;
     setSelectedItem(item);
     setIsOptionsModalVisible(true);
   };
@@ -148,25 +162,38 @@ export default function CadastradosScreen() {
 
   if (!loaded && !error) return null;
 
-  const renderItem = ({ item }: { item: CadastradoItem }) => (
-    <TouchableOpacity 
-        style={styles.card} 
-        onPress={() => item.isVisitante && handleOpenOptions(item)}
-        onLongPress={() => item.isVisitante && handleOpenOptions(item)}
-        activeOpacity={0.7}
-    >
-      <View style={styles.iconContainer}>
-        <Ionicons name={item.icone} size={24} color={palette.darkBrown} />
-      </View>
-      <View style={styles.textContainer}>
-        <Text style={styles.nome}>{item.nome}</Text>
-        <Text style={styles.tipo}>{item.tipo}</Text>
-      </View>
-      {item.isVisitante && (
-          <Ionicons name="ellipsis-vertical" size={16} color={colors.textMuted} />
-      )}
-    </TouchableOpacity>
-  );
+  const renderItem = ({ item }: { item: CadastradoItem }) => {
+      const isStaff = userProfile && userProfile !== "MORADOR";
+      const canManage = item.isVisitante && !isStaff;
+
+      return (
+        <TouchableOpacity 
+            style={styles.card} 
+            onPress={() => canManage && handleOpenOptions(item)}
+            onLongPress={() => canManage && handleOpenOptions(item)}
+            activeOpacity={canManage ? 0.7 : 1}
+        >
+          <View style={styles.iconContainer}>
+            <Ionicons name={item.icone} size={24} color={palette.darkBrown} />
+          </View>
+          <View style={styles.textContainer}>
+            <Text style={styles.nome}>{item.nome}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text style={styles.tipo}>{item.tipo}</Text>
+                {isStaff && item.unidadeInfo && (
+                    <>
+                        <Text style={{ color: colors.textMuted, fontSize: 10 }}>•</Text>
+                        <Text style={styles.unidadeInfo}>{item.unidadeInfo}</Text>
+                    </>
+                )}
+            </View>
+          </View>
+          {canManage && (
+              <Ionicons name="ellipsis-vertical" size={16} color={colors.textMuted} />
+          )}
+        </TouchableOpacity>
+      );
+  };
 
   return (
     <View style={styles.container}>
@@ -395,6 +422,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.textMuted,
     marginTop: 2,
+  },
+  unidadeInfo: {
+    fontFamily: "InterRegular",
+    fontSize: 12,
+    color: colors.textMuted,
   },
   emptyText: {
     textAlign: "center",

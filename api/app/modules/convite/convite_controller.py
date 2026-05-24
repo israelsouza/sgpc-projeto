@@ -74,7 +74,34 @@ class ConviteController:
 
         # 3. Listar visitantes vinculados a qualquer um desses moradores
         visitantes = await db.visitante.find_many(
-            where={"morador_id": {"in": ids_moradores}}, order={"criado_em": "desc"}
+            where={"morador_id": {"in": ids_moradores}}, 
+            include={"morador": {"include": {"unidade": True}}},
+            order={"criado_em": "desc"}
+        )
+
+        return [v.model_dump() for v in visitantes]
+
+    @staticmethod
+    async def listar_visitantes_condominio(usuario_id: int):
+        db = await get_prisma()
+
+        # Buscar o funcionário vinculado ao usuário
+        usuario = await db.usuario.find_unique(
+            where={"id": usuario_id}, include={"funcionario": True}
+        )
+
+        if not usuario or not usuario.funcionario:
+             raise ForbiddenError("Acesso negado: Apenas funcionários podem ver todos os visitantes.")
+
+        condominio_id = usuario.funcionario.condominio_id
+
+        # Listar todos os visitantes cujo morador vinculado pertence ao condomínio do funcionário
+        visitantes = await db.visitante.find_many(
+            where={
+                "morador": {"unidade": {"condominio_id": condominio_id}}
+            },
+            include={"morador": {"include": {"unidade": True}}},
+            order={"criado_em": "desc"}
         )
 
         return [v.model_dump() for v in visitantes]

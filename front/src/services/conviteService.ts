@@ -17,6 +17,12 @@ export interface Visitante {
   tipo: 'VISITANTE' | 'PRESTADOR_SERVICO';
   morador_id: number;
   criado_em: string;
+  morador?: {
+      unidade?: {
+          unidade: string;
+          bloco?: string;
+      }
+  }
 }
 
 export const conviteService = {
@@ -26,6 +32,10 @@ export const conviteService = {
   },
   listarVisitantes: async () => {
     const response = await api.get('/convites/visitantes');
+    return response.data;
+  },
+  listarVisitantesCondominio: async () => {
+    const response = await api.get('/convites/visitantes/condominio');
     return response.data;
   },
   atualizarVisitante: async (id: number, dados: Partial<Visitante>) => {
