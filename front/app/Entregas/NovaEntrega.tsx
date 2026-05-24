@@ -8,17 +8,20 @@ import {
   ScrollView,
   StatusBar,
   Platform,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
-import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { colors } from "@/theme/colors";
 import { styles } from "../../src/screens/Entregas/Entregas.styles";
+import { useEntrega } from "@/hooks/useEntrega";
 
 // ── Tipos ─────────────────────────────────────────────────
-type Categoria = "carta" | "pacote" | null;
+type Categoria = "CARTA" | "PACOTE" | null;
 
 // ── Helpers ───────────────────────────────────────────────
 function formatDate(date: Date): string {
@@ -47,12 +50,14 @@ function calcularPrazo(date: Date, time: Date): string {
 // ── Componente principal ──────────────────────────────────
 export default function NovaEntregaScreen() {
   const router = useRouter();
+  const { criarEntrega } = useEntrega("morador");
 
   // ── Estado do formulário ──
   const [data, setData] = useState(new Date());
   const [horario, setHorario] = useState(new Date());
   const [categoria, setCategoria] = useState<Categoria>(null);
   const [mensagem, setMensagem] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // ── Pickers visíveis ──
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -70,11 +75,31 @@ export default function NovaEntregaScreen() {
   }
 
   // ── Submit ──
-  function handleSalvar() {
-    if (!categoria) return;
-    // TODO: integrar com API
-    console.log({ data, horario, categoria, mensagem });
-    router.back();
+  async function handleSalvar() {
+    if (!categoria) {
+      Alert.alert("Erro", "Selecione uma categoria (Carta ou Pacote).");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      
+      const prazo = new Date(data);
+      prazo.setHours(horario.getHours() + 4, horario.getMinutes(), 0, 0);
+
+      await criarEntrega({
+        tipo: categoria,
+        prazo_retirada: prazo.toISOString(),
+        mensagem: mensagem.trim() || undefined,
+      });
+
+      Alert.alert("Sucesso", "Entrega cadastrada com sucesso!");
+      router.back();
+    } catch (error) {
+      Alert.alert("Erro", "Ocorreu um erro ao salvar a entrega.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -164,16 +189,16 @@ export default function NovaEntregaScreen() {
             <TouchableOpacity
               style={[
                 styles.categoriaOption,
-                categoria === "carta" && styles.categoriaOptionActive,
+                categoria === "CARTA" && styles.categoriaOptionActive,
               ]}
-              onPress={() => setCategoria("carta")}
+              onPress={() => setCategoria("CARTA")}
               activeOpacity={0.7}
             >
               <Feather
                 name="mail"
                 size={18}
                 color={
-                  categoria === "carta"
+                  categoria === "CARTA"
                     ? (colors.earthBrown ?? "#8B5E3C")
                     : "#B8A89A"
                 }
@@ -181,7 +206,7 @@ export default function NovaEntregaScreen() {
               <Text
                 style={[
                   styles.categoriaOptionText,
-                  categoria === "carta" && styles.categoriaOptionTextActive,
+                  categoria === "CARTA" && styles.categoriaOptionTextActive,
                 ]}
               >
                 Carta
@@ -191,16 +216,16 @@ export default function NovaEntregaScreen() {
             <TouchableOpacity
               style={[
                 styles.categoriaOption,
-                categoria === "pacote" && styles.categoriaOptionActive,
+                categoria === "PACOTE" && styles.categoriaOptionActive,
               ]}
-              onPress={() => setCategoria("pacote")}
+              onPress={() => setCategoria("PACOTE")}
               activeOpacity={0.7}
             >
               <Feather
                 name="box"
                 size={18}
                 color={
-                  categoria === "pacote"
+                  categoria === "PACOTE"
                     ? (colors.earthBrown ?? "#8B5E3C")
                     : "#B8A89A"
                 }
@@ -208,7 +233,7 @@ export default function NovaEntregaScreen() {
               <Text
                 style={[
                   styles.categoriaOptionText,
-                  categoria === "pacote" && styles.categoriaOptionTextActive,
+                  categoria === "PACOTE" && styles.categoriaOptionTextActive,
                 ]}
               >
                 Pacote
@@ -237,14 +262,19 @@ export default function NovaEntregaScreen() {
             style={styles.btnSalvar}
             onPress={handleSalvar}
             activeOpacity={0.8}
-            disabled={!categoria}
+            disabled={!categoria || isSubmitting}
           >
-            <Text style={styles.btnSalvarText}>Salvar</Text>
+            {isSubmitting ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <Text style={styles.btnSalvarText}>Salvar</Text>
+            )}
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.btnCancelar}
             onPress={() => router.back()}
             activeOpacity={0.8}
+            disabled={isSubmitting}
           >
             <Text style={styles.btnCancelarText}>Cancelar</Text>
           </TouchableOpacity>
