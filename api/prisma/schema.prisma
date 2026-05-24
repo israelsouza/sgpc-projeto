@@ -290,3 +290,22 @@ model ManifestacaoMovimentacao {
 
   @@map("MANIFESTACAO_MOVIMENTACOES")
 }
+
+model Espaco {
+  id        Int        @id @default(autoincrement())
+  nome      String
+  icone     String
+  cor       String
+
+  reservas  Reserva[]
+}
+
+model Reserva {
+  id             Int       @id @default(autoincrement())
+  data_reserva   DateTime
+
+  usuario_id     Int
+  espaco_id      Int
+
+  espaco         Espaco    @relation(fields: [espaco_id], references: [id])
+}

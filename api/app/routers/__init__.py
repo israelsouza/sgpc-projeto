@@ -11,6 +11,9 @@ from app.routers.condominio import router as condominio_router
 from app.routers.unidade import router as unidade_router
 from app.routers.bilhetes import router as bilhete_router
 from app.routers.manifestacoes import router as manifestacao_router
+from app.routers.agendamentos import router as agendamentos_router
+
+
 # Agregador de rotas (Main Router)
 router = APIRouter()
 
@@ -23,3 +26,4 @@ router.include_router(condominio_router)
 router.include_router(unidade_router)
 router.include_router(bilhete_router)
 router.include_router(manifestacao_router)
+router.include_router(agendamentos_router)
