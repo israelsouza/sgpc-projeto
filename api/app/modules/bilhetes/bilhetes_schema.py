@@ -17,7 +17,7 @@ class BilheteBase(BaseModel):
     #PRÉDIOS
     unidade: Optional[str] = None
     bloco: Optional[str] = None
-    andar: Optional[str] = None
+    andar: Optional[int] = None
 
     #RESIDENCIAL - HORIZONTAL
     numero: Optional[str] = None

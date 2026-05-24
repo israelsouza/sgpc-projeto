@@ -1,7 +1,6 @@
-
 from pydantic import BaseModel, ConfigDict, model_validator, field_validator
-from typing import Optional, datetime
-
+from typing import Optional, Literal
+from datetime import datetime
 
 
 #CRIA O MODELO BASE PARA OS TIPOS DE MANIFESTAÇÃO
@@ -9,6 +8,8 @@ class ManifestacaoBase(BaseModel):
 
     assunto: str
     mensagem: str
+
+    categoria: Literal["solicitacao"] = "solicitacao"
 
     #PUXAR OS DADOS DE CONDOMÍNIO
     #DADOS PRÉDIO
@@ -18,7 +19,7 @@ class ManifestacaoBase(BaseModel):
 
     #DADOS RESIDÊNCIAL - HORIZONTAL
     numero: Optional[str] = None
-    prefixo: Optional[str] = None
+    prefixo: Optional[int] = None
 
 
   #Validar os campos de texto que o usuário pode editar
@@ -60,20 +61,10 @@ class ManifestacaoCreate(ManifestacaoBase):
     pass
 
 #ATUALIZAR MANIFESTAÇÃO
-class ManifestacaoUpdate(ManifestacaoBase):
-
-    assunto: str
-    mensagem: str
-
-    #PUXAR OS DADOS DE CONDOMÍNIO
-    #DADOS PRÉDIO
-    unidade: Optional[str] = None
-    bloco: Optional[str] = None
-    andar: Optional[str] = None
-
-    #DADOS RESIDÊNCIAL - HORIZONTAL
-    numero: Optional[str] = None
-    prefixo: Optional[str] = None
+class ManifestacaoUpdate(BaseModel):
+    status: str
+    comentario: Optional[str] = None
+    autor_role: Optional[str] = None
 
 
 class ManifestacaoResponse(ManifestacaoBase):
@@ -81,5 +72,6 @@ class ManifestacaoResponse(ManifestacaoBase):
     
     id: int
     autor: str
-    data_criacao: datetime.datetime
+    status: str
+    data_criacao: datetime
     hora_criacao: str

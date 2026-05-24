@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel
 
 from app.modules.morador.morador_schema import MoradorResponse

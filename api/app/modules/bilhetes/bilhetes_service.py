@@ -4,6 +4,7 @@ from app.modules.bilhetes.bilhetes_schema import (
     BilheteCreate,
 )
 from app.modules.core.core_exception import ValidationError
+from fastapi import HTTPException
 
 #CRIAR OS BILHETES
 class BilhetesService:
@@ -43,7 +44,10 @@ class BilhetesService:
         )
 
         if not bilhete:
-            return None
+            raise HTTPException(
+                status_code=404,
+                detail="Bilhete não encontrado"
+            )
 
         return await db.bilhetes.delete(
             where={
