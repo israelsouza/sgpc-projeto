@@ -3,7 +3,7 @@ import { Alert, Platform } from 'react-native';
 import * as Linking from 'expo-linking';
 import { DocumentoService, IDocumento } from '../services/documentoService';
 
-// PDF de exemplo para o Mock (URL pública e estável)
+// PDF de exemplo para o Mock (URL pública e estável que funciona na apresentação)
 const MOCK_PDF_URL = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
 
 export function useDocumentos() {
@@ -11,34 +11,14 @@ export function useDocumentos() {
   const [loading, setLoading] = useState(false);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
 
-  const fetchDocumentos = useCallback(async (categoria?: string, limit: number = 10, offset: number = 0) => {
+  const fetchDocumentos = useCallback(async (categoria?: string, limit: number = 20, offset: number = 0) => {
     setLoading(true);
     try {
+      // REATIVADO: Agora buscamos do banco para mostrar deleção/adição em tempo real
       const response = await DocumentoService.listar(categoria, limit, offset);
       setDocumentos(response.items || []);
     } catch (error: any) {
-      const msg = error.response?.data?.mensagem || 'Erro ao buscar documentos';
-      // Se falhar a listagem (ex: banco vazio), vamos injetar um documento fake para teste
-      if (response?.items?.length === 0 || error) {
-          setDocumentos([
-              {
-                  id: 999,
-                  titulo: "Regulamento Interno (Mock)",
-                  categoria: "Geral",
-                  filename_orig: "regulamento.pdf",
-                  criado_em: new Date().toISOString(),
-                  quem_criou_id: 1
-              },
-              {
-                  id: 888,
-                  titulo: "Ata de Assembleia (Mock)",
-                  categoria: "Atas",
-                  filename_orig: "ata_2026.pdf",
-                  criado_em: new Date().toISOString(),
-                  quem_criou_id: 1
-              }
-          ]);
-      }
+      console.error('Erro ao buscar documentos da API:', error);
     } finally {
       setLoading(false);
     }
@@ -47,18 +27,17 @@ export function useDocumentos() {
   const openDocumento = useCallback(async (documentoId: number) => {
     setDownloadingId(documentoId);
     try {
-      // MOCK ATIVO: Ignoramos a chamada ao backend e usamos a URL estática
-      console.log(`[MOCK] Abrindo documento ${documentoId} via URL estática segura.`);
+      // MOCK ATIVO: Mesmo vindo do banco, ignoramos a URL assinada e usamos a estável
+      console.log(`[MOCK] Abrindo documento ${documentoId} via URL de apresentação.`);
       
       if (Platform.OS === 'web') {
-          // Na web, abrir em nova aba é mais garantido
           window.open(MOCK_PDF_URL, '_blank');
       } else {
           await Linking.openURL(MOCK_PDF_URL);
       }
       
     } catch (error: any) {
-      const msg = error.response?.data?.mensagem || 'Erro ao tentar abrir o documento';
+      const msg = 'Erro ao tentar abrir o documento.';
       if (Platform.OS === 'web') alert(msg);
       else Alert.alert('Erro', msg);
     } finally {
@@ -69,9 +48,12 @@ export function useDocumentos() {
   const uploadDocumento = useCallback(async (formData: FormData) => {
     setLoading(true);
     try {
+      // REATIVADO: Para que o Síndico possa mostrar que o arquivo aparece na lista
       await DocumentoService.criar(formData);
-      if (Platform.OS === 'web') alert('Documento enviado com sucesso (Simulado)');
-      else Alert.alert('Sucesso', 'Documento enviado com sucesso');
+      
+      if (Platform.OS === 'web') alert('Documento enviado com sucesso!');
+      else Alert.alert('Sucesso', 'Documento enviado com sucesso!');
+      
       return true;
     } catch (error: any) {
       const msg = error.response?.data?.mensagem || 'Erro ao enviar documento';
