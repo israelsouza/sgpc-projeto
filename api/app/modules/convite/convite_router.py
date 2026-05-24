@@ -5,6 +5,8 @@ from app.modules.convite.convite_schema import (
     ConviteCreate,
     ConviteResponse,
     VisitanteCreate,
+    VisitanteResponse,
+    VisitanteUpdate,
 )
 from app.modules.core.core_schema import StandardResponse
 from app.modules.core.limiter import limiter
@@ -20,8 +22,7 @@ router = APIRouter(prefix="/convites", tags=["Convites de Visitantes"])
     response_model=StandardResponse[ConviteResponse],
 )
 async def gerar_convite(
-    dados: ConviteCreate,
-    usuario: models.Usuario = Depends(get_current_user)
+    dados: ConviteCreate, usuario: models.Usuario = Depends(get_current_user)
 ):
     """
     Gera um link de convite para um visitante preencher seus dados.
@@ -36,7 +37,7 @@ async def gerar_convite(
 
 @router.get(
     "/visitantes",
-    response_model=StandardResponse[list],
+    response_model=StandardResponse[list[VisitanteResponse]],
 )
 async def listar_visitantes(usuario: models.Usuario = Depends(get_current_user)):
     """
@@ -47,6 +48,45 @@ async def listar_visitantes(usuario: models.Usuario = Depends(get_current_user))
         message="Visitantes listados com sucesso.",
         status_code=status.HTTP_200_OK,
         data=resultado,
+    )
+
+
+@router.patch(
+    "/visitantes/{visitante_id}",
+    response_model=StandardResponse[VisitanteResponse],
+)
+async def atualizar_visitante(
+    visitante_id: int,
+    dados: VisitanteUpdate,
+    usuario: models.Usuario = Depends(get_current_user),
+):
+    """
+    Atualiza os dados de um visitante (Apenas se pertencer à unidade do morador).
+    """
+    resultado = await ConviteController.atualizar_visitante(
+        usuario.id, visitante_id, dados
+    )
+    return StandardResponse(
+        message="Visitante atualizado com sucesso.",
+        status_code=status.HTTP_200_OK,
+        data=resultado,
+    )
+
+
+@router.delete(
+    "/visitantes/{visitante_id}",
+    response_model=StandardResponse,
+)
+async def excluir_visitante(
+    visitante_id: int, usuario: models.Usuario = Depends(get_current_user)
+):
+    """
+    Remove um visitante do cadastro (Apenas se pertencer à unidade do morador).
+    """
+    await ConviteController.excluir_visitante(usuario.id, visitante_id)
+    return StandardResponse(
+        message="Visitante removido com sucesso.",
+        status_code=status.HTTP_200_OK,
     )
 
 

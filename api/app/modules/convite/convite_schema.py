@@ -31,6 +31,13 @@ class VisitanteCreate(BaseModel):
     celular: str = Field(..., min_length=10, max_length=15)
 
 
+class VisitanteUpdate(BaseModel):
+    nome_completo: str | None = Field(None, min_length=3, max_length=100)
+    documento: str | None = Field(None, min_length=5, max_length=20)
+    celular: str | None = Field(None, min_length=10, max_length=15)
+    tipo: TipoConvite | None = None
+
+
 class VisitanteResponse(BaseModel):
     id: int
     nome_completo: str

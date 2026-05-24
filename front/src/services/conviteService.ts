@@ -9,6 +9,16 @@ export interface ConviteResponse {
   status: string;
 }
 
+export interface Visitante {
+  id: number;
+  nome_completo: string;
+  documento: string;
+  celular: string;
+  tipo: 'VISITANTE' | 'PRESTADOR_SERVICO';
+  morador_id: number;
+  criado_em: string;
+}
+
 export const conviteService = {
   gerarConvite: async (tipo: 'VISITANTE' | 'PRESTADOR_SERVICO' = 'VISITANTE') => {
     const response = await api.post('/convites/gerar', { tipo });
@@ -16,6 +26,14 @@ export const conviteService = {
   },
   listarVisitantes: async () => {
     const response = await api.get('/convites/visitantes');
+    return response.data;
+  },
+  atualizarVisitante: async (id: number, dados: Partial<Visitante>) => {
+    const response = await api.patch(`/convites/visitantes/${id}`, dados);
+    return response.data;
+  },
+  excluirVisitante: async (id: number) => {
+    const response = await api.delete(`/convites/visitantes/${id}`);
     return response.data;
   },
 };

@@ -2,9 +2,13 @@ from fastapi import Request
 from fastapi.templating import Jinja2Templates
 
 from app.db.prisma_client import get_prisma
-from app.modules.convite.convite_schema import ConviteCreate, VisitanteCreate
+from app.modules.convite.convite_schema import (
+    ConviteCreate,
+    VisitanteCreate,
+    VisitanteUpdate,
+)
 from app.modules.convite.convite_service import ConviteService
-from app.modules.core.core_exception import ValidationError
+from app.modules.core.core_exception import ForbiddenError, ValidationError
 
 templates = Jinja2Templates(directory="app/templates")
 
@@ -74,3 +78,40 @@ class ConviteController:
         )
 
         return [v.model_dump() for v in visitantes]
+
+    @staticmethod
+    async def atualizar_visitante(usuario_id: int, visitante_id: int, dados: VisitanteUpdate):
+        db = await get_prisma()
+        
+        # Validar se o visitante pertence ao condomínio/unidade do morador
+        morador = await db.morador.find_unique(where={"usuario_id": usuario_id})
+        visitante = await db.visitante.find_unique(
+            where={"id": visitante_id},
+            include={"morador": True}
+        )
+        
+        if not morador or not visitante:
+            raise ValidationError(nome="nao_encontrado", mensagem="Recurso não encontrado.")
+            
+        if visitante.morador.unidade_id != morador.unidade_id:
+             raise ForbiddenError("Você não tem permissão para gerenciar este visitante.")
+
+        return await ConviteService.atualizar_visitante(db, visitante_id, dados)
+
+    @staticmethod
+    async def excluir_visitante(usuario_id: int, visitante_id: int):
+        db = await get_prisma()
+        
+        morador = await db.morador.find_unique(where={"usuario_id": usuario_id})
+        visitante = await db.visitante.find_unique(
+            where={"id": visitante_id},
+            include={"morador": True}
+        )
+        
+        if not morador or not visitante:
+            raise ValidationError(nome="nao_encontrado", mensagem="Recurso não encontrado.")
+            
+        if visitante.morador.unidade_id != morador.unidade_id:
+             raise ForbiddenError("Você não tem permissão para gerenciar este visitante.")
+
+        return await ConviteService.excluir_visitante(db, visitante_id)
