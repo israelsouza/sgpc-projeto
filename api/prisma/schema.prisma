@@ -202,6 +202,7 @@ model Convite {
   id             Int      @id @default(autoincrement())
   token          String   @unique @map("token")
   morador_id     Int      @map("morador_id")
+  tipo           String   @default("VISITANTE") @map("tipo") // VISITANTE, PRESTADOR_SERVICO
   data_expiracao DateTime @map("data_expiracao")
   status         String   @default("PENDENTE") @map("status") // PENDENTE, UTILIZADO, EXPIRADO
 
@@ -219,6 +220,7 @@ model Visitante {
   nome_completo String @map("nome_completo")
   documento     String @map("documento")
   celular       String @map("celular")
+  tipo          String @default("VISITANTE") @map("tipo") // VISITANTE, PRESTADOR_SERVICO
   morador_id    Int    @map("morador_id")
 
   // Relacionamentos

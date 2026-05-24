@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Request, status
 
 from app.modules.convite.convite_controller import ConviteController
 from app.modules.convite.convite_schema import (
+    ConviteCreate,
     ConviteResponse,
     VisitanteCreate,
 )
@@ -18,11 +19,14 @@ router = APIRouter(prefix="/convites", tags=["Convites de Visitantes"])
     status_code=status.HTTP_201_CREATED,
     response_model=StandardResponse[ConviteResponse],
 )
-async def gerar_convite(usuario: models.Usuario = Depends(get_current_user)):
+async def gerar_convite(
+    dados: ConviteCreate,
+    usuario: models.Usuario = Depends(get_current_user)
+):
     """
     Gera um link de convite para um visitante preencher seus dados.
     """
-    resultado = await ConviteController.gerar(usuario.id)
+    resultado = await ConviteController.gerar(usuario.id, dados)
     return StandardResponse(
         message="Convite gerado com sucesso.",
         status_code=status.HTTP_201_CREATED,

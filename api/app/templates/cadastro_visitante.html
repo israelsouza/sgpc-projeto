@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Visitante - SGPC</title>
+    <title>Cadastro de {{ tipo_label }} - SGPC</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -37,7 +37,7 @@
                 <div class="card">
                     <div class="header-bg">
                         <h4 class="mb-0">Olá!</h4>
-                        <p class="mb-0 opacity-75">Você foi convidado por <strong>{{ morador_nome }}</strong></p>
+                        <p class="mb-0 opacity-75">Você foi convidado como <strong>{{ tipo_label }}</strong> por <strong>{{ morador_nome }}</strong></p>
                     </div>
                     <div class="card-body p-4">
                         <p class="text-muted text-center mb-4">Preencha seus dados para agilizar sua entrada no condomínio.</p>
@@ -48,8 +48,9 @@
                                 <input type="text" class="form-control" id="nome" name="nome_completo" required minlength="3">
                             </div>
                             <div class="mb-3">
-                                <label for="documento" class="form-label">CPF ou RG</label>
-                                <input type="text" class="form-control" id="documento" name="documento" required minlength="5">
+                                <label for="documento" class="form-label">Documento (CPF ou RG)</label>
+                                <input type="text" class="form-control" id="documento" name="documento" placeholder="000.000.000-00" required>
+                                <div class="form-text">Preencha apenas os números ou use o formato padrão.</div>
                             </div>
                             <div class="mb-3">
                                 <label for="celular" class="form-label">Celular</label>
@@ -76,7 +77,24 @@
         </div>
     </div>
 
+    <!-- Scripts de Máscara -->
+    <script src="https://unpkg.com/imask"></script>
     <script>
+        // Máscara para Celular
+        const celularInput = document.getElementById('celular');
+        IMask(celularInput, {
+            mask: '(00) 00000-0000'
+        });
+
+        // Máscara para Documento (Dinâmica para CPF ou RG simples)
+        const documentoInput = document.getElementById('documento');
+        IMask(documentoInput, {
+            mask: [
+                { mask: '000.000.000-00' }, // CPF
+                { mask: '00.000.000-0' }    // RG padrão
+            ]
+        });
+
         const form = document.getElementById('cadastroForm');
         const btnSubmit = document.getElementById('btnSubmit');
         const msgSucesso = document.getElementById('msgSucesso');
@@ -89,10 +107,14 @@
             btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando...';
             msgErro.classList.add('d-none');
 
+            // Remove as máscaras para enviar apenas os números para a API (padronização do backend)
+            const cleanDocumento = documentoInput.value.replace(/\D/g, '');
+            const cleanCelular = celularInput.value.replace(/\D/g, '');
+
             const formData = {
                 nome_completo: form.nome.value,
-                documento: form.documento.value,
-                celular: form.celular.value
+                documento: cleanDocumento,
+                celular: cleanCelular
             };
 
             try {

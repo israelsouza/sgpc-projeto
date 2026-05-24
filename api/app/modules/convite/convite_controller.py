@@ -2,7 +2,7 @@ from fastapi import Request
 from fastapi.templating import Jinja2Templates
 
 from app.db.prisma_client import get_prisma
-from app.modules.convite.convite_schema import VisitanteCreate
+from app.modules.convite.convite_schema import ConviteCreate, VisitanteCreate
 from app.modules.convite.convite_service import ConviteService
 from app.modules.core.core_exception import ValidationError
 
@@ -11,7 +11,7 @@ templates = Jinja2Templates(directory="app/templates")
 
 class ConviteController:
     @staticmethod
-    async def gerar(usuario_id: int):
+    async def gerar(usuario_id: int, dados: ConviteCreate):
         db = await get_prisma()
 
         # Buscar o ID do morador vinculado ao usuário
@@ -23,7 +23,7 @@ class ConviteController:
                 acao="Verifique se seu perfil está configurado corretamente.",
             )
 
-        return await ConviteService.gerar_convite(db, morador.id)
+        return await ConviteService.gerar_convite(db, morador.id, dados)
 
     @staticmethod
     async def renderizar_formulario(token: str, request: Request):
@@ -36,12 +36,15 @@ class ConviteController:
                 {"request": request, "mensagem": "Este link expirou ou é inválido."},
             )
 
+        tipo_label = "Visitante" if convite.tipo == "VISITANTE" else "Prestador de Serviço"
+
         return templates.TemplateResponse(
             "cadastro_visitante.html",
             {
                 "request": request,
                 "token": token,
                 "morador_nome": convite.morador.nome_completo,
+                "tipo_label": tipo_label,
             },
         )
 

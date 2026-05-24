@@ -1,17 +1,23 @@
 from datetime import datetime
+from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
 
+class TipoConvite(StrEnum):
+    VISITANTE = "VISITANTE"
+    PRESTADOR_SERVICO = "PRESTADOR_SERVICO"
+
+
 class ConviteCreate(BaseModel):
-    # Por enquanto não precisa de campos, o morador logado é o dono
-    pass
+    tipo: TipoConvite = TipoConvite.VISITANTE
 
 
 class ConviteResponse(BaseModel):
     id: int
     token: str
     url: str
+    tipo: str
     data_expiracao: datetime
     status: str
 
@@ -30,6 +36,7 @@ class VisitanteResponse(BaseModel):
     nome_completo: str
     documento: str
     celular: str
+    tipo: str
     morador_id: int
     criado_em: datetime
 

@@ -42,8 +42,8 @@ export default function CadastradosScreen() {
         const visitantesMapped = (visitantesRes?.data || []).map((v: any) => ({
           id: `v-${v.id}`,
           nome: v.nome_completo,
-          tipo: "Visitante",
-          icone: "walk-outline" as const,
+          tipo: v.tipo === "PRESTADOR_SERVICO" ? "Prestador" : "Visitante",
+          icone: v.tipo === "PRESTADOR_SERVICO" ? "build-outline" : "walk-outline" as const,
         }));
 
         setCadastrados([...moradoresMapped, ...visitantesMapped]);
