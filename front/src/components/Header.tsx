@@ -3,7 +3,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { styles } from "@/screens/Home/home.styles";
 import { ReactNode } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { navigation } from "@/utils/navigation";
 
 interface HeaderProps {
   title?: string;
@@ -21,13 +21,12 @@ export function Header({
   showBackButton = false,
 }: HeaderProps) {
   const insets = useSafeAreaInsets();
-  const router = useRouter();
 
   return (
     <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) + 16 }]}>
       <View style={styles.headerLeft}>
         {showBackButton ? (
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <TouchableOpacity onPress={() => navigation.safeBack("/home")} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#FFF" />
           </TouchableOpacity>
         ) : (

@@ -6,9 +6,9 @@ import { styles } from '@/screens/RecuperacaoSenha/recuperacaoSenha.styles';
 import { useRecuperacaoSenha } from '@/hooks/useRecuperacaoSenha';
 import { colors } from '@/theme/colors';
 import { recuperarSenhaSchema } from '@/validation/authSchemas';
+import { navigation } from '@/utils/navigation';
 
 export default function EsqueciSenhaScreen() {
-  const router = useRouter();
   const { email, setEmail, solicitarRecuperacao, loading, error, message, clearError } = useRecuperacaoSenha();
   const [localError, setLocalError] = useState<string | null>(null);
 
@@ -25,10 +25,7 @@ export default function EsqueciSenhaScreen() {
     if (sucesso) {
       // Pequeno delay para o usuário ver a mensagem antes de ir para a próxima tela
       setTimeout(() => {
-        router.push({
-          pathname: '/ValidarCodigo',
-          params: { email }
-        });
+        navigation.push('/ValidarCodigo', { email });
       }, 1500);
     }
   };
@@ -84,7 +81,7 @@ export default function EsqueciSenhaScreen() {
 
         <TouchableOpacity 
           style={styles.btnSecondary} 
-          onPress={() => router.back()}
+          onPress={() => navigation.safeBack("/login")}
           disabled={loading}
         >
           <Text style={styles.btnSecondaryText}>Voltar para o Login</Text>

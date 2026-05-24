@@ -92,7 +92,9 @@ export default function EntregasScreen() {
                   key={entrega.id}
                   style={styles.card}
                   activeOpacity={0.7}
-                  onPress={() => router.push(`/Entregas/ResumoEntrega?id=${entrega.id}`)}
+                  onPress={() =>
+                    router.push(`/Entregas/ResumoEntrega?id=${entrega.id}`)
+                  }
                 >
                   {/* Topo: ícone + tipo + status */}
                   <View
@@ -103,7 +105,13 @@ export default function EntregasScreen() {
                       marginBottom: 10,
                     }}
                   >
-                    <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 8,
+                      }}
+                    >
                       <View
                         style={{
                           width: 36,
@@ -183,7 +191,7 @@ export default function EntregasScreen() {
                       "{entrega.mensagem}"
                     </Text>
                   )}
-                </View>
+                </TouchableOpacity>
               );
             })
           )}

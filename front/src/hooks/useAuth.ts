@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
+import { storage } from '@/utils/storage';
+import { navigation } from '@/utils/navigation';
 import { AuthService } from '@/services/authService';
 import { IRegisterForm } from '@/types';
 // import { useNotifications } from './useNotifications';
@@ -13,7 +14,11 @@ export function useAuth() {
 
   const handleLogin = async (dados: { email: string; senha: string }) => {
     if (!dados.email || !dados.senha) {
-      Alert.alert("Erro", "Preencha e-mail e senha");
+      if (Platform.OS === 'web') {
+        alert("Preencha e-mail e senha");
+      } else {
+        Alert.alert("Erro", "Preencha e-mail e senha");
+      }
       return;
     }
 
@@ -21,28 +26,30 @@ export function useAuth() {
     try {
       const authData = await AuthService.login(dados);
       
-      // Salva o token de forma segura (SecureStore apenas aceita strings)
-      await SecureStore.setItemAsync('user_token', String(authData.access_token || ""));
-      await SecureStore.setItemAsync('user_perfil', String(authData.perfil || ""));
-      await SecureStore.setItemAsync('user_nome', String(authData.nome || ""));
-      await SecureStore.setItemAsync('user_condominio', String(authData.condominio || ""));
-      await SecureStore.setItemAsync('user_condominio_id', String(authData.condominio_id || ""));
-      await SecureStore.setItemAsync('user_unidade', String(authData.unidade || ""));
+      // Salva o token de forma segura (No mobile SecureStore, na Web localStorage)
+      await storage.setItemAsync('user_token', String(authData.access_token || ""));
+      await storage.setItemAsync('user_perfil', String(authData.perfil || ""));
+      await storage.setItemAsync('user_nome', String(authData.nome || ""));
+      await storage.setItemAsync('user_condominio', String(authData.condominio || ""));
+      await storage.setItemAsync('user_condominio_id', String(authData.condominio_id || ""));
+      await storage.setItemAsync('user_unidade', String(authData.unidade || ""));
 
-      // Tenta sincronizar o Token FCM para notificações.
-      // A falha aqui não deve impedir o login.
-      // try {
-      //   await syncToken();
-      // } catch (notificationError) {
-      //   console.error("Falha ao sincronizar o token de notificação, mas o login continuará:", notificationError);
-      // }
-
-      Alert.alert("Sucesso", "Login realizado com sucesso!", [
-        { text: "OK", onPress: () => router.replace("/(tabs)/home") }
-      ]);
+      if (Platform.OS === 'web') {
+        // Na Web, o Alert.alert com botões pode não executar o callback onPress corretamente
+        // ou ser bloqueado. Vamos navegar diretamente.
+        navigation.replace("/home");
+      } else {
+        Alert.alert("Sucesso", "Login realizado com sucesso!", [
+          { text: "OK", onPress: () => navigation.replace("/home") }
+        ]);
+      }
     } catch (error: any) {
       const msg = error.response?.data?.mensagem || "E-mail ou senha incorretos";
-      Alert.alert("Erro", msg);
+      if (Platform.OS === 'web') {
+        alert(msg);
+      } else {
+        Alert.alert("Erro", msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -50,7 +57,11 @@ export function useAuth() {
 
   const handleValidateKey = async (accessKey: string) => {
     if (!accessKey) {
-      Alert.alert("Erro", "Informe a chave de acesso");
+      if (Platform.OS === 'web') {
+        alert("Informe a chave de acesso");
+      } else {
+        Alert.alert("Erro", "Informe a chave de acesso");
+      }
       return;
     }
 
@@ -59,14 +70,11 @@ export function useAuth() {
       const { perfil, condominio, unidade } = await AuthService.validarChave(accessKey);
 
       const navigateToRegister = () => {
-        router.push({
-          pathname: "/(auth)/Register",
-          params: { 
+        navigation.push("/Register", { 
             chave_acesso: accessKey,
             perfil,
             condominio,
             ...(unidade ? { unidade } : {})
-          }
         });
       };
 
@@ -81,7 +89,11 @@ export function useAuth() {
       }
     } catch (error: any) {
       const msg = error.response?.data?.mensagem || "Chave inválida ou expirada";
-      Alert.alert("Erro", msg);
+      if (Platform.OS === 'web') {
+        alert(msg);
+      } else {
+        Alert.alert("Erro", msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -91,14 +103,23 @@ export function useAuth() {
     setLoading(true);
     try {
       await AuthService.registrar(formData, perfil);
-      Alert.alert(
-        "Sucesso!",
-        "Seu cadastro foi realizado e está aguardando aprovação.",
-        [{ text: "OK", onPress: () => router.replace("/(auth)/login") }]
-      );
+      if (Platform.OS === 'web') {
+        alert("Seu cadastro foi realizado e está aguardando aprovação.");
+        navigation.replace("/login");
+      } else {
+        Alert.alert(
+          "Sucesso!",
+          "Seu cadastro foi realizado e está aguardando aprovação.",
+          [{ text: "OK", onPress: () => navigation.replace("/login") }]
+        );
+      }
     } catch (err: any) {
       const msg = err.response?.data?.mensagem || "Erro ao realizar cadastro";
-      Alert.alert("Erro", msg);
+      if (Platform.OS === 'web') {
+        alert(msg);
+      } else {
+        Alert.alert("Erro", msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -106,7 +127,7 @@ export function useAuth() {
 
   const checkPermission = async (allowedProfiles: string[]) => {
     try {
-      const userProfile = await SecureStore.getItemAsync('user_perfil');
+      const userProfile = await storage.getItemAsync('user_perfil');
       return userProfile ? allowedProfiles.includes(userProfile) : false;
     } catch {
       return false;

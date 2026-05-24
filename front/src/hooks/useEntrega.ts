@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import entregaService, { Entrega, CreateEntregaDTO, UpdateStatusEntregaDTO } from "../services/entregaService";
-import * as SecureStore from "expo-secure-store";
+import { storage } from "@/utils/storage";
 
 let listaCacheMorador: Entrega[] = [];
 let listaCacheCondominio: Entrega[] = [];
@@ -55,7 +55,7 @@ export const useEntrega = (tipoVisao: "morador" | "condominio" = "morador", limi
     let socket: WebSocket | null = null;
 
     const setupWebSocket = async () => {
-      const condoId = await SecureStore.getItemAsync("user_condominio_id");
+      const condoId = await storage.getItemAsync("user_condominio_id");
       if (!condoId) return;
 
       const wsUrl =

@@ -1,24 +1,7 @@
 // src/contexts/ThemeContext.tsx
 import { createContext, useContext, useState, useEffect } from 'react';
-import { useColorScheme, Platform } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
-
-// ── Storage helper: SecureStore no device, localStorage na web ──
-const storage = {
-  get: async (key: string): Promise<string | null> => {
-    if (Platform.OS === 'web') {
-      return localStorage.getItem(key);
-    }
-    return SecureStore.getItemAsync(key);
-  },
-  set: async (key: string, value: string): Promise<void> => {
-    if (Platform.OS === 'web') {
-      localStorage.setItem(key, value);
-      return;
-    }
-    await SecureStore.setItemAsync(key, value);
-  },
-};
+import { useColorScheme } from 'react-native';
+import { storage } from '@/utils/storage';
 
 type Theme = 'light' | 'dark' | 'highContrast';
 
@@ -99,7 +82,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   // Carrega preferência de alto contraste ao iniciar (persiste entre sessões)
   useEffect(() => {
-    storage.get(HC_KEY).then((val) => {
+    storage.getItemAsync(HC_KEY).then((val) => {
       if (val === 'true') setTheme('highContrast');
     });
   }, []);
@@ -118,7 +101,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       ? 'highContrast'
       : (systemColorScheme ?? 'light');   // volta para o tema do sistema
     setTheme(nextTheme);
-    await storage.set(HC_KEY, String(turningOn));
+    await storage.setItemAsync(HC_KEY, String(turningOn));
   };
 
   const colors =

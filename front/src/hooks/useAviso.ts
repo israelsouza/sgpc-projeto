@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import avisoService, { Aviso } from "../services/avisoService";
-import * as SecureStore from "expo-secure-store";
+import { storage } from "@/utils/storage";
 
 // Cache da lista em nível de módulo para persistir entre navegações
 let listaCache: Aviso[] = [];
@@ -46,7 +46,7 @@ export const useAviso = (categoria?: string, limit: number = 20) => {
     let socket: WebSocket | null = null;
 
     const setupWebSocket = async () => {
-      const condoId = await SecureStore.getItemAsync("user_condominio_id");
+      const condoId = await storage.getItemAsync("user_condominio_id");
       if (!condoId) return;
 
       const wsUrl =

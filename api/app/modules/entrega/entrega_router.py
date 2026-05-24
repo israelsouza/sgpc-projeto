@@ -23,15 +23,17 @@ async def criar_entrega(
     service: EntregaService = Depends(get_entrega_service),
 ):
     """Cria uma nova expectativa de entrega pelo morador."""
-    if not current_user.get("morador_id"):
+    if not current_user.morador:
         raise ForbiddenError("Apenas moradores podem criar avisos de entrega.")
 
-    condominio_id = current_user.get("condominio_id")
+    condominio_id = None
+    if current_user.morador.unidade:
+        condominio_id = current_user.morador.unidade.condominio_id
 
     return await EntregaController.criar_entrega(
-        morador_id=current_user["morador_id"],
+        morador_id=current_user.morador.id,
         dados=dados,
-        usuario_id=current_user["id"],
+        usuario_id=current_user.id,
         condominio_id=condominio_id,
         service=service,
     )
@@ -45,11 +47,11 @@ async def listar_entregas_morador(
     service: EntregaService = Depends(get_entrega_service),
 ):
     """Lista as entregas do morador logado."""
-    if not current_user.get("morador_id"):
+    if not current_user.morador:
         raise ForbiddenError("Acesso negado. Usuário não é um morador.")
 
     return await EntregaController.listar_entregas_morador(
-        morador_id=current_user["morador_id"],
+        morador_id=current_user.morador.id,
         limit=limit,
         offset=offset,
         service=service,
@@ -85,7 +87,12 @@ async def listar_entregas_condominio(
     service: EntregaService = Depends(get_entrega_service),
 ):
     """Lista as entregas do condomínio (para porteiros/síndicos)."""
-    condominio_id = current_user.get("condominio_id")
+    condominio_id = None
+    if current_user.funcionario:
+        condominio_id = current_user.funcionario.condominio_id
+    elif current_user.morador and current_user.morador.unidade:
+        condominio_id = current_user.morador.unidade.condominio_id
+
     if not condominio_id:
         raise ForbiddenError("Usuário não associado a um condomínio.")
 
@@ -116,7 +123,7 @@ async def atualizar_status(
     return await EntregaController.atualizar_status(
         entrega_id=entrega_id,
         dados=dados,
-        usuario_id=current_user["id"],
+        usuario_id=current_user.id,
         service=service,
     )
 

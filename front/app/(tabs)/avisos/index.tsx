@@ -1,27 +1,17 @@
 // app/(tabs)/avisos/index.tsx
-import React, { useState, useEffect, useMemo } from "react";
-import { View, Text, ScrollView, TouchableOpacity, StatusBar } from "react-native";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { View, Text, ScrollView, TouchableOpacity, StatusBar, RefreshControl } from "react-native";
 import { Feather, Entypo } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { Header } from "@/components/Header";
 import { styles as staticStyles, createStyles } from "@/screens/Avisos/avisos.styles";
 import { colors } from "@/theme/colors";
 import { useTheme } from "@/contexts/ThemeContext";
-import * as SecureStore from "expo-secure-store";
-
-interface Aviso {
-  id: string;
-  titulo: string;
-  preview: string;
-  data: string;
-  hora: string;
-  novo: boolean;
-  anexos?: number;
-}
-
-import { useRouter } from "expo-router";
+import { storage } from "@/utils/storage";
+import { useAviso } from "@/hooks/useAviso";
+import { Aviso } from "@/services/avisoService";
 
 // ── Card extraído como componente interno ──────────────────────────────────
-// Recebe o styles e as cores já resolvidos pela tela pai
 function AvisoCard({
   aviso,
   styles,
@@ -31,6 +21,11 @@ function AvisoCard({
   styles: ReturnType<typeof createStyles>;
   iconColor: string;
 }) {
+  // Formatação básica de data e hora
+  const dataObj = new Date(aviso.criado_em);
+  const dataFormatada = dataObj.toLocaleDateString('pt-BR');
+  const horaFormatada = dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
   return (
     <TouchableOpacity
       activeOpacity={0.75}
@@ -68,15 +63,13 @@ function AvisoCard({
         </View>
 
         <Text style={styles.cardPreview} numberOfLines={1}>
-          {aviso.preview}
+          {aviso.descricao}
         </Text>
 
-        {aviso.anexos && aviso.anexos > 0 ? (
+        {aviso.anexo_url ? (
           <View style={styles.attachmentRow}>
             <Feather name="paperclip" size={12} color={styles.attachmentText.color as string} />
-            <Text style={styles.attachmentText}>
-              {aviso.anexos} {aviso.anexos === 1 ? "anexo" : "anexos"}
-            </Text>
+            <Text style={styles.attachmentText}>Possui anexo</Text>
           </View>
         ) : null}
       </View>
@@ -97,6 +90,7 @@ export default function AvisosScreen() {
   const [userCondo, setUserCondo] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
+  
   const { 
     avisos, 
     loading, 
@@ -119,7 +113,7 @@ export default function AvisosScreen() {
   useEffect(() => {
     async function loadUserData() {
       try {
-        const condo = await SecureStore.getItemAsync("user_condominio");
+        const condo = await storage.getItemAsync("user_condominio");
         if (condo) setUserCondo(condo);
       } catch (error) {
         console.error("Erro ao carregar condomínio do usuário:", error);
@@ -166,7 +160,7 @@ export default function AvisosScreen() {
             // Cor do ícone: HC usa amarelo / normal mantém lógica original
             const iconColor = isHighContrast
               ? themeColors.iconColorOverride
-              : aviso.novo
+              : aviso.is_recente
               ? colors.earthAccent
               : colors.textMuted;
 

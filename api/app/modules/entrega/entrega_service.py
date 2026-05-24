@@ -26,13 +26,13 @@ class EntregaService:
 
         # Disparar evento WebSocket para o condomínio, se fornecido
         if condominio_id:
-            await manager.broadcast(
-                condominio_id,
+            await manager.broadcast_to_condominio(
                 {
                     "type": "NEW_ENTREGA",
                     "entrega_id": nova_entrega.id,
                     "status": nova_entrega.status,
                 },
+                condominio_id,
             )
 
         return nova_entrega
@@ -85,13 +85,13 @@ class EntregaService:
             and entrega.morador.unidade
             and entrega.morador.unidade.condominio_id
         ):
-            await manager.broadcast(
-                entrega.morador.unidade.condominio_id,
+            await manager.broadcast_to_condominio(
                 {
                     "type": "UPDATE_ENTREGA",
                     "entrega_id": entrega.id,
                     "status": entrega_atualizada.status,
                 },
+                entrega.morador.unidade.condominio_id,
             )
 
         return entrega_atualizada
@@ -109,11 +109,11 @@ class EntregaService:
             and entrega.morador.unidade
             and entrega.morador.unidade.condominio_id
         ):
-            await manager.broadcast(
-                entrega.morador.unidade.condominio_id,
+            await manager.broadcast_to_condominio(
                 {
                     "type": "UPDATE_ENTREGA",
                     "entrega_id": entrega.id,
                     "status": "DELETADA",
                 },
+                entrega.morador.unidade.condominio_id,
             )

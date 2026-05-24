@@ -7,9 +7,9 @@ import {
   StatusBar,
   Animated,
 } from "react-native";
-import { useRouter } from "expo-router";
 import { useState, useEffect, useMemo, useRef } from "react";
-import * as SecureStore from "expo-secure-store";
+import { storage } from "@/utils/storage";
+import { navigation } from "@/utils/navigation";
 import { Feather, AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Header } from "@/components/Header";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -142,7 +142,6 @@ function AnimatedSwitch({ value }: { value: boolean }) {
 }
 
 export default function HomeScreen() {
-  const router = useRouter();
   const { colors: themeColors, isHighContrast, toggleHighContrast } = useTheme();
 
   // Normal: usa o styles estático original (palette/colors do seu projeto)
@@ -163,9 +162,9 @@ export default function HomeScreen() {
   useEffect(() => {
     async function loadUserData() {
       try {
-        const name = await SecureStore.getItemAsync("userName");
-        const condo = await SecureStore.getItemAsync("userCondo");
-        const unit = await SecureStore.getItemAsync("userUnit");
+        const name = await storage.getItemAsync("user_nome");
+        const condo = await storage.getItemAsync("user_condominio");
+        const unit = await storage.getItemAsync("user_unidade");
         if (name) setUserName(name.split(" ")[0]);
         if (condo) setUserCondo(condo);
         if (unit) setUserUnit(unit);
@@ -231,7 +230,7 @@ export default function HomeScreen() {
                 <TouchableOpacity
                   key={item.id}
                   style={styles.card}
-                  onPress={() => router.push(item.route as any)}
+                  onPress={() => navigation.push(item.route)}
                   activeOpacity={0.7}
                   accessibilityLabel={`${item.title}: ${item.subtitle}`}
                   accessibilityRole="button"
