@@ -13,10 +13,7 @@ router = APIRouter(prefix="/condominio", tags=["Condomínio"])
 
 
 @router.post("/criar-condominio", response_model=CondominioResponse)
-async def criar_condominio(
-    dados: CondominioCreate,
-    db: Prisma = Depends(get_prisma)
-):
+async def criar_condominio(dados: CondominioCreate, db: Prisma = Depends(get_prisma)):
     return await CondominioController.criar_condominio(dados, db)
 
 
@@ -35,9 +32,7 @@ async def buscar_condominio(cond_id: int, db: Prisma = Depends(get_prisma)):
 
 @router.put("/atualizar-condominio/{cond_id}", response_model=CondominioResponse)
 async def atualizar_condominio(
-    cond_id: int,
-    dados: CondominioUpdate,
-    db: Prisma = Depends(get_prisma)
+    cond_id: int, dados: CondominioUpdate, db: Prisma = Depends(get_prisma)
 ):
     condominio = await CondominioController.atualizar_condominio(cond_id, dados, db)
     if not condominio:

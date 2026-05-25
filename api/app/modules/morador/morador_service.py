@@ -1,5 +1,4 @@
-import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import HTTPException, status
 
@@ -55,8 +54,8 @@ class MoradorService:
         # 3. Converter data para datetime com UTC (exigido pelo Prisma)
         try:
             data_nascimento_dt = datetime.strptime(
-                dados.data_nascimento, "%Y-%m-%d"
-            ).replace(tzinfo=timezone.utc)
+                dados.data_nascimento, "%d%m%Y"
+            ).replace(tzinfo=UTC)
         except ValueError:
             raise ValidationError(
                 nome="data_invalida",
