@@ -23,4 +23,13 @@ export const AuthService = {
     const response = await api.post<StandardResponse<any>>(endpoint, dados);
     return response.data.data;
   },
+
+  criarConvite: async (): Promise<{ codigo: string; expira_em: string }> => {
+    const response = await api.post<StandardResponse<{ codigo: string; expira_em: string }>>('/moradores/me/convite');
+    if (!response.data.data) {
+      throw new Error(response.data.message || "Erro ao criar convite.");
+    }
+    return response.data.data;
+  },
+
 };
