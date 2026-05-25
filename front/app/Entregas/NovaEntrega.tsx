@@ -10,6 +10,7 @@ import {
   Platform,
   Alert,
   ActivityIndicator,
+  TextInput as RNTextInput,
 } from "react-native";
 import { useRouter } from "expo-router";
 import DateTimePicker, {
@@ -74,6 +75,20 @@ export default function NovaEntregaScreen() {
     if (selected) setHorario(selected);
   }
 
+  const handleWebDateChange = (event: any) => {
+    const newDate = new Date(event.target.value + 'T12:00:00');
+    if (!isNaN(newDate.getTime())) {
+      setData(newDate);
+    }
+  };
+
+  const handleWebTimeChange = (event: any) => {
+    const [hours, minutes] = event.target.value.split(':');
+    const newTime = new Date(horario);
+    newTime.setHours(parseInt(hours), parseInt(minutes));
+    setHorario(newTime);
+  };
+
   // ── Submit ──
   async function handleSalvar() {
     if (!categoria) {
@@ -129,27 +144,65 @@ export default function NovaEntregaScreen() {
             {/* Data */}
             <View style={styles.halfField}>
               <Text style={styles.fieldLabel}>Data</Text>
-              <TouchableOpacity
-                style={styles.fieldInput}
-                onPress={() => setShowDatePicker(true)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.fieldInputText}>{formatDate(data)}</Text>
-                <Feather name="calendar" size={16} color={colors.earthBrown ?? "#8B5E3C"} />
-              </TouchableOpacity>
+              {Platform.OS === 'web' ? (
+                <View style={[styles.fieldInput, { padding: 0 }]}>
+                  <RNTextInput
+                    type="date"
+                    value={data.toISOString().split('T')[0]}
+                    onChange={handleWebDateChange}
+                    style={{
+                      backgroundColor: 'transparent',
+                      color: '#4A3728',
+                      fontSize: 14,
+                      padding: 10,
+                      width: '100%',
+                      border: 'none',
+                      outline: 'none',
+                    } as any}
+                  />
+                </View>
+              ) : (
+                <TouchableOpacity
+                  style={styles.fieldInput}
+                  onPress={() => setShowDatePicker(true)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.fieldInputText}>{formatDate(data)}</Text>
+                  <Feather name="calendar" size={16} color={colors.earthBrown ?? "#8B5E3C"} />
+                </TouchableOpacity>
+              )}
             </View>
 
             {/* Horário */}
             <View style={styles.halfField}>
               <Text style={styles.fieldLabel}>Horário</Text>
-              <TouchableOpacity
-                style={styles.fieldInput}
-                onPress={() => setShowTimePicker(true)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.fieldInputText}>{formatTime(horario)}</Text>
-                <Feather name="clock" size={16} color={colors.earthBrown ?? "#8B5E3C"} />
-              </TouchableOpacity>
+              {Platform.OS === 'web' ? (
+                <View style={[styles.fieldInput, { padding: 0 }]}>
+                  <RNTextInput
+                    type="time"
+                    value={formatTime(horario)}
+                    onChange={handleWebTimeChange}
+                    style={{
+                      backgroundColor: 'transparent',
+                      color: '#4A3728',
+                      fontSize: 14,
+                      padding: 10,
+                      width: '100%',
+                      border: 'none',
+                      outline: 'none',
+                    } as any}
+                  />
+                </View>
+              ) : (
+                <TouchableOpacity
+                  style={styles.fieldInput}
+                  onPress={() => setShowTimePicker(true)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.fieldInputText}>{formatTime(horario)}</Text>
+                  <Feather name="clock" size={16} color={colors.earthBrown ?? "#8B5E3C"} />
+                </TouchableOpacity>
+              )}
             </View>
           </View>
 
@@ -163,7 +216,7 @@ export default function NovaEntregaScreen() {
         </View>
 
         {/* Pickers nativos */}
-        {showDatePicker && (
+        {showDatePicker && Platform.OS !== 'web' && (
           <DateTimePicker
             value={data}
             mode="date"
@@ -172,7 +225,7 @@ export default function NovaEntregaScreen() {
             minimumDate={new Date()}
           />
         )}
-        {showTimePicker && (
+        {showTimePicker && Platform.OS !== 'web' && (
           <DateTimePicker
             value={horario}
             mode="time"

@@ -12,5 +12,5 @@ dist/
 .env*.local
 
 dev-sgpc-firebase-service-account.json
-./source/**
+source/
 .env.example

@@ -41,3 +41,13 @@ class ReservaResponse(ReservaBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    espaco: EspacoResponse | None = None
+
+
+# HORÁRIOS
+class HorarioResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    horario: str
+    status: str = "available"

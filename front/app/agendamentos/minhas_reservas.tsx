@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { styles } from "@/screens/Agendamentos/minhas_reservas";
 import { useAgendamento } from "@/hooks/useAgendamento";
 import { Reserva } from "@/services/agendamentoService";
+import { storage } from "@/utils/storage";
 
 export default function MyReservations() {
   const router = useRouter();
@@ -12,9 +13,22 @@ export default function MyReservations() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [selectedReserva, setSelectedReserva] = useState<Reserva | null>(null);
+  const [headerTitle, setHeaderTitle] = useState("Minhas Reservas");
+  const [subtitleLabel, setSubtitleLabel] = useState("reservas");
+  const [sectionTitle, setSectionTitle] = useState("Suas reservas");
 
   useEffect(() => {
     carregarMinhasReservas();
+    
+    const checkRole = async () => {
+      const perfil = await storage.getItemAsync('user_perfil');
+      if (perfil === 'SINDICO' || perfil === 'PORTEIRO') {
+        setHeaderTitle("Reservas do Condomínio");
+        setSubtitleLabel("agendamentos");
+        setSectionTitle("Reservas gerais");
+      }
+    };
+    checkRole();
   }, [carregarMinhasReservas]);
 
   const handleCancelReservation = async () => {
@@ -29,6 +43,34 @@ export default function MyReservations() {
     }
   };
 
+  const formatarData = (dataIso: string) => {
+    if (!dataIso) return "";
+    // A data vem como "2026-05-24T08:00:00.000Z"
+    // Pegamos apenas a parte da data para evitar deslocamentos de fuso horário
+    const partes = dataIso.split('T');
+    if (partes.length === 0) return "";
+    const dataPartes = partes[0].split('-');
+    if (dataPartes.length < 3) return "";
+    return `${dataPartes[2]}/${dataPartes[1]}/${dataPartes[0]}`;
+  };
+
+  const formatarHorario = (dataIso: string) => {
+    if (!dataIso) return "";
+    // Usar split e manipulação manual para evitar que o fuso horário altere a hora exibida
+    // A data vem como "2026-05-24T08:00:00.000Z"
+    const partes = dataIso.split('T');
+    if (partes.length < 2) return "";
+    
+    const horaCompleta = partes[1].split(':');
+    const inicio = `${horaCompleta[0]}:${horaCompleta[1]}`;
+    
+    // Calcula o fim (adicionando 1 hora)
+    const horaFim = (parseInt(horaCompleta[0]) + 1).toString().padStart(2, '0');
+    const fim = `${horaFim}:${horaCompleta[1]}`;
+    
+    return `${inicio} às ${fim}`;
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -36,14 +78,14 @@ export default function MyReservations() {
           <MaterialIcons name="arrow-back" size={26} color="white" />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>Minhas Reservas</Text>
-          <Text style={styles.headerSubtitle}>{minhasReservas.length} reservas</Text>
+          <Text style={styles.headerTitle}>{headerTitle}</Text>
+          <Text style={styles.headerSubtitle}>{minhasReservas.length} {subtitleLabel}</Text>
         </View>
         <TouchableOpacity style={{ position: 'absolute', right: 20 }}><Feather name="more-horizontal" size={28} color="white" /></TouchableOpacity>
       </View>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.sectionTitle}>Suas reservas</Text>
+        <Text style={styles.sectionTitle}>{sectionTitle}</Text>
 
         {loading && minhasReservas.length === 0 ? (
           <ActivityIndicator size="large" color="#B07850" style={{ marginTop: 20 }} />
@@ -52,8 +94,8 @@ export default function MyReservations() {
             <ReservationCard 
               key={reserva.id}
               title={reserva.espaco?.nome || "Espaço"} 
-              date={reserva.data} 
-              time={`${reserva.horario_inicio} às ${reserva.horario_fim}`} 
+              date={formatarData(reserva.data_reserva)} 
+              time={formatarHorario(reserva.data_reserva)} 
               color={reserva.espaco?.cor || "#9ED99C"} 
               icon={reserva.espaco?.icone || "calendar"}
               onPress={() => {
@@ -81,11 +123,11 @@ export default function MyReservations() {
                 </View>
                 <View style={styles.confirmRow}>
                   <Text style={styles.confirmLabel}>Data</Text>
-                  <Text style={styles.confirmValue}>{selectedReserva.data}</Text>
+                  <Text style={styles.confirmValue}>{formatarData(selectedReserva.data_reserva)}</Text>
                 </View>
                 <View style={styles.confirmRow}>
                   <Text style={styles.confirmLabel}>Horário</Text>
-                  <Text style={styles.confirmValue}>{`${selectedReserva.horario_inicio} às ${selectedReserva.horario_fim}`}</Text>
+                  <Text style={styles.confirmValue}>{formatarHorario(selectedReserva.data_reserva)}</Text>
                 </View>
               </>
             )}

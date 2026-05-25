@@ -104,8 +104,10 @@ model Usuario {
   fcm_tokens         FCMToken[]
   documentos_criados Documento[]
   documentos_logs    DocumentoLog[]
+  reservas           Reserva[]
 
   @@map("USUARIOS")
+
 }
 
 enum CategoriaAviso {
@@ -444,7 +446,6 @@ model ManifestacaoMovimentacao {
 
   @@map("MANIFESTACAO_MOVIMENTACOES")
 }
-
 model Espaco {
   id        Int        @id @default(autoincrement())
   nome      String
@@ -452,6 +453,14 @@ model Espaco {
   cor       String
 
   reservas  Reserva[]
+  horarios  Horario[]
+}
+
+model Horario {
+  id        Int      @id @default(autoincrement())
+  horario   String   // Ex: "08:00 - 09:00"
+  espaco_id Int
+  espaco    Espaco   @relation(fields: [espaco_id], references: [id])
 }
 
 model Reserva {
@@ -462,4 +471,5 @@ model Reserva {
   espaco_id      Int
 
   espaco         Espaco    @relation(fields: [espaco_id], references: [id])
+  usuario        Usuario   @relation(fields: [usuario_id], references: [id])
 }

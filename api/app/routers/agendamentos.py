@@ -8,6 +8,7 @@ from app.modules.agendamentos.agendamentos_schema import (
     ReservaCreate,
     ReservaResponse,
     ReservaUpdate,
+    HorarioResponse,
 )
 from prisma import Prisma
 
@@ -41,6 +42,14 @@ async def atualizar_reserva(
     return await AgendamentoController.atualizar_reserva(
         reserva_id=reserva_id, dados=dados, db=db
     )
+
+
+@router.get("/listar-horarios/{espaco_id}", response_model=list[HorarioResponse])
+async def listar_horarios(
+    espaco_id: int, data: str, db: Prisma = Depends(get_prisma)
+):
+    from app.modules.agendamentos.agendamentos_service import AgendamentoService
+    return await AgendamentoService.listar_horarios_disponiveis(espaco_id, data, db)
 
 
 @router.delete("/deletar-reserva/{reserva_id}")

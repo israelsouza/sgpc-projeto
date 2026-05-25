@@ -1,16 +1,26 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Feather, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { styles } from "@/screens/Agendamentos/agendamentos";
 import { useAgendamento } from "@/hooks/useAgendamento";
+import { storage } from "@/utils/storage";
 
 export default function SchedulingSpaces() {
   const router = useRouter();
   const { espacos, loading, carregarEspacos } = useAgendamento();
+  const [btnLabel, setBtnLabel] = useState("minhas reservas");
 
   useEffect(() => {
     carregarEspacos();
+    
+    const checkRole = async () => {
+      const perfil = await storage.getItemAsync('user_perfil');
+      if (perfil === 'SINDICO' || perfil === 'PORTEIRO') {
+        setBtnLabel("reservas do condomínio");
+      }
+    };
+    checkRole();
   }, [carregarEspacos]);
 
   return (
@@ -54,7 +64,7 @@ export default function SchedulingSpaces() {
         style={styles.btnFloating}
         onPress={() => router.push("/agendamentos/minhas_reservas")}
       >
-        <Text style={styles.btnFloatingText}>minhas reservas</Text>
+        <Text style={styles.btnFloatingText}>{btnLabel}</Text>
       </TouchableOpacity>
     </View>
   );

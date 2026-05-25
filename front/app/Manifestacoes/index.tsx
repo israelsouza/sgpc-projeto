@@ -11,6 +11,7 @@ import { styles } from "@/screens/Manifestacoes/manifestacao";
 import { BlurView } from "expo-blur";
 import { palette } from "@/theme/colors";
 import { Picker } from "@react-native-picker/picker";   
+import manifestacaoService from "@/services/manifestacaoService";
 
 //FAZ DISTINÇÃO DE QUAL USUÁRIO ESTARÁ UTILIZANDO
 interface JwtPayload {
@@ -43,6 +44,7 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
     const [lista, setLista] = useState<componenteList[]>([]);
     const [itemSelecionado, setItemSelecionado] = useState<componenteList | null>(null);
     const [modalAberta, setModalAberta] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [loadingdados, setLoadingDados] = useState(false);
     const [assunto, setAssunto] = useState("");
     const [mensagem, setMensagem] = useState("");
@@ -85,6 +87,49 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
             loadUser();
             }, []);
                     
+    const carregarManifestacoes = async () => {
+        setLoading(true);
+        try {
+            const data = await manifestacaoService.listarManifestacoes();
+            const formatados: componenteList[] = data.map((m) => ({
+                id: m.id.toString(),
+                titulo: m.assunto,
+                subtitulo: m.status.charAt(0).toUpperCase() + m.status.slice(1).replace("_", " "),
+                descricao: m.mensagem,
+                autor: m.autor,
+                data: new Date(m.data_criacao).toLocaleDateString('pt-BR'),
+                hora: m.hora_criacao,
+                mesAno: new Date(m.data_criacao).toLocaleDateString('pt-BR', { month: "long", year: "numeric" }),
+                icone: "file-text",
+                corIcon: coresPorIcone['solicitacao'],
+                cor: coresPorCategoria['solicitacao'],
+                categoria: 'solicitacao',
+                status: m.status,
+                unidade: m.unidade,
+                bloco: m.bloco,
+                andar: m.andar?.toString(),
+                numero: m.numero,
+                prefixo: m.prefixo,
+                movimentacoes: [], // TODO: Integrar histórico
+            }));
+
+            if (userRole === "morador") {
+                setLista(formatados.filter((item) => item.autor === nomeUsuario));
+            } else {
+                setLista(formatados);
+            }
+        } catch (error) {
+            console.log("Erro ao carregar manifestações:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (userRole && nomeUsuario) {
+            carregarManifestacoes();
+        }
+    }, [userRole, nomeUsuario]);
 
 
         //FUNÇÃO PARA PEGAR INFOS DO APARTAMENTO E ADICIONAR NA MANIFESTAÇÃO
@@ -116,108 +161,64 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
         }, [modalAberta]);
 
 
-        //FILTRA APENAS AS MANIFESTAÇÕES DO USUÁRIO
-        useEffect(() => {
-                if (!userRole || !nomeUsuario) return;
-
-                if( userRole === "morador"){
-                    setLista(
-                        listadoMock.filter(
-                            (item) => item.categoria === "solicitacao" && item.autor === nomeUsuario
-                        )
-                    );
-                } else {
-                    setLista(
-                        listadoMock.filter((item) => item.categoria === "solicitacao")
-                    );
-                }
-        }, [userRole, nomeUsuario]);
-
-        //FUNÇÃO PARA CRIAR UMA NOVA MANIFESTAÇÃO
-        function criarManifestacao( dados: { assunto: string; mensagem: string}) : componenteList{
-            return {
-                id: Date.now().toString(),
-                titulo: dados.assunto,
-                subtitulo: dados.mensagem,
-                descricao: dados.mensagem,
-                autor: nomeUsuario,
-                data: new Date().toLocaleDateString('pt-BR'),
-                hora: new Date().toLocaleTimeString('pt-BR', { hour: "2-digit", minute: "2-digit" }),
-                mesAno: new Date().toLocaleDateString('pt-BR', { month: "long", year: "2-digit" }),
-                icone: "file-text",
-                corIcon: coresPorIcone['solicitacao'],
-                cor: coresPorCategoria['solicitacao'],
-                categoria: 'solicitacao',
-                status: "Em Andamento",
-                movimentacoes: [
-                    {
-                        titulo: "",
-                        comentario: "",
-                        data: new Date().toLocaleDateString('pt-BR'),
-                        autorRole: "morador",
-                    },
-                ],
-                tipoCond: tipoCondomino ?? undefined,
-                unidade,
-                bloco,
-                andar,
-                numero,
-                prefixo,
-            };
-        }
-
-            function atualizarManifestacao() {
+        async function atualizarManifestacao() {
             if (!itemSelecionado) return;
 
-            const novaMov: Movimentacao = {
-                titulo: statusSelecionado,
-                comentario: comentario || undefined,
-                data: new Date().toLocaleDateString('pt-BR'),
-                hora: new Date().toLocaleTimeString('pt-BR', { hour: "2-digit", minute: "2-digit" }),
-                status: statusSelecionado,
-                autorRole: userRole ?? undefined,
-            };
-
-            const atualizado: componenteList = {
-                ...itemSelecionado,
-                status: statusSelecionado,
-                subtitulo: statusSelecionado,
-                movimentacoes: [...(itemSelecionado.movimentacoes || []), novaMov],
-            };
-
-            setLista(prev =>
-                prev.map(i => (i.id === atualizado.id ? atualizado : i))
-            );
-
-            if (statusSelecionado === "Encerrado") {
-                setItemSelecionado(null);
-            } else {
-                setItemSelecionado(atualizado);
+            try {
+                await manifestacaoService.atualizarManifestacao(parseInt(itemSelecionado.id), {
+                    status: statusSelecionado,
+                    comentario: comentario || undefined,
+                    autor_role: userRole ?? undefined
+                });
+                
+                await carregarManifestacoes();
+                setModalStatusAberta(false);
+                setComentario("");
+            } catch (error) {
+                console.log("Erro ao atualizar manifestação:", error);
+                alert("Erro ao atualizar status");
             }
-
-            setComentario("");
-            }
-
-        const handleEnviar = () => {
-            if (!assunto) {
-        alert("Preencha o assunto");
-        return;
-        } if (!mensagem){
-        alert("Preencha a mensagem");
-        return;
         }
-        //FORMATO QUE OS DADOS DEVERÃO SER ENVIADOS
-        const payload = 
-            tipoCondomino === "PREDIO"
-              ? { assunto, mensagem, unidade, bloco, andar, categoria: 'solicitacao' }
-              : { assunto, mensagem, numero, prefixo, categoria: 'solicitacao' };
 
-        console.log("Enviando manifestação:", payload);
+        const handleEnviar = async () => {
+            if (!assunto) {
+                alert("Preencha o assunto");
+                return;
+            } 
+            if (!mensagem){
+                alert("Preencha a mensagem");
+                return;
+            }
+            
+            const payload = 
+                tipoCondomino === "PREDIO"
+                ? { 
+                    assunto, 
+                    mensagem, 
+                    unidade, 
+                    bloco, 
+                    andar: parseInt(andar), 
+                    categoria: 'solicitacao',
+                    hora_criacao: new Date().toLocaleTimeString('pt-BR', { hour: "2-digit", minute: "2-digit" })
+                  }
+                : { 
+                    assunto, 
+                    mensagem, 
+                    numero, 
+                    prefixo, 
+                    categoria: 'solicitacao',
+                    hora_criacao: new Date().toLocaleTimeString('pt-BR', { hour: "2-digit", minute: "2-digit" })
+                  };
 
-        const novoItem = criarManifestacao({ assunto, mensagem });
-        setLista((prev) => [...prev, novoItem]);
-        handleFecharModal();
-    };
+            try {
+                await manifestacaoService.criarManifestacao(payload as any);
+                await carregarManifestacoes();
+                handleFecharModal();
+            } catch (error) {
+                console.log("Erro ao enviar manifestação:", error);
+                alert("Erro ao enviar manifestação");
+            }
+        };
 
         function handleFecharModal(){
             setModalAberta(false);
@@ -225,7 +226,7 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
             setMensagem("");
         }
 
-            const handleDeleteConfirmado = () => {
+        const handleDeleteConfirmado = async () => {
             if (!itemSelecionado) return;
 
             if (!confirmExclusao) {
@@ -233,12 +234,17 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
                 return;
             }
 
-            handleDelete(itemSelecionado.id);
-
-            setConfirmExclusao(false);
-            setModalStatusAberta(false);
-            setItemSelecionado(null);
-            };
+            try {
+                await manifestacaoService.deletarManifestacao(parseInt(itemSelecionado.id));
+                await carregarManifestacoes();
+                setConfirmExclusao(false);
+                setModalStatusAberta(false);
+                setItemSelecionado(null);
+            } catch (error) {
+                console.log("Erro ao deletar manifestação:", error);
+                alert("Erro ao excluir manifestação");
+            }
+        };
 
         function handleDelete (id: string){
             setLista((prev) => prev.filter((i) => i.id !== id));

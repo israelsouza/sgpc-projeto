@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, Modal, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, Modal, ActivityIndicator, Platform, TextInput as RNTextInput } from "react-native";
 import { Feather, MaterialIcons, MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { stylesWeb } from "@/screens/Agendamentos/selecao.styles";
 import { styles } from "@/screens/Modal_agendamento/modal_agendamento.styles";
 import { useAgendamento } from "@/hooks/useAgendamento";
 import { HorarioDisponivel } from "@/services/agendamentoService";
+import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { jwtDecode } from "jwt-decode";
 
 export default function SchedulingTimeWeb() {
   const router = useRouter();
@@ -17,27 +20,81 @@ export default function SchedulingTimeWeb() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<HorarioDisponivel | null>(null);
-  const [selectedDate, setSelectedDate] = useState("18/03/2026"); // Mocked date for now
+  const [date, setDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  // Formata a data para exibição (DD/MM/AAAA)
+  const displayDate = date.toLocaleDateString("pt-BR");
+  
+  // Formata a data para a API (AAAA-MM-DD) sem problemas de timezone
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const apiDate = `${year}-${month}-${day}`;
 
   useEffect(() => {
     if (id) {
-      carregarHorariosDisponiveis(Number(id), selectedDate);
+      // Ao mudar a data, limpamos o horário selecionado para evitar inconsistências
+      setSelectedSlot(null);
+      carregarHorariosDisponiveis(Number(id), apiDate);
     }
-  }, [id, selectedDate, carregarHorariosDisponiveis]);
+  }, [id, apiDate, carregarHorariosDisponiveis]);
+
+  const onDateChange = (_: DateTimePickerEvent, selectedDate?: Date) => {
+    setShowDatePicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setDate(selectedDate);
+    }
+  };
+
+  const handleWebDateChange = (event: any) => {
+    const newDate = new Date(event.target.value + 'T12:00:00');
+    if (!isNaN(newDate.getTime())) {
+      setDate(newDate);
+    }
+  };
+
+  const mudarDia = (dias: number) => {
+    const novaData = new Date(date);
+    novaData.setDate(novaData.getDate() + dias);
+    setDate(novaData);
+  };
 
   const handleConfirm = async () => {
     if (!selectedSlot || !id) return;
 
-    // Parse time slot "7h - 8h" to start/end (simplified for prototype)
-    const [inicio, fim] = selectedSlot.horario.split(" - ");
-
     try {
-      await realizarReserva({
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        console.error("Token não encontrado no storage");
+        return;
+      }
+      const decoded: any = jwtDecode(token);
+      
+      // Tenta converter o sub para número, se falhar (NaN) e for um mock, usa um ID padrão ou o próprio valor se a API aceitasse string
+      let usuario_id = parseInt(decoded.sub);
+      
+      if (isNaN(usuario_id)) {
+        console.warn("Aviso: Token com ID não numérico detectado:", decoded.sub);
+        // Fallback para teste se for o usuário mock 'user123'
+        if (decoded.sub.includes("user")) {
+           usuario_id = 1; // Assume o primeiro usuário do banco para fins de teste
+        } else {
+           alert("Erro: Seu usuário não possui um ID válido no banco.");
+           return;
+        }
+      }
+
+      const payload = {
         espaco_id: Number(id),
-        data: selectedDate,
-        horario_inicio: inicio,
-        horario_fim: fim
-      });
+        data_reserva: `${apiDate}T${selectedSlot.horario.split(" - ")[0]}:00.000Z`,
+        usuario_id: usuario_id
+      };
+
+      console.log("Payload enviado para reserva:", payload);
+
+      await realizarReserva(payload as any);
+
       setShowConfirm(false);
       setShowSuccess(true);
       setTimeout(() => {
@@ -46,6 +103,7 @@ export default function SchedulingTimeWeb() {
       }, 2000);
     } catch (error) {
       console.error("Erro ao realizar reserva:", error);
+      alert("Erro ao realizar reserva. Tente outro horário.");
     }
   };
 
@@ -77,10 +135,45 @@ export default function SchedulingTimeWeb() {
           {/* CONTAINER DE AGENDAMENTO COMPLETO */}
           <View style={stylesWeb.formContainer}>
             <Text style={stylesWeb.label}>Data</Text>
-            <TouchableOpacity style={stylesWeb.datePickerWeb}>
-              <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>{selectedDate}</Text>
-              <MaterialCommunityIcons name="calendar-month" size={24} color="white" />
-            </TouchableOpacity>
+            
+            {Platform.OS === 'web' ? (
+              <View style={{ gap: 10 }}>
+                <View style={[stylesWeb.datePickerWeb, { paddingHorizontal: 15, justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }]}>
+                  <TouchableOpacity onPress={() => mudarDia(-1)} style={{ padding: 10 }}>
+                    <Feather name="chevron-left" size={24} color="white" />
+                  </TouchableOpacity>
+                  
+                  <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>
+                    {displayDate}
+                  </Text>
+
+                  <TouchableOpacity onPress={() => mudarDia(1)} style={{ padding: 10 }}>
+                    <Feather name="chevron-right" size={24} color="white" />
+                  </TouchableOpacity>
+                </View>
+                <Text style={{ color: '#718096', fontSize: 12, textAlign: 'center' }}>
+                  Use as setas para alterar o dia
+                </Text>
+              </View>
+            ) : (
+              <TouchableOpacity 
+                style={stylesWeb.datePickerWeb}
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>{displayDate}</Text>
+                <MaterialCommunityIcons name="calendar-month" size={24} color="white" />
+              </TouchableOpacity>
+            )}
+
+            {showDatePicker && Platform.OS !== 'web' && (
+              <DateTimePicker
+                value={date}
+                mode="date"
+                display="default"
+                onChange={onDateChange}
+                minimumDate={new Date()}
+              />
+            )}
 
             <Text style={stylesWeb.label}>Horários</Text>
 
@@ -151,7 +244,7 @@ export default function SchedulingTimeWeb() {
             </View>
             <View style={styles.confirmRow}>
               <Text style={styles.confirmLabel}>Data</Text>
-              <Text style={styles.confirmValue}>{selectedDate}</Text>
+              <Text style={styles.confirmValue}>{displayDate}</Text>
             </View>
             <View style={styles.confirmRow}>
               <Text style={styles.confirmLabel}>Horário</Text>

@@ -9,6 +9,7 @@ import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { BlurView } from "expo-blur";
 import { palette } from "@/theme/colors";
+import bilheteService from "@/services/bilheteService";
 
 // FAZ DISTINÇÃO DE QUAL USUÁRIO ESTARÁ UTILIZANDO
 interface JwtPayload {
@@ -45,10 +46,50 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
   const [modalAberta, setModalAberta] = useState(false);
   const [placeHolder] = useState("Escreva sua mensagem em detalhes...");
   const [mensagem, setMensagem] = useState("");
+  const [loading, setLoading] = useState(false);
   const [loadingdados, setLoadingDados] = useState(false);
   const [assunto, setAssunto] = useState("");
 
-  // DIFERENCIAÇÃO DE TIPOS DAS UNIDADES
+  const carregarBilhetes = async () => {
+    setLoading(true);
+    try {
+      const data = await bilheteService.listarBilhetes();
+      const formatados: componenteList[] = data.map((b) => ({
+        id: b.id.toString(),
+        titulo: b.assunto,
+        subtitulo: b.mensagem,
+        descricao: b.mensagem,
+        autor: b.autor,
+        data: new Date(b.data_criacao).toLocaleDateString("pt-BR"),
+        hora: b.hora_criacao,
+        icone: "user",
+        mesAno: new Date(b.data_criacao).toLocaleDateString("pt-BR", {
+          month: "long",
+          year: "numeric",
+        }),
+        cor: coresPorCategoria[b.categoria as keyof typeof coresPorCategoria] || coresPorCategoria["bilhete"],
+        corIcon: coresPorIcone[b.categoria as keyof typeof coresPorIcone] || coresPorIcone["bilhete"],
+        categoria: b.categoria,
+      }));
+
+      if (userRole === "morador") {
+        setLista(formatados.filter((item) => item.autor === nomeUsuario));
+      } else {
+        setLista(formatados);
+      }
+    } catch (error) {
+      console.log("Erro ao carregar bilhetes:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (userRole && nomeUsuario) {
+      carregarBilhetes();
+    }
+  }, [userRole, nomeUsuario]);
+
   const [tipoCondomino, setTipoCondominio] = useState<"PREDIO" | "HORIZONTAL" | null>(null);
   const [unidade, setUnidade] = useState("");
   const [bloco, setBloco] = useState<string | null>(null);
@@ -84,12 +125,6 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
       loadUser();
     }, []);
 
-  // FILTRA LISTA DE ACORDO COM CADA ROLE
-  useEffect(() => {
-    if (userRole) {
-      setLista(filtrarPorRole(listadoMock, userRole));
-    }
-  }, [userRole]);
 
   // CARREGA DADOS DO MODAL A PARTIR DO JWT
   useEffect(() => {
@@ -139,56 +174,70 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
   }
 
   // ENVIA O NOVO BILHETE
-  const handleEnviar = () => {
-    if (!assunto) {
-      alert("Preencha o assunto");
-      return;
-    }
-    if (!mensagem) {
-      alert("Preencha a mensagem");
-      return;
-    }
-  
+  const handleEnviar = async () => {
+  if (!assunto) {
+    alert("Preencha o assunto");
+    return;
+  }
+  if (!mensagem) {
+    alert("Preencha a mensagem");
+    return;
+  }
 
-    // FORMATO QUE OS DADOS DEVERÃO SER ENVIADOS PARA O BACKEND
-    const payload =
-      tipoCondomino === "PREDIO"
-        ? { assunto, mensagem, unidade, bloco, andar, categoria: "bilhete" }
-        : { assunto, mensagem, numero, prefixo, categoria: "bilhete" };
+  // FORMATO QUE OS DADOS DEVERÃO SER ENVIADOS PARA O BACKEND
+  const payload =
+    tipoCondomino === "PREDIO"
+      ? {
+          assunto,
+          mensagem,
+          unidade,
+          bloco,
+          andar: parseInt(andar),
+          categoria: "bilhete",
+          hora_criacao: new Date().toLocaleTimeString("pt-BR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        }
+      : {
+          assunto,
+          mensagem,
+          numero,
+          prefixo,
+          categoria: "bilhete",
+          hora_criacao: new Date().toLocaleTimeString("pt-BR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        };
 
-    console.log("Enviando bilhete:", payload);
-
-    const novoItem = criarBilhete({ assunto, mensagem });
-    setLista((prev) => [...prev, novoItem]);
+  try {
+    await bilheteService.criarBilhetes(payload as any);
+    await carregarBilhetes();
     handleFecharModal();
+  } catch (error) {
+    console.log("Erro ao enviar bilhete:", error);
+    alert("Erro ao enviar bilhete");
+  }
   };
 
   function handleFecharModal() {
-    setModalAberta(false);
-    setAssunto("");
-    setMensagem("");
+  setModalAberta(false);
+  setAssunto("");
+  setMensagem("");
   }
 
-  function handleDelete(id: string) {
-    setLista((prev) => prev.filter((i) => i.id !== id));
+  async function handleDelete(id: string) {
+  try {
+    await bilheteService.deletarBilhete(parseInt(id));
+    await carregarBilhetes();
+    setItemSelecionado(null);
+  } catch (error) {
+    console.log("Erro ao deletar bilhete:", error);
+    alert("Erro ao deletar bilhete");
+  }
   }
 
-       //FILTRA APENAS AS MANIFESTAÇÕES DO USUÁRIO
-        useEffect(() => {
-                if (!userRole || !nomeUsuario) return;
-
-                if( userRole === "morador"){
-                    setLista(
-                        listadoMock.filter(
-                            (item) => item.categoria === "bilhete" && item.autor === nomeUsuario
-                        )
-                    );
-                } else {
-                    setLista(
-                        listadoMock.filter((item) => item.categoria === "bilhete")
-                    );
-                }
-        }, [userRole, nomeUsuario]);
 
 
   // DEFINE QUEM NÃO PODE ADICIONAR
