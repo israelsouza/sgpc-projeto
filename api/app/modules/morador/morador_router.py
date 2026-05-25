@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, status
 
 from app.db.prisma_client import get_prisma
 from app.modules.core.core_schema import StandardResponse
-from app.modules.core.security import RequirePermission
+from app.modules.core.security import RequirePermission, get_current_user
 from app.modules.morador.morador_controller import MoradorController
-from app.modules.morador.morador_schema import MoradorCreate
+from app.modules.morador.morador_schema import ConviteResponse, MoradorCreate
 from prisma import Prisma
 
 router = APIRouter(prefix="/moradores", tags=["Moradores"])
@@ -34,3 +34,26 @@ async def aprovar_morador(id_morador: int, db: Prisma = Depends(get_prisma)):
     Restrito a usuários com permissão 'atualizar:morador'.
     """
     return await MoradorController.aprovar_morador(id_morador, db)
+
+
+@router.post(
+    "/me/convite",
+    status_code=status.HTTP_201_CREATED,
+    response_model=ConviteResponse,
+    dependencies=[Depends(RequirePermission("self_morador"))],
+)
+async def criar_convite_visita(
+    db: Prisma = Depends(get_prisma),
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Cria um convite de visita para um morador.
+
+    Args:
+        db (Prisma, optional): Defaults to Depends(get_prisma).
+        current_user (dict, optional): Defaults to Depends(get_current_user).
+
+    Returns:
+        _type_: _description_
+    """
+    return await MoradorController.criar_convite_visita(current_user["morador"], db)

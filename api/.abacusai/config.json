@@ -3,5 +3,9 @@
     "allow": [
       "Bash(mkdir *)"
     ]
-  }
+  },
+  "additionalDirectories": [
+    "C:\\projetos\\sgpc-projeto\\front\\src\\services",
+    "C:\\projetos\\sgpc-projeto\\front\\app\\convidar"
+  ]
 }

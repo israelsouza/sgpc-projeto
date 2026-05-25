@@ -24,3 +24,8 @@ class MoradorController:
             status_code=status.HTTP_200_OK,
             data=resultado,
         )
+
+    @staticmethod
+    async def criar_convite_visita(morador: dict, db: Prisma):
+        convite = await MoradorService.criar_convite_visita(morador, db)
+        return convite

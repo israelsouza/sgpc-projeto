@@ -40,3 +40,13 @@ class MoradorResponse(MoradorBase):
     status: str
     criado_em: datetime
     visitantes: list[VisitanteResponse] = []
+
+class ConviteCreate(BaseModel):
+    pass
+
+class ConviteResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    codigo: str
+    expira_em: datetime
+

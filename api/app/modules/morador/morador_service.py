@@ -4,7 +4,9 @@ from datetime import datetime
 from fastapi import HTTPException, status
 
 from app.modules.chave.chave_service import ChaveService
-from app.modules.core.core_exception import ValidationError
+from datetime import datetime, timedelta
+
+from app.modules.core.core_exception import AppError
 from app.modules.core.security import hash_senha
 from app.modules.morador.morador_model import MoradorModel
 from app.modules.morador.morador_schema import MoradorCreate
@@ -133,3 +135,24 @@ class MoradorService:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Erro ao aprovar cadastro: {str(e)}",
             )
+
+    @staticmethod
+    async def criar_convite_visita(morador: dict, db: Prisma):
+        if not morador or not morador.unidade_id:
+            raise AppError(
+                status_code=403,
+                nome="acao_nao_permitida",
+                mensagem="Apenas moradores com unidade associada podem criar convites.",
+            )
+
+        expiracao = datetime.now() + timedelta(hours=24)
+
+        convite = await db.convitevisita.create(
+            data={
+                "morador_id": morador.id,
+                "unidade_id": morador.unidade_id,
+                "expira_em": expiracao,
+            }
+        )
+        return convite
+
