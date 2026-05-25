@@ -25,7 +25,7 @@ class ManifestacaoService:
                 acao="Preencha todos os campos corretamente.",
             )
 
-        return await db.manifestacao.create(
+        manifestacao = await db.manifestacao.create(
             data={
                 **dados.model_dump(),
                 "autor": autor,
@@ -34,6 +34,11 @@ class ManifestacaoService:
                 "morador_id": morador_id,
                 "unidade_id": unidade_id,
             }
+        )
+
+        return await db.manifestacao.find_unique(
+            where={"id": manifestacao.id},
+            include={"movimentacoes": True}
         )
 
     @staticmethod
@@ -58,18 +63,25 @@ class ManifestacaoService:
         if not manifestacao:
             return None
 
+        # O Prisma espera o valor do enum (ex: EM_ANDAMENTO), 
+        # garantimos que esteja em maiúsculo para bater com o schema.prisma
+        status_enum = dados.status.upper()
+
         manifestacao_atualizada = await db.manifestacao.update(
-            where={"id": manifestacao_id}, data={"status": dados.status}
+            where={"id": manifestacao_id}, data={"status": status_enum}
         )
 
         await db.manifestacaomovimentacao.create(
             data={
-                "titulo": dados.status,
+                "titulo": status_enum,
                 "comentario": dados.comentario,
-                "status": dados.status,
+                "status": status_enum,
                 "autor_role": dados.autor_role,
                 "manifestacao": {"connect": {"id": manifestacao_id}},
             }
         )
 
-        return manifestacao_atualizada
+        return await db.manifestacao.find_unique(
+            where={"id": manifestacao_id},
+            include={"movimentacoes": True}
+        )
