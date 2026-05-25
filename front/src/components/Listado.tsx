@@ -18,7 +18,7 @@ export type componenteList = {
   cor: string;
   corIcon: string;
   categoria?: "bilhete" | "documento" | "solicitacao";
-  status?: "Pendente" | "Em Andamento" | "Aguardando" | "Concluído" | "Encerrado";
+  status?: StatusSolicitacao;
   movimentacoes?: Movimentacao[];
   tipoCond?: "PREDIO" | "HORIZONTAL";
   unidade?: string;
@@ -29,11 +29,11 @@ export type componenteList = {
 };
 
 export type StatusSolicitacao =
-  | "Pendente"
-  | "Em Andamento"
-  | "Aguardando"
-  | "Concluído"
-  | "Encerrado";
+  | "PENDENTE"
+  | "EM_ANDAMENTO"
+  | "AGUARDANDO"
+  | "CONCLUIDO"
+  | "ENCERRADO";
 
 
 export type Movimentacao = {

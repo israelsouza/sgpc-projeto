@@ -75,34 +75,45 @@ class AutenticacaoService:
         condominio_nome = "Condomínio"
         condominio_id = 0
         unidade_nome = ""
+        
+        # Dados para o JWT enriquecido
+        jwt_data = {
+            "sub": str(usuario.id),
+            "email": usuario.email,
+            "roles": roles,
+            "role": roles[0].lower() if roles else "morador",
+            "morador_status": status_morador,
+        }
 
         if usuario.morador:
             nome_exibicao = usuario.morador.nome_completo
             if usuario.morador.unidade:
-                bloco = (
-                    f"Bloco {usuario.morador.unidade.bloco} - "
-                    if usuario.morador.unidade.bloco
-                    else ""
-                )
-                unidade_nome = f"{bloco}Unid. {usuario.morador.unidade.unidade}"
-                if usuario.morador.unidade.condominio:
-                    condominio_nome = usuario.morador.unidade.condominio.nome
-                    condominio_id = usuario.morador.unidade.condominio.id
+                unidade = usuario.morador.unidade
+                jwt_data.update({
+                    "unidade": unidade.unidade,
+                    "bloco": unidade.bloco,
+                    "andar": str(unidade.andar) if unidade.andar else None,
+                    "numero": getattr(unidade, "numero", None),
+                    "prefixo": getattr(unidade, "prefixo", None),
+                })
+                
+                bloco_str = f"Bloco {unidade.bloco} - " if unidade.bloco else ""
+                unidade_nome = f"{bloco_str}Unid. {unidade.unidade}"
+                
+                if unidade.condominio:
+                    condominio_nome = unidade.condominio.nome
+                    condominio_id = unidade.condominio.id
+                    jwt_data["tipoCond"] = unidade.condominio.tipoCond
+        
         elif usuario.funcionario:
             nome_exibicao = usuario.funcionario.nome_completo
             if usuario.funcionario.condominio:
                 condominio_nome = usuario.funcionario.condominio.nome
                 condominio_id = usuario.funcionario.condominio.id
+                jwt_data["tipoCond"] = usuario.funcionario.condominio.tipoCond
 
-        access_token = create_access_token(
-            data={
-                "sub": str(usuario.id),
-                "email": usuario.email,
-                "roles": roles,
-                "morador_status": status_morador,
-                "nome": nome_exibicao,
-            }
-        )
+        jwt_data["nome"] = nome_exibicao
+        access_token = create_access_token(data=jwt_data)
 
         log.info("Login realizado com sucesso", usuario_id=usuario.id, roles=roles)
 

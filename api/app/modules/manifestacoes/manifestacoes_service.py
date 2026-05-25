@@ -11,7 +11,13 @@ from prisma import Prisma
 # CRIAR MANIFESTAÇÕES
 class ManifestacaoService:
     @staticmethod
-    async def criar_manifestacao(dados: ManifestacaoCreate, autor: str, db: Prisma):
+    async def criar_manifestacao(
+        dados: ManifestacaoCreate,
+        autor: str,
+        db: Prisma,
+        morador_id: int | None = None,
+        unidade_id: int | None = None,
+    ):
         if not dados.assunto or not dados.mensagem:
             raise ValidationError(
                 nome="Dados_Incompletos",
@@ -25,6 +31,8 @@ class ManifestacaoService:
                 "autor": autor,
                 "data_criacao": datetime.now(),
                 "hora_criacao": datetime.now().strftime("%H:%M"),
+                "morador_id": morador_id,
+                "unidade_id": unidade_id,
             }
         )
 

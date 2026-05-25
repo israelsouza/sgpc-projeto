@@ -10,9 +10,19 @@ from prisma import Prisma
 # CRIAÇÃO DAS MANIFESTAÇÕES
 class ManifestacaoController:
     @staticmethod
-    async def criar_manifestacao(dados: ManifestacaoCreate, autor: str, db: Prisma):
+    async def criar_manifestacao(
+        dados: ManifestacaoCreate,
+        autor: str,
+        db: Prisma,
+        morador_id: int | None = None,
+        unidade_id: int | None = None,
+    ):
         return await ManifestacaoService.criar_manifestacao(
-            dados=dados, autor=autor, db=db
+            dados=dados,
+            autor=autor,
+            db=db,
+            morador_id=morador_id,
+            unidade_id=unidade_id,
         )
 
     @staticmethod

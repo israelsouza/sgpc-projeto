@@ -15,11 +15,11 @@ class ManifestacaoBase(BaseModel):
     # DADOS PRÉDIO
     unidade: str | None = None
     bloco: str | None = None
-    andar: str | None = None
+    andar: int | None = None
 
     # DADOS RESIDÊNCIAL - HORIZONTAL
     numero: str | None = None
-    prefixo: int | None = None
+    prefixo: str | None = None
 
     # Validar os campos de texto que o usuário pode editar
 
@@ -76,3 +76,5 @@ class ManifestacaoResponse(ManifestacaoBase):
     status: str
     data_criacao: datetime
     hora_criacao: str
+    morador_id: int | None = None
+    unidade_id: int | None = None

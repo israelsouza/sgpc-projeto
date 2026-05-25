@@ -21,17 +21,49 @@ async def criar_manifestacao(
 ):
     usuario = await db.usuario.find_unique(
         where={"id": int(usuario_logado["sub"])},
-        include={"morador": True},
+        include={"morador": True, "funcionario": True},
     )
-    nome = usuario.morador.nome_completo if usuario.morador else "Usuário"
+    
+    nome = "Usuário"
+    if usuario.morador and usuario.morador.nome_completo:
+        nome = usuario.morador.nome_completo
+    elif usuario.funcionario and usuario.funcionario.nome_completo:
+        nome = usuario.funcionario.nome_completo
+    else:
+        nome = usuario.email
+
+    morador_id = usuario.morador.id if usuario.morador else None
+    unidade_id = usuario.morador.unidade_id if usuario.morador else None
+
     return await ManifestacaoController.criar_manifestacao(
-        dados=dados, autor=nome, db=db
+        dados=dados,
+        autor=nome,
+        db=db,
+        morador_id=morador_id,
+        unidade_id=unidade_id,
     )
 
 
 @router.get("/listar-manifestacoes", response_model=list[ManifestacaoResponse])
-async def listar_manifestacao(db: Prisma = Depends(get_prisma)):
-    return await ManifestacaoController.listar_manifestacao(db)
+async def listar_manifestacao(
+    usuario_logado=Depends(get_current_user),
+    db: Prisma = Depends(get_prisma),
+):
+    usuario = await db.usuario.find_unique(
+        where={"id": int(usuario_logado["sub"])},
+        include={"morador": True, "perfis": True},
+    )
+
+    roles = [p.nome for p in usuario.perfis]
+    if "SINDICO" in roles or "ADMIN" in roles:
+        return await ManifestacaoController.listar_manifestacao(db)
+
+    if usuario.morador:
+        return await db.manifestacao.find_many(
+            where={"morador_id": usuario.morador.id}, order={"data_criacao": "desc"}
+        )
+
+    return []
 
 
 @router.put(

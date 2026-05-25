@@ -49,7 +49,7 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
     const [assunto, setAssunto] = useState("");
     const [mensagem, setMensagem] = useState("");
     const [comentario, setComentario] = useState("");
-    const [statusSelecionado, setStatusSelecionado] = useState<StatusSolicitacao>("Pendente");
+    const [statusSelecionado, setStatusSelecionado] = useState<StatusSolicitacao>("PENDENTE");
     const [modalStatusAberta, setModalStatusAberta] = useState(false);
     const [confirmExclusao, setConfirmExclusao] = useState(false);
     //DIFERENCIAÇÃO DE TIPOS DAS UNIDADES
@@ -77,7 +77,7 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
                 console.log("ROLE:", decoded.role);
 
                 setUserRole(decoded.role);
-                setNomeUsuario(decoded.nome ?? decoded.sub);
+                setNomeUsuario(decoded.nome || "");
 
                 } catch (error) {
                 console.log("Erro ao decodificar token:", error);
@@ -113,11 +113,7 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
                 movimentacoes: [], // TODO: Integrar histórico
             }));
 
-            if (userRole === "morador") {
-                setLista(formatados.filter((item) => item.autor === nomeUsuario));
-            } else {
-                setLista(formatados);
-            }
+            setLista(formatados);
         } catch (error) {
             console.log("Erro ao carregar manifestações:", error);
         } finally {
@@ -126,10 +122,10 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
     };
 
     useEffect(() => {
-        if (userRole && nomeUsuario) {
+        if (userRole) {
             carregarManifestacoes();
         }
-    }, [userRole, nomeUsuario]);
+    }, [userRole]);
 
 
         //FUNÇÃO PARA PEGAR INFOS DO APARTAMENTO E ADICIONAR NA MANIFESTAÇÃO
@@ -197,7 +193,7 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
                     mensagem, 
                     unidade, 
                     bloco, 
-                    andar: parseInt(andar), 
+                    andar: andar ? parseInt(andar) : undefined, 
                     categoria: 'solicitacao',
                     hora_criacao: new Date().toLocaleTimeString('pt-BR', { hour: "2-digit", minute: "2-digit" })
                   }
@@ -263,7 +259,7 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
         }
         };
         
-        const secoes = agruparMes(lista.filter((i) => i.status !== "Encerrado"));
+        const secoes = agruparMes(lista.filter((i) => i.status !== "ENCERRADO"));
 
     return(
         <View style={styles.container}>
@@ -290,7 +286,7 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
                     <TouchableOpacity
                     style={styles.Listado}
                     onPress={() => { setItemSelecionado(item);
-                    setStatusSelecionado(item.status ?? "Pendente");
+                    setStatusSelecionado((item.status?.toUpperCase() as StatusSolicitacao) ?? "PENDENTE");
                     setModalStatusAberta(true);
                     }}
                     activeOpacity={0.7}
@@ -440,11 +436,11 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
                                                     }
                                                     dropdownIconColor="#000"
                                                     >
-                                                    <Picker.Item label="Pendente" value="pendente" />
-                                                    <Picker.Item label="Em andamento" value="em_andamento" />
-                                                    <Picker.Item label="Aguardando" value="aguardando" />
-                                                    <Picker.Item label="Concluído" value="concluido" />
-                                                    <Picker.Item label="Encerrado" value="encerrado" />
+                                                    <Picker.Item label="Pendente" value="PENDENTE" />
+                                                    <Picker.Item label="Em andamento" value="EM_ANDAMENTO" />
+                                                    <Picker.Item label="Aguardando" value="AGUARDANDO" />
+                                                    <Picker.Item label="Concluído" value="CONCLUIDO" />
+                                                    <Picker.Item label="Encerrado" value="ENCERRADO" />
                                                     </Picker>
                                                 </View>
                                             </View>
