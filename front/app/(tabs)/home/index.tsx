@@ -143,7 +143,7 @@ function AnimatedSwitch({ value }: { value: boolean }) {
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { colors: themeColors, isHighContrast, toggleHighContrast } = useTheme();
+  const { colors: themeColors, isHighContrast } = useTheme();
 
   // Normal: usa o styles estático original (palette/colors do seu projeto)
   // Alto contraste: usa createStyles com as cores do tema HC
@@ -151,10 +151,6 @@ export default function HomeScreen() {
     () => (isHighContrast ? createStyles(themeColors) : staticStyles),
     [isHighContrast, themeColors]
   );
-
-  // Cor do botão de toggle: usa a cor do projeto no modo normal
-  const toggleBorderColor = isHighContrast ? "#FFD700" : staticColors.earthAccent;
-  const toggleTextColor   = isHighContrast ? "#FFD700" : staticColors.earthAccent;
 
   const [userName, setUserName] = useState("Usuário");
   const [userCondo, setUserCondo] = useState("");
@@ -188,33 +184,6 @@ export default function HomeScreen() {
 
       <View style={styles.centerContainer}>
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-
-          {/* ── Botão de alto contraste ── */}
-          <View style={{ flexDirection: "row", justifyContent: "flex-end", marginBottom: 12 }}>
-            <TouchableOpacity
-              onPress={toggleHighContrast}
-              activeOpacity={0.75}
-              accessibilityLabel="Alternar modo de alto contraste"
-              accessibilityRole="switch"
-              accessibilityState={{ checked: isHighContrast }}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 6,
-                paddingHorizontal: 12,
-                paddingVertical: 7,
-                borderRadius: 20,
-                borderWidth: 1.5,
-                borderColor: toggleBorderColor,
-              }}
-            >
-              <Feather name="eye" size={13} color={toggleTextColor} />
-              <Text style={{ fontSize: 12, fontWeight: "600", color: toggleTextColor }}>
-                {isHighContrast ? "Contraste: ON" : "Alto contraste"}
-              </Text>
-              <AnimatedSwitch value={isHighContrast} />
-            </TouchableOpacity>
-          </View>
 
           {/* ── Boas-vindas ── */}
           <View style={styles.welcomeCard}>

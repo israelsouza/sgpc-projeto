@@ -2,6 +2,7 @@ import { View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { styles } from "@/screens/Home/home.styles";
 import { ReactNode } from "react";
+import { HighContrastToggle } from "./HighContrastToggle";
 
 interface HeaderProps {
   title?: string;
@@ -30,6 +31,7 @@ export function Header({
           <Text style={styles.headerSubtitle}>{subtitle}</Text>
         </View>
       </View>
+      <HighContrastToggle />
     </View>
   );
 }
