@@ -59,20 +59,18 @@ class CloudinaryAdapter(StorageServiceInterface):
         self, file_bytes: bytes, filename: str, folder: str
     ) -> str:
         """
-        Upload para o Cloudinary com access_mode='private'.
+        Upload para o Cloudinary com acesso PÚBLICO para a apresentação.
         """
         try:
-            # Encode bytes to base64 data URI to ensure correct upload
             file_base64 = base64.b64encode(file_bytes).decode("utf-8")
             file_data_uri = f"data:application/pdf;base64,{file_base64}"
 
-            # Combinamos folder e filename para evitar ambiguidades no public_id
             full_public_id = f"{folder}/{filename}"
 
             upload_result = cloudinary.uploader.upload(
                 file_data_uri,
                 public_id=full_public_id,
-                access_mode="private",
+                # Removido authenticated para tornar o acesso público via URL direta
                 resource_type="raw",
             )
             return upload_result["public_id"]
@@ -84,29 +82,27 @@ class CloudinaryAdapter(StorageServiceInterface):
         self, file_id: str, expires_in: int = 3600, params: dict | None = None
     ) -> str:
         """
-        Gera URL assinada para recursos privados.
+        Gera uma URL PÚBLICA direta e permanente.
         """
         try:
             options = {
-                "sign_url": True,
-                "type": "private",
+                "sign_url": False, 
+                "type": "upload", # Tipo padrão público
                 "secure": True,
-                "resource_type": "raw",  # Importante para PDFs e outros arquivos não-imagem
+                "resource_type": "raw",
             }
             if params:
                 options.update(params)
 
             url, _ = cloudinary.utils.cloudinary_url(file_id, **options)
 
-            # Para recursos 'raw', o Cloudinary costuma dar 404 se a versão (/v12345678/) estiver presente.
-            # Removemos a versão da URL para garantir a compatibilidade.
+            # Remove a versão (/v12345678/) para garantir compatibilidade com recursos raw
             import re
-
             url = re.sub(r"/v\d+/", "/", url)
 
             return url
         except Exception as e:
-            logger.error("cloudinary_sign_url_failed", error=str(e))
+            logger.error("cloudinary_url_failed", error=str(e))
             raise e
 
     async def delete_file(self, file_id: str) -> bool:

@@ -142,9 +142,10 @@ model Documento {
   descricao String?
   categoria String  @db.VarChar(100) // Ex: "Financeiro", "Ata", "Regulamento"
 
-  file_id       String @unique // ID retornado pelo Cloudinary
+  file_id       String  @unique // ID retornado pelo Cloudinary (mantido para compatibilidade)
   filename_orig String // Nome original do arquivo (DEVE ser sanitizado antes de salvar)
   sha256_hash   String // Hash criptográfico para validação de integridade do arquivo
+  conteudo      Bytes? // CONTEUDO BINARIO DO ARQUIVO (Backup/Local)
 
   condominio_id Int
   condominio    Condominio @relation(fields: [condominio_id], references: [id])

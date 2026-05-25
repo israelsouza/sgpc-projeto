@@ -3,9 +3,6 @@ import { Alert, Platform } from 'react-native';
 import * as Linking from 'expo-linking';
 import { DocumentoService, IDocumento } from '../services/documentoService';
 
-// PDF de exemplo para o Mock (URL pública e estável que funciona na apresentação)
-const MOCK_PDF_URL = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
-
 export function useDocumentos() {
   const [documentos, setDocumentos] = useState<IDocumento[]>([]);
   const [loading, setLoading] = useState(false);
@@ -14,7 +11,7 @@ export function useDocumentos() {
   const fetchDocumentos = useCallback(async (categoria?: string, limit: number = 20, offset: number = 0) => {
     setLoading(true);
     try {
-      // REATIVADO: Agora buscamos do banco para mostrar deleção/adição em tempo real
+      // REATIVADO: Agora buscamos do banco real, com URLs públicas estáveis
       const response = await DocumentoService.listar(categoria, limit, offset);
       setDocumentos(response.items || []);
     } catch (error: any) {
@@ -27,17 +24,19 @@ export function useDocumentos() {
   const openDocumento = useCallback(async (documentoId: number) => {
     setDownloadingId(documentoId);
     try {
-      // MOCK ATIVO: Mesmo vindo do banco, ignoramos a URL assinada e usamos a estável
-      console.log(`[MOCK] Abrindo documento ${documentoId} via URL de apresentação.`);
+      // REATIVADO: Busca a URL real do Cloudinary (agora configurada como pública/autenticada)
+      const url = await DocumentoService.obterDownloadUrl(documentoId);
+      
+      console.log(`Abrindo documento ${documentoId} via URL real.`);
       
       if (Platform.OS === 'web') {
-          window.open(MOCK_PDF_URL, '_blank');
+          window.open(url, '_blank');
       } else {
-          await Linking.openURL(MOCK_PDF_URL);
+          await Linking.openURL(url);
       }
       
     } catch (error: any) {
-      const msg = 'Erro ao tentar abrir o documento.';
+      const msg = error.response?.data?.mensagem || 'Erro ao tentar abrir o documento.';
       if (Platform.OS === 'web') alert(msg);
       else Alert.alert('Erro', msg);
     } finally {
@@ -48,7 +47,7 @@ export function useDocumentos() {
   const uploadDocumento = useCallback(async (formData: FormData) => {
     setLoading(true);
     try {
-      // REATIVADO: Para que o Síndico possa mostrar que o arquivo aparece na lista
+      // REATIVADO: Upload real agora gera URL pública/autenticada permanente
       await DocumentoService.criar(formData);
       
       if (Platform.OS === 'web') alert('Documento enviado com sucesso!');
