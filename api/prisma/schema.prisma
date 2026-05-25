@@ -54,9 +54,10 @@ model Unidade {
   quem_criou    Int?      @map("quem_criou")
 
   // Relacionamentos
-  condominio    Condominio    @relation(fields: [condominio_id], references: [id])
+  condominio    Condominio     @relation(fields: [condominio_id], references: [id])
   moradores     Morador[]
   chaves_acesso ChaveAcesso[]
+  manifestacoes Manifestacao[]
 
   @@map("UNIDADES")
 }
@@ -253,11 +254,14 @@ model Morador {
   unidade_id Int? @map("unidade_id")
 
   // Relacionamentos
+
   usuario    Usuario?    @relation(fields: [usuario_id], references: [id])
   unidade    Unidade?    @relation(fields: [unidade_id], references: [id])
   convites   Convite[]
   visitantes Visitante[] @relation("MoradorVisitantes")
   entregas   Entrega[]
+  bilhetes      Bilhetes[]
+  manifestacoes Manifestacao[]
 
   @@map("MORADORES")
 }
@@ -344,4 +348,118 @@ model Entrega {
   morador Morador @relation(fields: [morador_id], references: [id])
 
   @@map("ENTREGAS")
+}
+
+model Bilhetes {
+  id           Int      @id @default(autoincrement())
+  assunto      String   @db.VarChar(120)
+  mensagem     String   @db.VarChar(320)
+  categoria    String   @default("bilhete")
+  autor        String
+  data_criacao DateTime @default(now())
+  hora_criacao String
+
+  // Informações da unidade
+  unidade String?
+  bloco   String?
+  andar   Int?
+
+  // Horizontal
+  numero  String?
+  prefixo String?
+
+  // Relacionamentos
+  morador_id Int?
+  morador    Morador? @relation(fields: [morador_id], references: [id])
+
+  // Auditoria
+  criado_em   DateTime  @default(now()) @map("criado_em")
+  deletado_em DateTime? @map("deletado_em")
+
+  @@map("BILHETES")
+}
+
+enum StatusManifestacao {
+  PENDENTE
+  EM_ANDAMENTO
+  AGUARDANDO
+  CONCLUIDO
+  ENCERRADO
+}
+
+model Manifestacao {
+  id           Int                @id @default(autoincrement())
+  assunto      String             @db.VarChar(120)
+  mensagem     String             @db.VarChar(320)
+  categoria    String             @default("solicitacao")
+  status       StatusManifestacao @default(PENDENTE)
+  autor        String
+  data_criacao DateTime           @default(now())
+  hora_criacao String
+
+  //DADOS DAS UNIDADES
+  unidade String?
+  bloco   String?
+  andar   Int?
+
+  //HORIZONTAL
+  numero  String?
+  prefixo String?
+
+  TipoCondominio TipoCondominio?
+
+  //FK
+  morador_id Int?
+  unidade_id Int?
+
+  morador     Morador? @relation(fields: [morador_id], references: [id])
+  unidade_rel Unidade? @relation(fields: [unidade_id], references: [id])
+
+  movimentacoes ManifestacaoMovimentacao[]
+
+  // Auditoria
+  criado_em     DateTime  @default(now())
+  atualizado_em DateTime  @updatedAt
+  deletado_em   DateTime?
+
+  @@map("MANIFESTACOES")
+}
+
+model ManifestacaoMovimentacao {
+  id Int @id @default(autoincrement())
+
+  titulo     String
+  comentario String?
+
+  status StatusManifestacao
+
+  autor_role String?
+
+  data_movimentacao DateTime @default(now())
+
+  // FK
+  manifestacao_id Int
+
+  manifestacao Manifestacao @relation(fields: [manifestacao_id], references: [id])
+
+  @@map("MANIFESTACAO_MOVIMENTACOES")
+}
+
+model Espaco {
+  id        Int        @id @default(autoincrement())
+  nome      String
+  icone     String
+  cor       String
+
+  reservas  Reserva[]
+}
+
+model Reserva {
+  id             Int       @id @default(autoincrement())
+  data_reserva   DateTime
+
+  usuario_id     Int
+  espaco_id      Int
+
+  espaco         Espaco    @relation(fields: [espaco_id], references: [id])
 }

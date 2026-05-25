@@ -19,3 +19,4 @@ class CondominioController:
     @staticmethod
     async def atualizar_condominio(cond_id: int, dados: CondominioUpdate, db: Prisma):
         return await CondominioService.atualizar_condominio(cond_id, dados, db)
+    
