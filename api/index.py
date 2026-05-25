@@ -17,6 +17,7 @@ from app.modules.core.core_exception import AppError
 from app.modules.core.limiter import limiter
 from app.modules.core.logger import logger
 from app.routers import router
+from app.modules.visitante.visitante_router import router as visitante_router
 
 
 # Lógica para garantir que o Prisma Client seja gerado no Vercel/Produção
@@ -167,3 +168,4 @@ app.add_middleware(
 )
 
 app.include_router(router, prefix="/api")
+app.include_router(visitante_router, prefix="/api")

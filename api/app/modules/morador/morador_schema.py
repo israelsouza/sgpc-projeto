@@ -25,9 +25,18 @@ class MoradorCreate(MoradorBase):
         return v
 
 
+class VisitanteResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    nome_completo: str
+    cpf: str | None = None
+    rg: str | None = None
+    celular: str | None = None
+
 class MoradorResponse(MoradorBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
     status: str
     criado_em: datetime
+    visitantes: list[VisitanteResponse] = []

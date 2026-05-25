@@ -136,6 +136,7 @@ model Morador {
   visitas          Visita[]
   registros_acesso RegistroAcesso[]
   convites_visita  ConviteVisita[]
+  visitantes       Visitante[]
 
   @@map("MORADORES")
 }
@@ -147,7 +148,11 @@ model Visitante {
   rg            String? @map("rg")
   celular       String? @map("celular")
 
+  // FKs
+  morador_id Int @map("morador_id")
+
   // Relacionamentos
+  morador          Morador          @relation(fields: [morador_id], references: [id])
   visitas          Visita[]
   registros_acesso RegistroAcesso[]
 
