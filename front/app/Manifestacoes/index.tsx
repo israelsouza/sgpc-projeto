@@ -2,7 +2,7 @@ import HeaderFuncApp from "@/components/HeaderFunctions";
 import { Feather } from "@expo/vector-icons";
 import { View, TouchableOpacity, SectionList, Text, TextInput, Modal, Pressable, KeyboardAvoidingView, ScrollView, ActivityIndicator, Platform } from "react-native";
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
 import { componenteList, listadoMock, agruparMes, coresPorCategoria, coresPorIcone, StatusSolicitacao, Movimentacao } from "@/components/Listado";
@@ -11,6 +11,7 @@ import { styles } from "@/screens/Manifestacoes/manifestacao";
 import { BlurView } from "expo-blur";
 import { palette } from "@/theme/colors";
 import { Picker } from "@react-native-picker/picker";   
+import { listar_manifestacoes, criar_manifestacao, atualizar_manifestacao, delete_manifestacao } from "@/services/manifestacaoService"
 
 //FAZ DISTINÇÃO DE QUAL USUÁRIO ESTARÁ UTILIZANDO
 interface JwtPayload {
@@ -114,24 +115,59 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
             };
             loadingdados();
         }, [modalAberta]);
+    
+
+        //LISTA FILTRADA
+        const listaFiltrada = useMemo(() => {
+            if (!userRole) return lista;
+
+            if (userRole === "morador") {
+                return lista.filter((item) => item.autor === nomeUsuario);
+            }
+
+            return lista;
+            }, [lista, userRole, nomeUsuario]);
+
 
 
         //FILTRA APENAS AS MANIFESTAÇÕES DO USUÁRIO
         useEffect(() => {
-                if (!userRole || !nomeUsuario) return;
+            async function load(){
+                try {
+                    const response = await listar_manifestacoes();
 
-                if( userRole === "morador"){
-                    setLista(
-                        listadoMock.filter(
-                            (item) => item.categoria === "solicitacao" && item.autor === nomeUsuario
-                        )
-                    );
-                } else {
-                    setLista(
-                        listadoMock.filter((item) => item.categoria === "solicitacao")
-                    );
+                const formatados = response.data.map((item: any) => ({
+                id: item.id.toString(),
+                titulo: item.assunto,
+                subtitulo: item.mensagem,
+                descricao: item.mensagem,
+                autor: item.autor,
+                data: new Date(item.createdAt).toLocaleDateString('pt-BR'),
+                hora: new Date(item.createdAt).toLocaleTimeString('pt-BR', { hour: "2-digit", minute: "2-digit" }),
+                mesAno: new Date(item.createdAt).toLocaleDateString('pt-BR', { month: "long", year: "2-digit" }),
+                icone: "file-text",
+                corIcon: coresPorIcone['solicitacao'],
+                cor: coresPorCategoria['solicitacao'],
+                categoria: 'solicitacao',
+                status: item.status,
+                movimentacoes: item.movimentacoes || [],
+                tipoCond: item.tipoCond,
+                unidade: item.unidade,
+                bloco: item.bloco,
+                andar: item.andar,
+                numero: item.numero,
+                prefixo: item.prefixo,
+                    }));
+
+                    setLista(formatados);
+
+                } catch (error) {
+                    console.log(error);
+                    alert("Erro ao carregar manifestações!");
                 }
-        }, [userRole, nomeUsuario]);
+            }
+            load();
+        }, []);
 
         //FUNÇÃO PARA CRIAR UMA NOVA MANIFESTAÇÃO
         function criarManifestacao( dados: { assunto: string; mensagem: string}) : componenteList{
@@ -166,39 +202,7 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
             };
         }
 
-            function atualizarManifestacao() {
-            if (!itemSelecionado) return;
-
-            const novaMov: Movimentacao = {
-                titulo: statusSelecionado,
-                comentario: comentario || undefined,
-                data: new Date().toLocaleDateString('pt-BR'),
-                hora: new Date().toLocaleTimeString('pt-BR', { hour: "2-digit", minute: "2-digit" }),
-                status: statusSelecionado,
-                autorRole: userRole ?? undefined,
-            };
-
-            const atualizado: componenteList = {
-                ...itemSelecionado,
-                status: statusSelecionado,
-                subtitulo: statusSelecionado,
-                movimentacoes: [...(itemSelecionado.movimentacoes || []), novaMov],
-            };
-
-            setLista(prev =>
-                prev.map(i => (i.id === atualizado.id ? atualizado : i))
-            );
-
-            if (statusSelecionado === "Encerrado") {
-                setItemSelecionado(null);
-            } else {
-                setItemSelecionado(atualizado);
-            }
-
-            setComentario("");
-            }
-
-        const handleEnviar = () => {
+        const handleEnviar = async () => {
             if (!assunto) {
         alert("Preencha o assunto");
         return;
@@ -206,17 +210,44 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
         alert("Preencha a mensagem");
         return;
         }
-        //FORMATO QUE OS DADOS DEVERÃO SER ENVIADOS
-        const payload = 
-            tipoCondomino === "PREDIO"
-              ? { assunto, mensagem, unidade, bloco, andar, categoria: 'solicitacao' }
-              : { assunto, mensagem, numero, prefixo, categoria: 'solicitacao' };
 
-        console.log("Enviando manifestação:", payload);
+        try {
 
-        const novoItem = criarManifestacao({ assunto, mensagem });
-        setLista((prev) => [...prev, novoItem]);
-        handleFecharModal();
+            const payload = 
+                tipoCondomino === "PREDIO"
+                  ? { assunto, mensagem, unidade, bloco, andar, categoria: 'solicitacao' }
+                  : { assunto, mensagem, numero, prefixo, categoria: 'solicitacao' };
+
+            const response = await criar_manifestacao(payload);
+                        
+            const novoItem = {
+                id: response.data.id.toString(),
+                titulo: response.data.assunto,
+                subtitulo: response.data.status,
+                descricao: response.data.mensagem,
+                autor: response.data.autor,
+                status: response.status,
+                data: new Date(response.data.createdAt).toLocaleDateString("pt-BR"),
+                hora: new Date(response.data.createdAt).toLocaleTimeString("pt-BR"),
+                mesAno: new Date(response.data.createdAt).toLocaleDateString("pt-BR", {
+                    month: "long",
+                    year: "numeric",
+                }),
+                icone: "file-text",
+                cor: coresPorCategoria["solicitacao"],
+                corIcon: coresPorIcone["solicitacao"],
+                categoria: "solicitacao",
+                movimentacoes: [],
+                };
+
+                setLista((prev) => [novoItem as componenteList, ...prev]);
+        
+                handleFecharModal();
+
+        } catch (error) {
+            console.log(error);
+            alert("Erro ao criar manifestação!");
+        }
     };
 
         function handleFecharModal(){
@@ -240,22 +271,51 @@ export default function ManifestacoesScreen({ onAdicionarManifestacao }: Props){
             setItemSelecionado(null);
             };
 
-        function handleDelete (id: string){
-            setLista((prev) => prev.filter((i) => i.id !== id));
+        async function handleDelete (id: string){
+            try {
+                await delete_manifestacao(Number(id));
+                setLista((prev) => prev.filter((i) => i.id !== id));
+            } catch (error) {
+                console.log(error);
+                alert("Erro ao apagar Manifestação!");
+            }
         }
 
-        function handleUpdate (itemAtualizado: componenteList) {
-           setLista((prev) => 
-        prev.map((item) =>
-        item.id === itemAtualizado.id ? itemAtualizado : item)
+                async function atualizarManifestacao() {
+            if (!itemSelecionado) return;
+
+            try {
+                const payload = {
+                    status: statusSelecionado,
+                    comentario: comentario,
+                };
+
+                const atualizado = await atualizar_manifestacao(Number(itemSelecionado.id), payload);
+
+                const itemFormatado = {
+                ...itemSelecionado,
+                status: atualizado.data.status,
+                subtitulo: atualizado.data.comentario,
+                movimentacoes: atualizado.data.movimentacoes || [],
+            };
+            
+            setLista((prev) => prev.map((i) => (i.id === itemFormatado.id ? itemFormatado : i))
         );
         
-        if (itemAtualizado.status === "Encerrado") {
-            setItemSelecionado(null);
-        } else {
-            setItemSelecionado(itemAtualizado);
+                    if (statusSelecionado === "Encerrado") {
+                        setItemSelecionado(null);
+                    } else {
+                        setItemSelecionado(atualizado.data);
+                    }
+        
+        setComentario("");
+
+            } catch (error) {
+                console.log(error);
+                alert("Erro ao atualizar manifestação!");
+            }
         }
-        };
+
         
         const secoes = agruparMes(lista.filter((i) => i.status !== "Encerrado"));
 

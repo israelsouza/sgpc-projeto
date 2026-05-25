@@ -4,11 +4,12 @@ import HeaderFuncApp from "@/components/HeaderFunctions";
 import { componenteList, listadoMock, DetalhesModal, agruparMes, coresPorIcone, coresPorCategoria, } from "@/components/Listado";
 import { styles } from "@/screens/Bilhetes/bilhetes.styles";
 import { jwtDecode } from "jwt-decode";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from 'expo-secure-store';
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { BlurView } from "expo-blur";
 import { palette } from "@/theme/colors";
+import {listar_bilhetes, criar_bilhete, deletar_bilhete} from "@/services/bilhetesservice"
 
 // FAZ DISTINÇÃO DE QUAL USUÁRIO ESTARÁ UTILIZANDO
 interface JwtPayload {
@@ -47,6 +48,7 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
   const [mensagem, setMensagem] = useState("");
   const [loadingdados, setLoadingDados] = useState(false);
   const [assunto, setAssunto] = useState("");
+  
 
   // DIFERENCIAÇÃO DE TIPOS DAS UNIDADES
   const [tipoCondomino, setTipoCondominio] = useState<"PREDIO" | "HORIZONTAL" | null>(null);
@@ -62,7 +64,7 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
     useEffect(() => {
       const loadUser = async () => {
         try {
-          const token = await AsyncStorage.getItem("token");
+          const token = await SecureStore.getItemAsync("token");
 
           if (!token) {
             console.log("Token não encontrado");
@@ -87,7 +89,7 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
   // FILTRA LISTA DE ACORDO COM CADA ROLE
   useEffect(() => {
     if (userRole) {
-      setLista(filtrarPorRole(listadoMock, userRole));
+      setLista((prev) => filtrarPorRole(prev, userRole));
     }
   }, [userRole]);
 
@@ -98,7 +100,7 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
     const carregarDados = async () => {
       setLoadingDados(true);
       try {
-        const token = await AsyncStorage.getItem("token");
+        const token = await SecureStore.getItemAsync("token");
         if (token) {
           const decoded = jwtDecode<JwtPayload>(token);
           setTipoCondominio(decoded.tipoCond);
@@ -139,29 +141,53 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
   }
 
   // ENVIA O NOVO BILHETE
-  const handleEnviar = () => {
-    if (!assunto) {
-      alert("Preencha o assunto");
-      return;
-    }
-    if (!mensagem) {
-      alert("Preencha a mensagem");
-      return;
-    }
-  
-
-    // FORMATO QUE OS DADOS DEVERÃO SER ENVIADOS PARA O BACKEND
-    const payload =
-      tipoCondomino === "PREDIO"
+  const handleEnviar = async () => {
+      
+      if (!assunto) {
+          alert("Preencha o assunto");
+          return;
+      }
+      if (!mensagem) {
+          alert("Preencha a mensagem");
+          return;
+      }
+          
+    try {
+        const payload =
+        tipoCondomino === "PREDIO"
         ? { assunto, mensagem, unidade, bloco, andar, categoria: "bilhete" }
         : { assunto, mensagem, numero, prefixo, categoria: "bilhete" };
+        
+        const response = await criar_bilhete(payload);
 
-    console.log("Enviando bilhete:", payload);
+        const novoItem = {
+            id: response.id.toString(),
+            titulo: response.assunto,
+            subtitulo: response.mensagem,
+            descricao: response.mensagem,
+            autor: response.autor,
+            data: new Date(response.createdAt).toLocaleDateString("pt-BR"),
+            hora: new Date(response.createdAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+            icone: "user",
+            mesAno: new Date(response.createdAt).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }),
+            cor: coresPorCategoria["bilhete"],
+            corIcon: coresPorIcone["bilhete"],
+            categoria: "bilhete",
+        };
 
-    const novoItem = criarBilhete({ assunto, mensagem });
-    setLista((prev) => [...prev, novoItem]);
-    handleFecharModal();
-  };
+            setLista((prev) => [novoItem as componenteList, ...prev]);
+
+            
+            handleFecharModal();
+            alert("Bilhete criado com sucesso!")
+            
+            } catch (error: any) {
+              console.log("ERRO:", error.response?.data);
+              console.log("STATUS:", error.response?.status);
+
+              alert("Erro ao criar o bilhete!");
+            }
+        };
 
   function handleFecharModal() {
     setModalAberta(false);
@@ -169,27 +195,57 @@ export default function BilhetesScreen({ onAdicionarBilhete }: Props) {
     setMensagem("");
   }
 
-  function handleDelete(id: string) {
-    setLista((prev) => prev.filter((i) => i.id !== id));
-  }
+  const handleDelete = async (id: string) => {
+        try {
+            await deletar_bilhete(Number(id));
+            setLista((prev) => prev.filter((i) => i.id !== id));
+        } catch (error) {
+            console.log(error);
+            alert("Erro ao deletar bilhete!");
+        }
+    };
 
-       //FILTRA APENAS AS MANIFESTAÇÕES DO USUÁRIO
+       //FILTRA APENAS OS BILHETES DO USUÁRIO
         useEffect(() => {
-                if (!userRole || !nomeUsuario) return;
-
-                if( userRole === "morador"){
-                    setLista(
-                        listadoMock.filter(
-                            (item) => item.categoria === "bilhete" && item.autor === nomeUsuario
-                        )
-                    );
-                } else {
-                    setLista(
-                        listadoMock.filter((item) => item.categoria === "bilhete")
-                    );
+            if (!userRole || !nomeUsuario) return;
+            
+            setLista((prev) => {
+                if (userRole === "morador") {
+                    return prev.filter((item) => item.autor === nomeUsuario);
                 }
+                return prev;
+            });
         }, [userRole, nomeUsuario]);
 
+    //CARREGAR OS DADOS
+    useEffect(() => {
+        async function load() {
+            try {
+                const data = await listar_bilhetes();
+
+                const formatados = data.map((item: any) => ({
+                    id: item.id.toString(),
+                    titulo: item.assunto,
+                    subtitulo: item.mensagem,
+                    descricao: item.mensagem,
+                    autor: item.autor,
+                    data: new Date(item.createdAt).toLocaleDateString("pt-BR"),
+                    hora: new Date(item.createdAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+                    icone: "user",
+                    mesAno: new Date(item.createdAt).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }),
+                    cor: coresPorCategoria["bilhete"],
+                    corIcon: coresPorIcone["bilhete"],
+                    categoria: "bilhete",
+                }))
+
+                setLista(formatados);
+
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        load();
+    }, []);
 
   // DEFINE QUEM NÃO PODE ADICIONAR
   const podeAdicionar = userRole === "morador";
