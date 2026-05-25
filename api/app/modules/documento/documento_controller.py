@@ -1,13 +1,5 @@
-from fastapi import Depends, Request, UploadFile, status
-from pydantic import ValidationError as PydanticValidationError
-
-from app.db.prisma_client import get_prisma
-from app.modules.core.adapters import CloudinaryAdapter, PyMuPdfAdapter
-from app.modules.core.core_exception import ValidationError
-from app.modules.core.core_schema import StandardResponse
 from app.modules.documento.documento_schema import DocumentoCreate
 from app.modules.documento.documento_service import DocumentoService
-from prisma import Prisma
 
 
 class DocumentoController:

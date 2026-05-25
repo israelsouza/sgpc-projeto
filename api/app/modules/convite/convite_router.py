@@ -55,7 +55,9 @@ async def listar_visitantes(usuario: models.Usuario = Depends(get_current_user))
     "/visitantes/condominio",
     response_model=StandardResponse[list[VisitanteResponse]],
 )
-async def listar_visitantes_condominio(usuario: models.Usuario = Depends(get_current_user)):
+async def listar_visitantes_condominio(
+    usuario: models.Usuario = Depends(get_current_user),
+):
     """
     Lista todos os visitantes do condomínio (Restrito a funcionários).
     """

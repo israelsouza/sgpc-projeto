@@ -1,6 +1,6 @@
+import base64
 import hashlib
 import re
-import base64
 from datetime import datetime
 
 import structlog
@@ -41,16 +41,22 @@ class DocumentoService:
                 nome="tamanho_invalido", mensagem="Arquivo excede o limite de 15MB"
             )
 
-        # 2. Integridade e Sanitização
+        # 2. Validação de Tipo (Magic Bytes)
+        if not arquivo_pdf.startswith(b"%PDF-"):
+            raise ValidationError(
+                nome="tipo_invalido", mensagem="Apenas arquivos PDF são permitidos"
+            )
+
+        # 3. Integridade e Sanitização
         sha256_hash = hashlib.sha256(arquivo_pdf).hexdigest()
         safe_filename = re.sub(r"[^a-zA-Z0-9_\-\.\s]", "_", filename).strip()
 
-        # 3. Conversão para String Base64 para evitar erros de ASCII no Windows/Prisma
+        # 4. Conversão para String Base64 para evitar erros de ASCII no Windows/Prisma
         pdf_b64_str = base64.b64encode(arquivo_pdf).decode("utf-8")
-        
+
         file_id_fake = f"db_{datetime.now().timestamp()}_{safe_filename}"
 
-        # 4. Salvar no Banco
+        # 5. Salvar no Banco
         novo_doc = await DocumentoModel.criar(
             self.db,
             {
@@ -60,13 +66,13 @@ class DocumentoService:
                 "file_id": file_id_fake,
                 "filename_orig": safe_filename,
                 "sha256_hash": sha256_hash,
-                "conteudo": pdf_b64_str, # Prisma Python aceita string b64 para campos Bytes
+                "conteudo": pdf_b64_str,
                 "condominio_id": condominio_id,
                 "quem_criou_id": usuario_id,
             },
         )
 
-        # 5. Registrar Auditoria
+        # 6. Registrar Auditoria
         await DocumentoLogModel.criar(
             self.db,
             documento_id=novo_doc.id,
@@ -105,7 +111,9 @@ class DocumentoService:
     ):
         documento = await DocumentoModel.buscar_por_id(documento_id, self.db)
         if not documento:
-             raise ValidationError(nome="nao_encontrado", mensagem="Documento não encontrado")
+            raise ValidationError(
+                nome="nao_encontrado", mensagem="Documento não encontrado"
+            )
 
         await DocumentoLogModel.criar(
             self.db,

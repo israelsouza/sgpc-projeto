@@ -86,8 +86,8 @@ class CloudinaryAdapter(StorageServiceInterface):
         """
         try:
             options = {
-                "sign_url": False, 
-                "type": "upload", # Tipo padrão público
+                "sign_url": False,
+                "type": "upload",  # Tipo padrão público
                 "secure": True,
                 "resource_type": "raw",
             }
@@ -98,6 +98,7 @@ class CloudinaryAdapter(StorageServiceInterface):
 
             # Remove a versão (/v12345678/) para garantir compatibilidade com recursos raw
             import re
+
             url = re.sub(r"/v\d+/", "/", url)
 
             return url

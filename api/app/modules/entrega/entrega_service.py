@@ -77,11 +77,15 @@ class EntregaService:
                         usuario_id=entrega.morador.usuario_id,
                         title="Entrega Recebida",
                         body=mensagem_push,
-                        data={"entrega_id": str(entrega.id), "tipo": "ENTREGA_RECEBIDA"},
+                        data={
+                            "entrega_id": str(entrega.id),
+                            "tipo": "ENTREGA_RECEBIDA",
+                        },
                     )
                 except Exception as e:
                     # Falha no push não deve impedir a atualização do status
                     from app.modules.core.logger import logger
+
                     logger.error("Falha ao enviar push notification", error=str(e))
 
         # Disparar evento WS para atualizar listas
@@ -101,6 +105,7 @@ class EntregaService:
                 )
             except Exception as e:
                 from app.modules.core.logger import logger
+
                 logger.error("Falha ao disparar broadcast WebSocket", error=str(e))
 
         return entrega_atualizada
@@ -129,4 +134,7 @@ class EntregaService:
                 )
             except Exception as e:
                 from app.modules.core.logger import logger
-                logger.error("Falha ao disparar broadcast WebSocket na deleção", error=str(e))
+
+                logger.error(
+                    "Falha ao disparar broadcast WebSocket na deleção", error=str(e)
+                )

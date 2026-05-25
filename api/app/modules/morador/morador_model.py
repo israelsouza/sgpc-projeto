@@ -49,7 +49,7 @@ class MoradorModel:
             where={
                 "unidade": {"condominio_id": condominio_id},
                 "deletado_em": None,
-                "status": "ATIVO"
+                "status": "ATIVO",
             },
             include={"unidade": True},
             order={"nome_completo": "asc"},

@@ -11,7 +11,6 @@ export function useDocumentos() {
   const fetchDocumentos = useCallback(async (categoria?: string, limit: number = 20, offset: number = 0) => {
     setLoading(true);
     try {
-      // REATIVADO: Agora buscamos do banco real, com URLs públicas estáveis
       const response = await DocumentoService.listar(categoria, limit, offset);
       setDocumentos(response.items || []);
     } catch (error: any) {
@@ -24,10 +23,7 @@ export function useDocumentos() {
   const openDocumento = useCallback(async (documentoId: number) => {
     setDownloadingId(documentoId);
     try {
-      // REATIVADO: Busca a URL real do Cloudinary (agora configurada como pública/autenticada)
       const url = await DocumentoService.obterDownloadUrl(documentoId);
-      
-      console.log(`Abrindo documento ${documentoId} via URL real.`);
       
       if (Platform.OS === 'web') {
           window.open(url, '_blank');
@@ -47,15 +43,29 @@ export function useDocumentos() {
   const uploadDocumento = useCallback(async (formData: FormData) => {
     setLoading(true);
     try {
-      // REATIVADO: Upload real agora gera URL pública/autenticada permanente
       await DocumentoService.criar(formData);
-      
       if (Platform.OS === 'web') alert('Documento enviado com sucesso!');
       else Alert.alert('Sucesso', 'Documento enviado com sucesso!');
-      
       return true;
     } catch (error: any) {
       const msg = error.response?.data?.mensagem || 'Erro ao enviar documento';
+      if (Platform.OS === 'web') alert(msg);
+      else Alert.alert('Erro', msg);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const deleteDocumento = useCallback(async (documentoId: number) => {
+    setLoading(true);
+    try {
+      await DocumentoService.deletar(documentoId);
+      if (Platform.OS === 'web') alert('Documento removido com sucesso!');
+      else Alert.alert('Sucesso', 'Documento removido com sucesso!');
+      return true;
+    } catch (error: any) {
+      const msg = error.response?.data?.mensagem || 'Erro ao excluir documento';
       if (Platform.OS === 'web') alert(msg);
       else Alert.alert('Erro', msg);
       return false;
@@ -71,5 +81,6 @@ export function useDocumentos() {
     fetchDocumentos,
     openDocumento,
     uploadDocumento,
+    deleteDocumento,
   };
 }

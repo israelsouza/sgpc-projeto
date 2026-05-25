@@ -1,5 +1,15 @@
-from fastapi import APIRouter, Depends, File, Form, Request, UploadFile, status, Response
 import base64
+
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    Request,
+    Response,
+    UploadFile,
+    status,
+)
 
 from app.db.prisma_client import get_prisma
 from app.modules.core.adapters import CloudinaryAdapter, PyMuPdfAdapter
@@ -7,7 +17,10 @@ from app.modules.core.core_exception import ForbiddenError
 from app.modules.core.core_schema import StandardResponse
 from app.modules.core.security import get_current_user
 from app.modules.documento.documento_controller import DocumentoController
-from app.modules.documento.documento_schema import DocumentoCreate, DocumentoResponse, DocumentosListResponse
+from app.modules.documento.documento_schema import (
+    DocumentoCreate,
+    DocumentosListResponse,
+)
 from app.modules.documento.documento_service import DocumentoService
 from prisma import Prisma, models
 
@@ -32,7 +45,9 @@ async def criar_documento(
 ):
     """Realiza o upload de um novo documento PDF."""
     if not current_user.funcionario:
-        raise ForbiddenError("Apenas síndicos ou administradores podem subir documentos.")
+        raise ForbiddenError(
+            "Apenas síndicos ou administradores podem subir documentos."
+        )
 
     dados = DocumentoCreate(titulo=titulo, categoria=categoria, descricao=descricao)
     pdf_bytes = await arquivo.read()
@@ -106,7 +121,9 @@ async def obter_url_download(
         ip_address=request.client.host if request.client else None,
     )
     return StandardResponse(
-        message="URL gerada com sucesso.", status_code=status.HTTP_200_OK, data={"url": url}
+        message="URL gerada com sucesso.",
+        status_code=status.HTTP_200_OK,
+        data={"url": url},
     )
 
 
@@ -117,13 +134,15 @@ async def stream_documento(
 ):
     """Endpoint para servir o PDF diretamente do banco de dados (Streaming)."""
     documento = await service.db.documento.find_unique(where={"id": documento_id})
-    
+
     if not documento or not documento.conteudo:
-        return Response(status_code=404, content="Documento ou conteúdo não encontrado.")
+        return Response(
+            status_code=404, content="Documento ou conteúdo não encontrado."
+        )
 
     # No Prisma Python, o conteúdo Bytes retornado via string b64 precisa ser decodificado
     try:
-        if hasattr(documento.conteudo, 'decode'):
+        if hasattr(documento.conteudo, "decode"):
             pdf_bytes = documento.conteudo.decode()
         else:
             pdf_bytes = base64.b64decode(documento.conteudo)
@@ -135,7 +154,7 @@ async def stream_documento(
         media_type="application/pdf",
         headers={
             "Content-Disposition": f'inline; filename="{documento.filename_orig}"'
-        }
+        },
     )
 
 
@@ -148,7 +167,9 @@ async def deletar_documento(
 ):
     """Deleta um documento (Restrito a funcionários do condomínio)."""
     if not current_user.funcionario:
-        raise ForbiddenError("Apenas síndicos ou administradores podem deletar documentos.")
+        raise ForbiddenError(
+            "Apenas síndicos ou administradores podem deletar documentos."
+        )
 
     await service.deletar_documento(
         documento_id=documento_id,

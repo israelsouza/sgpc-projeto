@@ -87,7 +87,9 @@ class ConviteService:
             if tokens:
                 push_service = FcmPushAdapter()
                 tipo_label = (
-                    "Visitante" if convite.tipo == "VISITANTE" else "Prestador de Serviço"
+                    "Visitante"
+                    if convite.tipo == "VISITANTE"
+                    else "Prestador de Serviço"
                 )
                 for t in tokens:
                     await push_service.send_direct_push(
@@ -105,7 +107,9 @@ class ConviteService:
         return visitante
 
     @staticmethod
-    async def atualizar_visitante(db: Prisma, visitante_id: int, dados: VisitanteUpdate):
+    async def atualizar_visitante(
+        db: Prisma, visitante_id: int, dados: VisitanteUpdate
+    ):
         visitante = await db.visitante.find_unique(where={"id": visitante_id})
         if not visitante:
             raise NotFoundError("Visitante não encontrado.")

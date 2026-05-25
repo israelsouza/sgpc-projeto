@@ -40,7 +40,9 @@ class ConviteController:
                 {"request": request, "mensagem": "Este link expirou ou é inválido."},
             )
 
-        tipo_label = "Visitante" if convite.tipo == "VISITANTE" else "Prestador de Serviço"
+        tipo_label = (
+            "Visitante" if convite.tipo == "VISITANTE" else "Prestador de Serviço"
+        )
 
         return templates.TemplateResponse(
             "cadastro_visitante.html",
@@ -74,9 +76,9 @@ class ConviteController:
 
         # 3. Listar visitantes vinculados a qualquer um desses moradores
         visitantes = await db.visitante.find_many(
-            where={"morador_id": {"in": ids_moradores}}, 
+            where={"morador_id": {"in": ids_moradores}},
             include={"morador": {"include": {"unidade": True}}},
-            order={"criado_em": "desc"}
+            order={"criado_em": "desc"},
         )
 
         return [v.model_dump() for v in visitantes]
@@ -91,54 +93,62 @@ class ConviteController:
         )
 
         if not usuario or not usuario.funcionario:
-             raise ForbiddenError("Acesso negado: Apenas funcionários podem ver todos os visitantes.")
+            raise ForbiddenError(
+                "Acesso negado: Apenas funcionários podem ver todos os visitantes."
+            )
 
         condominio_id = usuario.funcionario.condominio_id
 
         # Listar todos os visitantes cujo morador vinculado pertence ao condomínio do funcionário
         visitantes = await db.visitante.find_many(
-            where={
-                "morador": {"unidade": {"condominio_id": condominio_id}}
-            },
+            where={"morador": {"unidade": {"condominio_id": condominio_id}}},
             include={"morador": {"include": {"unidade": True}}},
-            order={"criado_em": "desc"}
+            order={"criado_em": "desc"},
         )
 
         return [v.model_dump() for v in visitantes]
 
     @staticmethod
-    async def atualizar_visitante(usuario_id: int, visitante_id: int, dados: VisitanteUpdate):
+    async def atualizar_visitante(
+        usuario_id: int, visitante_id: int, dados: VisitanteUpdate
+    ):
         db = await get_prisma()
-        
+
         # Validar se o visitante pertence ao condomínio/unidade do morador
         morador = await db.morador.find_unique(where={"usuario_id": usuario_id})
         visitante = await db.visitante.find_unique(
-            where={"id": visitante_id},
-            include={"morador": True}
+            where={"id": visitante_id}, include={"morador": True}
         )
-        
+
         if not morador or not visitante:
-            raise ValidationError(nome="nao_encontrado", mensagem="Recurso não encontrado.")
-            
+            raise ValidationError(
+                nome="nao_encontrado", mensagem="Recurso não encontrado."
+            )
+
         if visitante.morador.unidade_id != morador.unidade_id:
-             raise ForbiddenError("Você não tem permissão para gerenciar este visitante.")
+            raise ForbiddenError(
+                "Você não tem permissão para gerenciar este visitante."
+            )
 
         return await ConviteService.atualizar_visitante(db, visitante_id, dados)
 
     @staticmethod
     async def excluir_visitante(usuario_id: int, visitante_id: int):
         db = await get_prisma()
-        
+
         morador = await db.morador.find_unique(where={"usuario_id": usuario_id})
         visitante = await db.visitante.find_unique(
-            where={"id": visitante_id},
-            include={"morador": True}
+            where={"id": visitante_id}, include={"morador": True}
         )
-        
+
         if not morador or not visitante:
-            raise ValidationError(nome="nao_encontrado", mensagem="Recurso não encontrado.")
-            
+            raise ValidationError(
+                nome="nao_encontrado", mensagem="Recurso não encontrado."
+            )
+
         if visitante.morador.unidade_id != morador.unidade_id:
-             raise ForbiddenError("Você não tem permissão para gerenciar este visitante.")
+            raise ForbiddenError(
+                "Você não tem permissão para gerenciar este visitante."
+            )
 
         return await ConviteService.excluir_visitante(db, visitante_id)

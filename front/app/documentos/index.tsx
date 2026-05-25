@@ -5,14 +5,13 @@ import { router } from "expo-router";
 import { styles } from "@/screens/Documentos/documentos.styles";
 import HeaderFuncApp from "@/components/HeaderFunctions";
 import { colors, palette } from "@/theme/colors";
-import * as Sharing from "expo-sharing";
 import * as DocumentPicker from "expo-document-picker";
 import { useDocumentos } from "@/hooks/useDocumentos";
 import { IDocumento } from "@/services/documentoService";
 import { storage } from "@/utils/storage";
 
 export default function DocumentsScreen() {
-  const { documentos, loading, fetchDocumentos, openDocumento, uploadDocumento } = useDocumentos();
+  const { documentos, loading, fetchDocumentos, openDocumento, uploadDocumento, deleteDocumento } = useDocumentos();
 
   const [openSelect, setOpenSelect] = useState(false);
   const [showForm, setShowForm] = useState(false);       
@@ -51,7 +50,6 @@ export default function DocumentsScreen() {
       formData.append('titulo', tipoDocumento);
       formData.append('categoria', 'Geral');
       
-      // Ajuste de FormData para Mobile vs Web
       if (Platform.OS === 'web') {
         formData.append('arquivo', selectedFile.file as any);
       } else {
@@ -108,12 +106,39 @@ export default function DocumentsScreen() {
     }
   };
 
+  const handleDeletarPdf = async () => {
+    if (!selecionarDoc) return;
+
+    const performDelete = async () => {
+        const success = await deleteDocumento(selecionarDoc.id);
+        if (success) {
+            setPdfModal(false);
+            setSelecionarDoc(null);
+            fetchDocumentos();
+        }
+    };
+
+    if (Platform.OS === 'web') {
+        if (window.confirm(`Deseja realmente excluir o documento "${selecionarDoc.titulo}"?`)) {
+            performDelete();
+        }
+    } else {
+        Alert.alert(
+            "Confirmar Exclusão",
+            `Deseja realmente excluir o documento "${selecionarDoc.titulo}"?`,
+            [
+                { text: "Cancelar", style: "cancel" },
+                { text: "Excluir", style: "destructive", onPress: performDelete }
+            ]
+        );
+    }
+  }
+
   const handleCancelar = () => {
     setShowForm(false);
     setTipoDocumento("");
   };
 
-  // ── FIX: Looping infinito corrigido e migrado para storage centralizado ──
   useEffect(() => {
     async function init() {
       try {
@@ -259,7 +284,7 @@ export default function DocumentsScreen() {
         </Pressable>
       </Modal>
 
-      {/* MODAL PARA VISUALIZAÇÃO */}
+      {/* MODAL PARA VISUALIZAÇÃO E GESTÃO */}
       <Modal
         visible={pdfModal}
         transparent
@@ -279,7 +304,7 @@ export default function DocumentsScreen() {
 
             <View style={{ flex: 1, padding: 20, alignItems: 'center', justifyContent: 'center' }}>
               <Feather name="file-text" size={100} color={colors.earthBrown} />
-              <Text style={{ marginTop: 20, textAlign: 'center', fontSize: 16 }}>
+              <Text style={{ marginTop: 20, textAlign: 'center', fontSize: 18, fontWeight: 'bold' }}>
                 {selecionarDoc?.titulo}
               </Text>
               <Text style={{ marginTop: 10, color: '#666' }}>
@@ -298,6 +323,20 @@ export default function DocumentsScreen() {
                   {downloading ? "Processando..." : "Visualizar / Baixar"}
                 </Text>
               </TouchableOpacity>
+
+              {/* BOTAO EXCLUIR: Visível apenas para Síndico/Admin */}
+              {isPorterOrAdmin && (
+                  <TouchableOpacity
+                    style={[styles.downloadButtonPDF, { backgroundColor: '#DC3545', marginTop: 10 }]}
+                    onPress={handleDeletarPdf}
+                    disabled={loading}
+                  >
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        <Feather name="trash-2" size={18} color="#FFF" />
+                        <Text style={styles.downloadTextPDF}>Excluir Documento</Text>
+                    </View>
+                  </TouchableOpacity>
+              )}
 
               <TouchableOpacity
                 style={styles.closeButtonPDF}
