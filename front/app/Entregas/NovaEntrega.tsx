@@ -10,7 +10,6 @@ import {
   Platform,
   Alert,
   ActivityIndicator,
-  TextInput as RNTextInput,
 } from "react-native";
 import { useRouter } from "expo-router";
 import DateTimePicker, {
@@ -75,18 +74,17 @@ export default function NovaEntregaScreen() {
     if (selected) setHorario(selected);
   }
 
-  const handleWebDateChange = (event: any) => {
-    const newDate = new Date(event.target.value + 'T12:00:00');
-    if (!isNaN(newDate.getTime())) {
-      setData(newDate);
-    }
-  };
-
   const handleWebTimeChange = (event: any) => {
     const [hours, minutes] = event.target.value.split(':');
     const newTime = new Date(horario);
     newTime.setHours(parseInt(hours), parseInt(minutes));
     setHorario(newTime);
+  };
+
+  const mudarDia = (dias: number) => {
+    const novaData = new Date(data);
+    novaData.setDate(novaData.getDate() + dias);
+    setData(novaData);
   };
 
   // ── Submit ──
@@ -145,21 +143,18 @@ export default function NovaEntregaScreen() {
             <View style={styles.halfField}>
               <Text style={styles.fieldLabel}>Data</Text>
               {Platform.OS === 'web' ? (
-                <View style={[styles.fieldInput, { padding: 0 }]}>
-                  <RNTextInput
-                    type="date"
-                    value={data.toISOString().split('T')[0]}
-                    onChange={handleWebDateChange}
-                    style={{
-                      backgroundColor: 'transparent',
-                      color: '#4A3728',
-                      fontSize: 14,
-                      padding: 10,
-                      width: '100%',
-                      border: 'none',
-                      outline: 'none',
-                    } as any}
-                  />
+                <View style={[styles.fieldInput, { paddingHorizontal: 10, justifyContent: 'space-between', backgroundColor: colors.earthBrown ?? "#8B5E3C" }]}>
+                  <TouchableOpacity onPress={() => mudarDia(-1)} style={{ padding: 5 }}>
+                    <Feather name="chevron-left" size={20} color="white" />
+                  </TouchableOpacity>
+                  
+                  <Text style={{ color: 'white', fontSize: 14, fontWeight: 'bold' }}>
+                    {formatDate(data)}
+                  </Text>
+
+                  <TouchableOpacity onPress={() => mudarDia(1)} style={{ padding: 5 }}>
+                    <Feather name="chevron-right" size={20} color="white" />
+                  </TouchableOpacity>
                 </View>
               ) : (
                 <TouchableOpacity
@@ -178,7 +173,7 @@ export default function NovaEntregaScreen() {
               <Text style={styles.fieldLabel}>Horário</Text>
               {Platform.OS === 'web' ? (
                 <View style={[styles.fieldInput, { padding: 0 }]}>
-                  <RNTextInput
+                  <TextInput
                     type="time"
                     value={formatTime(horario)}
                     onChange={handleWebTimeChange}
@@ -333,8 +328,6 @@ export default function NovaEntregaScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-
-      {/* ── Bottom Nav ── */}
     </SafeAreaView>
   );
 }

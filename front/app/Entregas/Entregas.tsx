@@ -119,7 +119,7 @@ export default function EntregasScreen() {
                   style={styles.card}
                   activeOpacity={0.7}
                   onPress={() =>
-                    router.push(`/Entregas/ResumoEntrega?id=${entrega.id}`)
+                    router.push(`/entregas/ResumoEntrega?id=${entrega.id}`)
                   }
                 >
                   {/* Topo: ícone + tipo + status */}
@@ -261,7 +261,7 @@ export default function EntregasScreen() {
             shadowRadius: 8,
             elevation: 6,
           }}
-          onPress={() => router.push("/Entregas/NovaEntrega")}
+          onPress={() => router.push("/entregas/NovaEntrega")}
           activeOpacity={0.8}
         >
           <Feather name="plus" size={24} color="#FFFFFF" />
