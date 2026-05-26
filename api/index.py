@@ -168,4 +168,4 @@ app.add_middleware(
 )
 
 app.include_router(router, prefix="/api")
-app.include_router(visitante_router, prefix="/api")
+

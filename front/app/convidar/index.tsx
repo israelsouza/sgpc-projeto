@@ -65,6 +65,6 @@ export default function InviteScreen() {
           <Text style={styles.btnInviteText}>Copiar Link</Text>
         </TouchableOpacity>
       </View>
-    </V>
+    </View>
   );
 }

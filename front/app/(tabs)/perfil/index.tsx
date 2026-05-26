@@ -11,8 +11,9 @@ import { BottomNav } from "@/components/BottomNav";
 import { Header } from "@/components/Header";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useMemo } from "react";
-import type { ComponentType } from "react";
+import { useMemo, useState } from "react";
+import { VisitasModal } from "@/components/VisitasModal";
+import { VisitanteService, Visita } from "@/services/visitanteService";
 
 // ── Props da tela ──────────────────────────
 interface PerfilScreenProps {
@@ -84,9 +85,23 @@ export default function PerfilScreen({
     [isHighContrast, themeColors]
   );
 
+    const [modalVisible, setModalVisible] = useState(false);
+  const [visitas, setVisitas] = useState<Visita[]>([]);
+
   const profileIcon = (
     <Feather name="user" size={32} color={colors.textLight} />
   );
+
+  const handleOpenVisitasModal = async () => {
+    try {
+      const data = await VisitanteService.getAll();
+      setVisitas(data);
+      setModalVisible(true);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
 
   return (
     <View style={styles.container}>
@@ -134,6 +149,7 @@ export default function PerfilScreen({
                   key={item.id}
                   style={styles.menuItem}
                   activeOpacity={0.7}
+                  onPress={item.id === 'cadastros' ? handleOpenVisitasModal : undefined}
                 >
                   <View style={styles.menuIconBox}>
                     <IconComponent
@@ -149,7 +165,11 @@ export default function PerfilScreen({
             })}
           </View>
 
-          <View style={{ height: 24 }} />
+          <VisitasModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        visitas={visitas}
+      />
         </ScrollView>
       </View>
     </View>
