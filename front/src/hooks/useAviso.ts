@@ -83,5 +83,20 @@ export const useAviso = (categoria?: string, limit: number = 20) => {
     nextPage: () => carregarAvisos(page + 1),
     prevPage: () => carregarAvisos(page - 1),
     refresh: () => carregarAvisos(0, false),
+    criarAviso: async (dados: FormData) => {
+      const result = await avisoService.criar(dados);
+      carregarAvisos(0, true);
+      return result;
+    },
+    deletarAviso: async (id: number) => {
+      const result = await avisoService.deletar(id);
+      carregarAvisos(0, true);
+      return result;
+    },
+    atualizarAviso: async (id: number, dados: Partial<Aviso>) => {
+      const result = await avisoService.atualizar(id, dados);
+      carregarAvisos(0, true);
+      return result;
+    },
   };
 };

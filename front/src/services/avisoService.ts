@@ -58,6 +58,24 @@ const avisoService = {
     return avisoAtualizado;
   },
 
+  async criar(dados: FormData) {
+    const response = await api.post<any>('/avisos', dados, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  async deletar(avisoId: number) {
+    const response = await api.delete(`/avisos/${avisoId}`);
+    
+    // Remove do cache
+    delete avisoCache[avisoId];
+    
+    return response.data;
+  },
+
   async obterUrlAnexo(avisoId: number) {
     const response = await api.get<any>(`/avisos/${avisoId}/anexo`);
     return response.data.data.url as string;
