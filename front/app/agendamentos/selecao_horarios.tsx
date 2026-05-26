@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, Modal, ActivityIndicator, Platform, TextInput as RNTextInput } from "react-native";
+import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, Modal, ActivityIndicator, Platform } from "react-native";
 import { Feather, MaterialIcons, MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { stylesWeb } from "@/screens/Agendamentos/selecao.styles";
@@ -7,7 +7,7 @@ import { styles } from "@/screens/Modal_agendamento/modal_agendamento.styles";
 import { useAgendamento } from "@/hooks/useAgendamento";
 import { HorarioDisponivel } from "@/services/agendamentoService";
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storage } from "@/utils/storage";
 import { jwtDecode } from "jwt-decode";
 
 export default function SchedulingTimeWeb() {
@@ -47,13 +47,6 @@ export default function SchedulingTimeWeb() {
     }
   };
 
-  const handleWebDateChange = (event: any) => {
-    const newDate = new Date(event.target.value + 'T12:00:00');
-    if (!isNaN(newDate.getTime())) {
-      setDate(newDate);
-    }
-  };
-
   const mudarDia = (dias: number) => {
     const novaData = new Date(date);
     novaData.setDate(novaData.getDate() + dias);
@@ -64,25 +57,20 @@ export default function SchedulingTimeWeb() {
     if (!selectedSlot || !id) return;
 
     try {
-      const token = await AsyncStorage.getItem("token");
+      const token = await storage.getItemAsync("user_token");
       if (!token) {
         console.error("Token não encontrado no storage");
+        alert("Sessão expirada. Faça login novamente.");
         return;
       }
       const decoded: any = jwtDecode(token);
       
-      // Tenta converter o sub para número, se falhar (NaN) e for um mock, usa um ID padrão ou o próprio valor se a API aceitasse string
-      let usuario_id = parseInt(decoded.sub);
+      const usuario_id = parseInt(decoded.sub);
       
       if (isNaN(usuario_id)) {
-        console.warn("Aviso: Token com ID não numérico detectado:", decoded.sub);
-        // Fallback para teste se for o usuário mock 'user123'
-        if (decoded.sub.includes("user")) {
-           usuario_id = 1; // Assume o primeiro usuário do banco para fins de teste
-        } else {
-           alert("Erro: Seu usuário não possui um ID válido no banco.");
-           return;
-        }
+        console.error("ID de usuário inválido no token:", decoded.sub);
+        alert("Erro de autenticação. Seu usuário não possui um ID válido.");
+        return;
       }
 
       const payload = {
@@ -101,9 +89,10 @@ export default function SchedulingTimeWeb() {
         setShowSuccess(false);
         router.push("/agendamentos/minhas_reservas");
       }, 2000);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao realizar reserva:", error);
-      alert("Erro ao realizar reserva. Tente outro horário.");
+      const msg = error.response?.data?.detail || error.message || "Tente outro horário.";
+      alert(`Erro ao realizar reserva: ${msg}`);
     }
   };
 
