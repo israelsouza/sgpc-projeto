@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from fastapi import HTTPException
 
 from app.modules.agendamentos.agendamentos_schema import (
@@ -35,9 +36,7 @@ class AgendamentoService:
         )
 
         if conflito:
-            raise ValueError(
-                "Este horário já está reservado por outro usuário."
-            )
+            raise ValueError("Este horário já está reservado por outro usuário.")
 
         # 2. Verificar se o usuário já tem uma reserva para o mesmo horário (em qualquer espaço)
         usuario_conflito = await db.reserva.find_first(
@@ -48,21 +47,19 @@ class AgendamentoService:
         )
 
         if usuario_conflito:
-            raise ValueError(
-                "Você já possui um agendamento para este mesmo horário."
-            )
+            raise ValueError("Você já possui um agendamento para este mesmo horário.")
 
         try:
             # Garantir que a data está em UTC antes de salvar
             data_utc = dados.data_reserva.replace(tzinfo=None)
-            
+
             reserva = await db.reserva.create(
                 data={
                     "espaco_id": dados.espaco_id,
                     "usuario_id": dados.usuario_id,
                     "data_reserva": data_utc,
                 },
-                include={"espaco": True}
+                include={"espaco": True},
             )
             return reserva
         except Exception as e:
@@ -83,7 +80,7 @@ class AgendamentoService:
                 "usuario_id": dados.usuario_id,
                 "data_reserva": dados.data_reserva,
             },
-            include={"espaco": True}
+            include={"espaco": True},
         )
 
         return reserva_atualizada
@@ -100,7 +97,7 @@ class AgendamentoService:
                 dt_obj = datetime.strptime(data_str, "%d/%m/%Y")
             else:
                 dt_obj = datetime.strptime(data_str, "%Y-%m-%d")
-            
+
             target_date_str = dt_obj.strftime("%Y-%m-%d")
         except Exception as e:
             print(f"Erro ao parsear data {data_str}: {e}")
@@ -108,8 +105,7 @@ class AgendamentoService:
 
         # 2. Buscar todos os horários cadastrados para o espaço
         horarios = await db.horario.find_many(
-            where={"espaco_id": espaco_id},
-            order={"horario": "asc"}
+            where={"espaco_id": espaco_id}, order={"horario": "asc"}
         )
 
         # 3. Buscar reservas para este espaço na data informada
@@ -121,10 +117,7 @@ class AgendamentoService:
             reservas = await db.reserva.find_many(
                 where={
                     "espaco_id": espaco_id,
-                    "data_reserva": {
-                        "gte": start_of_day,
-                        "lte": end_of_day
-                    }
+                    "data_reserva": {"gte": start_of_day, "lte": end_of_day},
                 }
             )
         except Exception as e:
@@ -137,22 +130,21 @@ class AgendamentoService:
         for h in horarios:
             status = "available"
             hora_inicio = h.horario.split(" - ")[0]
-            
+
             for r in reservas:
                 # Com o filtro gte/lte, r.data_reserva já deve ser do dia correto,
                 # mas mantemos a verificação de data para segurança se o fallback foi usado
                 data_reserva_str = r.data_reserva.strftime("%Y-%m-%d")
                 hora_reserva_str = r.data_reserva.strftime("%H:%M")
-                
-                if data_reserva_str == target_date_str and hora_reserva_str == hora_inicio:
+
+                if (
+                    data_reserva_str == target_date_str
+                    and hora_reserva_str == hora_inicio
+                ):
                     status = "busy"
                     break
-            
-            resultado.append({
-                "id": h.id,
-                "horario": h.horario,
-                "status": status
-            })
+
+            resultado.append({"id": h.id, "horario": h.horario, "status": status})
 
         return resultado
 

@@ -5,10 +5,10 @@ from app.modules.agendamentos.agendamentos_controller import AgendamentoControll
 from app.modules.agendamentos.agendamentos_schema import (
     EspacoCreate,
     EspacoResponse,
+    HorarioResponse,
     ReservaCreate,
     ReservaResponse,
     ReservaUpdate,
-    HorarioResponse,
 )
 from prisma import Prisma
 
@@ -45,10 +45,9 @@ async def atualizar_reserva(
 
 
 @router.get("/listar-horarios/{espaco_id}", response_model=list[HorarioResponse])
-async def listar_horarios(
-    espaco_id: int, data: str, db: Prisma = Depends(get_prisma)
-):
+async def listar_horarios(espaco_id: int, data: str, db: Prisma = Depends(get_prisma)):
     from app.modules.agendamentos.agendamentos_service import AgendamentoService
+
     return await AgendamentoService.listar_horarios_disponiveis(espaco_id, data, db)
 
 

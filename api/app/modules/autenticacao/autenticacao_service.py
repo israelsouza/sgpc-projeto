@@ -75,7 +75,7 @@ class AutenticacaoService:
         condominio_nome = "Condomínio"
         condominio_id = 0
         unidade_nome = ""
-        
+
         # Dados para o JWT enriquecido
         jwt_data = {
             "sub": str(usuario.id),
@@ -89,22 +89,24 @@ class AutenticacaoService:
             nome_exibicao = usuario.morador.nome_completo
             if usuario.morador.unidade:
                 unidade = usuario.morador.unidade
-                jwt_data.update({
-                    "unidade": unidade.unidade,
-                    "bloco": unidade.bloco,
-                    "andar": str(unidade.andar) if unidade.andar else None,
-                    "numero": getattr(unidade, "numero", None),
-                    "prefixo": getattr(unidade, "prefixo", None),
-                })
-                
+                jwt_data.update(
+                    {
+                        "unidade": unidade.unidade,
+                        "bloco": unidade.bloco,
+                        "andar": str(unidade.andar) if unidade.andar else None,
+                        "numero": getattr(unidade, "numero", None),
+                        "prefixo": getattr(unidade, "prefixo", None),
+                    }
+                )
+
                 bloco_str = f"Bloco {unidade.bloco} - " if unidade.bloco else ""
                 unidade_nome = f"{bloco_str}Unid. {unidade.unidade}"
-                
+
                 if unidade.condominio:
                     condominio_nome = unidade.condominio.nome
                     condominio_id = unidade.condominio.id
                     jwt_data["tipoCond"] = unidade.condominio.tipoCond
-        
+
         elif usuario.funcionario:
             nome_exibicao = usuario.funcionario.nome_completo
             if usuario.funcionario.condominio:

@@ -37,8 +37,7 @@ class ManifestacaoService:
         )
 
         return await db.manifestacao.find_unique(
-            where={"id": manifestacao.id},
-            include={"movimentacoes": True}
+            where={"id": manifestacao.id}, include={"movimentacoes": True}
         )
 
     @staticmethod
@@ -63,11 +62,11 @@ class ManifestacaoService:
         if not manifestacao:
             return None
 
-        # O Prisma espera o valor do enum (ex: EM_ANDAMENTO), 
+        # O Prisma espera o valor do enum (ex: EM_ANDAMENTO),
         # garantimos que esteja em maiúsculo para bater com o schema.prisma
         status_enum = dados.status.upper()
 
-        manifestacao_atualizada = await db.manifestacao.update(
+        await db.manifestacao.update(
             where={"id": manifestacao_id}, data={"status": status_enum}
         )
 
@@ -82,6 +81,5 @@ class ManifestacaoService:
         )
 
         return await db.manifestacao.find_unique(
-            where={"id": manifestacao_id},
-            include={"movimentacoes": True}
+            where={"id": manifestacao_id}, include={"movimentacoes": True}
         )

@@ -23,7 +23,7 @@ async def criar_manifestacao(
         where={"id": int(usuario_logado["sub"])},
         include={"morador": True, "funcionario": True},
     )
-    
+
     nome = "Usuário"
     if usuario.morador and usuario.morador.nome_completo:
         nome = usuario.morador.nome_completo
@@ -55,30 +55,27 @@ async def listar_manifestacao(
     )
 
     roles = [p.nome for p in usuario.perfis]
-    
+
     # SINDICO e ADMIN veem tudo
     if "SINDICO" in roles or "ADMIN" in roles:
         return await db.manifestacao.find_many(
-            include={"movimentacoes": True},
-            order={"data_criacao": "desc"}
+            include={"movimentacoes": True}, order={"data_criacao": "desc"}
         )
 
     # PORTEIRO vê apenas as abertas (PENDENTE e EM_ANDAMENTO)
     if "PORTEIRO" in roles:
         return await db.manifestacao.find_many(
-            where={
-                "status": {"in": ["PENDENTE", "EM_ANDAMENTO"]}
-            },
+            where={"status": {"in": ["PENDENTE", "EM_ANDAMENTO"]}},
             include={"movimentacoes": True},
-            order={"data_criacao": "desc"}
+            order={"data_criacao": "desc"},
         )
 
     # MORADOR vê apenas as suas
     if usuario.morador:
         return await db.manifestacao.find_many(
-            where={"morador_id": usuario.morador.id}, 
+            where={"morador_id": usuario.morador.id},
             include={"movimentacoes": True},
-            order={"data_criacao": "desc"}
+            order={"data_criacao": "desc"},
         )
 
     return []
@@ -88,19 +85,20 @@ async def listar_manifestacao(
     "/atualizar-manifestacao/{manifestacao_id}", response_model=ManifestacaoResponse
 )
 async def atualizar_manifestacao(
-    manifestacao_id: int, 
-    dados: ManifestacaoUpdate, 
+    manifestacao_id: int,
+    dados: ManifestacaoUpdate,
     usuario_logado=Depends(get_current_user),
-    db: Prisma = Depends(get_prisma)
+    db: Prisma = Depends(get_prisma),
 ):
     usuario = await db.usuario.find_unique(
         where={"id": int(usuario_logado["sub"])},
         include={"perfis": True, "morador": True, "funcionario": True},
     )
-    
+
     roles = [p.nome for p in usuario.perfis]
     if "SINDICO" not in roles and "ADMIN" not in roles:
         from app.modules.core.core_exception import ForbiddenError
+
         raise ForbiddenError(
             mensagem="Apenas síndicos ou administradores podem alterar o status de manifestações."
         )
