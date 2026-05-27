@@ -1,88 +1,102 @@
-from typing import Annotated
+import base64
 
-from fastapi import APIRouter, Depends, File, Form, Request, UploadFile
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    Request,
+    Response,
+    UploadFile,
+    status,
+)
 
-from app.modules.core.security import ForbiddenError, get_current_user
-from app.modules.documento.documento_controller import (
-    DocumentoController,
-    get_documento_service,
+from app.db.prisma_client import get_prisma
+from app.modules.core.adapters import CloudinaryAdapter, PyMuPdfAdapter
+from app.modules.core.core_exception import ForbiddenError
+from app.modules.core.core_schema import StandardResponse
+from app.modules.core.security import get_current_user
+from app.modules.documento.documento_controller import DocumentoController
+from app.modules.documento.documento_schema import (
+    DocumentoCreate,
+    DocumentosListResponse,
 )
 from app.modules.documento.documento_service import DocumentoService
-from prisma import models
+from prisma import Prisma, models
 
 router = APIRouter(prefix="/documentos", tags=["Documentos"])
 
 
-def obter_condominio_id(usuario: models.Usuario) -> int:
-    if usuario.funcionario:
-        return usuario.funcionario.condominio_id
-    if usuario.morador and usuario.morador.unidade:
-        return usuario.morador.unidade.condominio_id
-    raise ForbiddenError(mensagem="Usuário não vinculado a um condomínio.")
-
-
-def verificar_permissao_escrita(usuario: models.Usuario):
-    roles = [p.nome for p in usuario.perfis]
-    if "SINDICO" not in roles and "ADMIN" not in roles:
-        raise ForbiddenError(
-            mensagem="Acesso negado: Apenas síndicos ou administradores podem realizar esta ação."
-        )
-
-
-@router.post("")
-async def criar_documento(
-    request: Request,
-    titulo: Annotated[str, Form()],
-    categoria: Annotated[str, Form()],
-    arquivo: Annotated[UploadFile, File()],
-    descricao: Annotated[str | None, Form()] = None,
-    service: DocumentoService = Depends(get_documento_service),
-    usuario: models.Usuario = Depends(get_current_user),
-):
-    verificar_permissao_escrita(usuario)
-    condominio_id = obter_condominio_id(usuario)
-
-    return await DocumentoController.criar_documento(
-        request=request,
-        titulo=titulo,
-        descricao=descricao,
-        categoria=categoria,
-        arquivo=arquivo,
-        usuario_id=usuario.id,
-        condominio_id=condominio_id,
-        service=service,
+def get_documento_service(db: Prisma = Depends(get_prisma)) -> DocumentoService:
+    return DocumentoService(
+        db=db, pdf_service=PyMuPdfAdapter(), storage_service=CloudinaryAdapter()
     )
 
 
-@router.get("")
+@router.post("", status_code=status.HTTP_201_CREATED)
+async def criar_documento(
+    request: Request,
+    titulo: str = Form(...),
+    categoria: str = Form(...),
+    descricao: str | None = Form(None),
+    arquivo: UploadFile = File(...),
+    current_user: models.Usuario = Depends(get_current_user),
+    service: DocumentoService = Depends(get_documento_service),
+):
+    """Realiza o upload de um novo documento PDF."""
+    if not current_user.funcionario:
+        raise ForbiddenError(
+            "Apenas síndicos ou administradores podem subir documentos."
+        )
+
+    dados = DocumentoCreate(titulo=titulo, categoria=categoria, descricao=descricao)
+    pdf_bytes = await arquivo.read()
+
+    resultado = await DocumentoController.criar(
+        dados=dados,
+        arquivo_pdf=pdf_bytes,
+        filename=arquivo.filename,
+        condominio_id=current_user.funcionario.condominio_id,
+        usuario_id=current_user.id,
+        ip_address=request.client.host if request.client else None,
+        service=service,
+    )
+    return StandardResponse(
+        message="Documento criado com sucesso.",
+        status_code=status.HTTP_201_CREATED,
+        data=resultado,
+    )
+
+
+@router.get("", response_model=StandardResponse[DocumentosListResponse])
 async def listar_documentos(
     categoria: str | None = None,
     limit: int = 10,
     offset: int = 0,
+    current_user: models.Usuario = Depends(get_current_user),
     service: DocumentoService = Depends(get_documento_service),
-    usuario: models.Usuario = Depends(get_current_user),
 ):
-    condominio_id = obter_condominio_id(usuario)
-    return await DocumentoController.listar_documentos(
+    """Lista os documentos do condomínio do usuário logado."""
+    condominio_id = None
+    if current_user.funcionario:
+        condominio_id = current_user.funcionario.condominio_id
+    elif current_user.morador and current_user.morador.unidade:
+        condominio_id = current_user.morador.unidade.condominio_id
+
+    if not condominio_id:
+        raise ForbiddenError("Usuário não associado a um condomínio.")
+
+    resultado = await DocumentoController.listar(
         condominio_id=condominio_id,
         categoria=categoria,
         limit=limit,
         offset=offset,
         service=service,
     )
-
-
-@router.get("/{documento_id}")
-async def obter_detalhes(
-    documento_id: int,
-    service: DocumentoService = Depends(get_documento_service),
-    usuario: models.Usuario = Depends(get_current_user),
-):
-    condominio_id = obter_condominio_id(usuario)
-    return await DocumentoController.obter_detalhes(
-        documento_id=documento_id,
-        condominio_id=condominio_id,
-        service=service,
+    return StandardResponse(
+        message="Documentos listados com sucesso.",
+        status_code=status.HTTP_200_OK,
+        data=resultado,
     )
 
 
@@ -90,16 +104,57 @@ async def obter_detalhes(
 async def obter_url_download(
     request: Request,
     documento_id: int,
+    current_user: models.Usuario = Depends(get_current_user),
     service: DocumentoService = Depends(get_documento_service),
-    usuario: models.Usuario = Depends(get_current_user),
 ):
-    condominio_id = obter_condominio_id(usuario)
-    return await DocumentoController.obter_url_download(
-        request=request,
+    """Gera uma URL para visualização/download do documento."""
+    condominio_id = None
+    if current_user.funcionario:
+        condominio_id = current_user.funcionario.condominio_id
+    elif current_user.morador and current_user.morador.unidade:
+        condominio_id = current_user.morador.unidade.condominio_id
+
+    url = await service.gerar_url_download(
         documento_id=documento_id,
         condominio_id=condominio_id,
-        usuario_id=usuario.id,
-        service=service,
+        usuario_id=current_user.id,
+        ip_address=request.client.host if request.client else None,
+    )
+    return StandardResponse(
+        message="URL gerada com sucesso.",
+        status_code=status.HTTP_200_OK,
+        data={"url": url},
+    )
+
+
+@router.get("/{documento_id}/stream")
+async def stream_documento(
+    documento_id: int,
+    service: DocumentoService = Depends(get_documento_service),
+):
+    """Endpoint para servir o PDF diretamente do banco de dados (Streaming)."""
+    documento = await service.db.documento.find_unique(where={"id": documento_id})
+
+    if not documento or not documento.conteudo:
+        return Response(
+            status_code=404, content="Documento ou conteúdo não encontrado."
+        )
+
+    # No Prisma Python, o conteúdo Bytes retornado via string b64 precisa ser decodificado
+    try:
+        if hasattr(documento.conteudo, "decode"):
+            pdf_bytes = documento.conteudo.decode()
+        else:
+            pdf_bytes = base64.b64decode(documento.conteudo)
+    except Exception:
+        pdf_bytes = documento.conteudo
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'inline; filename="{documento.filename_orig}"'
+        },
     )
 
 
@@ -107,16 +162,21 @@ async def obter_url_download(
 async def deletar_documento(
     request: Request,
     documento_id: int,
+    current_user: models.Usuario = Depends(get_current_user),
     service: DocumentoService = Depends(get_documento_service),
-    usuario: models.Usuario = Depends(get_current_user),
 ):
-    verificar_permissao_escrita(usuario)
-    condominio_id = obter_condominio_id(usuario)
+    """Deleta um documento (Restrito a funcionários do condomínio)."""
+    if not current_user.funcionario:
+        raise ForbiddenError(
+            "Apenas síndicos ou administradores podem deletar documentos."
+        )
 
-    return await DocumentoController.deletar_documento(
-        request=request,
+    await service.deletar_documento(
         documento_id=documento_id,
-        condominio_id=condominio_id,
-        usuario_id=usuario.id,
-        service=service,
+        condominio_id=current_user.funcionario.condominio_id,
+        usuario_id=current_user.id,
+        ip_address=request.client.host if request.client else None,
+    )
+    return StandardResponse(
+        message="Documento deletado com sucesso.", status_code=status.HTTP_200_OK
     )

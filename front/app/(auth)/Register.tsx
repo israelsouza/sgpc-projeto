@@ -17,6 +17,7 @@ import { styles } from "@/screens/Register/Register.styles";
 import { useAuth } from "@/hooks/useAuth";
 import { registerStep1Schema, registerSchema } from "@/validation/authSchemas";
 import { IRegisterForm } from "@/types";
+import { navigation } from "@/utils/navigation";
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -96,7 +97,7 @@ export default function RegisterScreen() {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backBtn}
-          onPress={() => (step === 2 ? setStep(1) : router.back())}
+          onPress={() => (step === 2 ? setStep(1) : navigation.safeBack("/login"))}
         >
           <Text style={styles.backBtnText}>←</Text>
         </TouchableOpacity>

@@ -1,7 +1,7 @@
 import { Platform } from "react-native";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
-import * as SecureStore from "expo-secure-store";
+import { storage } from "@/utils/storage";
 import notificationService from "../services/notificationService";
 
 // Configura como as notificações devem aparecer quando o app está aberto
@@ -79,7 +79,7 @@ export const useNotifications = () => {
         console.log("FCM Token sincronizado com sucesso.");
 
         // Inscreve o usuário no tópico do condomínio dele
-        const condoId = await SecureStore.getItemAsync("user_condominio_id");
+        const condoId = await storage.getItemAsync("user_condominio_id");
         if (condoId) {
           // Nota: No Firebase Admin (backend), enviamos para o tópico 'condominio_{id}'
           // No Expo/FCM nativo, a inscrição geralmente é feita via API ou SDK nativo.

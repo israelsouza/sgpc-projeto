@@ -2,16 +2,20 @@ import secrets
 from datetime import UTC, datetime, timedelta
 
 from app.config import settings
-from app.modules.convite.convite_schema import VisitanteCreate
+from app.modules.convite.convite_schema import (
+    ConviteCreate,
+    VisitanteCreate,
+    VisitanteUpdate,
+)
 from app.modules.core.adapters import FcmPushAdapter
-from app.modules.core.core_exception import ValidationError
+from app.modules.core.core_exception import NotFoundError, ValidationError
 from app.modules.core.logger import logger
 from prisma import Prisma
 
 
 class ConviteService:
     @staticmethod
-    async def gerar_convite(db: Prisma, morador_id: int):
+    async def gerar_convite(db: Prisma, morador_id: int, dados: ConviteCreate):
         token = secrets.token_urlsafe(32)
         expiracao = datetime.now(UTC) + timedelta(hours=24)
 
@@ -19,6 +23,7 @@ class ConviteService:
             data={
                 "token": token,
                 "morador_id": morador_id,
+                "tipo": dados.tipo,
                 "data_expiracao": expiracao,
                 "status": "PENDENTE",
             }
@@ -59,12 +64,13 @@ class ConviteService:
                 acao="Peça ao morador para gerar um novo convite.",
             )
 
-        # Criar visitante e vincular ao morador
+        # Criar visitante e vincular ao morador, preservando o tipo do convite
         visitante = await db.visitante.create(
             data={
                 "nome_completo": dados.nome_completo,
                 "documento": dados.documento,
                 "celular": dados.celular,
+                "tipo": convite.tipo,
                 "morador_id": convite.morador_id,
             }
         )
@@ -80,10 +86,15 @@ class ConviteService:
 
             if tokens:
                 push_service = FcmPushAdapter()
+                tipo_label = (
+                    "Visitante"
+                    if convite.tipo == "VISITANTE"
+                    else "Prestador de Serviço"
+                )
                 for t in tokens:
                     await push_service.send_direct_push(
                         token=t.token,
-                        title="Novo Visitante Cadastrado",
+                        title=f"Novo {tipo_label} Cadastrado",
                         body=f"{dados.nome_completo} preencheu os dados e já está na sua rede!",
                         data={
                             "tipo": "VISITANTE_CADASTRADO",
@@ -94,3 +105,23 @@ class ConviteService:
             logger.error("erro_notificar_morador", error=str(e))
 
         return visitante
+
+    @staticmethod
+    async def atualizar_visitante(
+        db: Prisma, visitante_id: int, dados: VisitanteUpdate
+    ):
+        visitante = await db.visitante.find_unique(where={"id": visitante_id})
+        if not visitante:
+            raise NotFoundError("Visitante não encontrado.")
+
+        update_data = dados.model_dump(exclude_unset=True)
+        return await db.visitante.update(where={"id": visitante_id}, data=update_data)
+
+    @staticmethod
+    async def excluir_visitante(db: Prisma, visitante_id: int):
+        visitante = await db.visitante.find_unique(where={"id": visitante_id})
+        if not visitante:
+            raise NotFoundError("Visitante não encontrado.")
+
+        await db.visitante.delete(where={"id": visitante_id})
+        return True

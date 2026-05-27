@@ -9,7 +9,7 @@ class DocumentoCreate(BaseModel):
     categoria: str = Field(..., max_length=100)
 
 
-class DocumentoDisplay(BaseModel):
+class DocumentoResponse(BaseModel):
     id: int
     titulo: str
     descricao: str | None = None
@@ -20,3 +20,8 @@ class DocumentoDisplay(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class DocumentosListResponse(BaseModel):
+    total: int
+    items: list[DocumentoResponse]

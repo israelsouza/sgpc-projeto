@@ -42,5 +42,9 @@ export const DocumentoService = {
       },
     });
     return response.data.data;
+  },
+
+  deletar: async (documentoId: number): Promise<void> => {
+    await api.delete(`/documentos/${documentoId}`);
   }
 };

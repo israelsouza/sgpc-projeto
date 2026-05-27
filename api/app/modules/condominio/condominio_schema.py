@@ -1,6 +1,7 @@
+import re
 from enum import StrEnum
 
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 from app.modules.unidade.unidade_schema import UnidadeResponse
 
@@ -22,8 +23,10 @@ class ConfigPredio(BaseModel):
     def validar(self):
         if self.andar_fim < self.andar_inicio:
             raise ValueError("andar_fim deve ser maior que andar_inicio")
+
         if not self.sufixos:
-            raise ValueError("Informa um sufixo")
+            raise ValueError("Informe ao menos um sufixo")
+
         return self
 
 
@@ -43,9 +46,37 @@ class ConfigHorizontal(BaseModel):
 # ESTRUTURA BASE PARA QUALQUER COND QUE SERÁ ADICIONADO
 class CondominioBase(BaseModel):
     nome: str
-    cnpj: str | None = None
-    endereco: str | None = None
+    cnpj: str
+    endereco: str
     tipoCond: TipoCondominio = TipoCondominio.PREDIO
+
+    @field_validator("nome")
+    @classmethod
+    def validar_nome(cls, value: str):
+        nome = value.strip()
+        if len(nome) < 3 or len(nome) > 50:
+            raise ValueError("Digite um nome válido. Deve possuir de 3 à 50 Caracteres")
+        return nome
+
+    @field_validator("cnpj")
+    @classmethod
+    def validar_cnpj(cls, value: str):
+        cnpj = re.sub(r"\D", "", value)  # FUTURAMENTE RETIRAR PARA CNPJS COM LETRAS
+
+        if len(cnpj) != 14:
+            raise ValueError("CNPJ deve ter 14 dígitos")
+        if cnpj == cnpj[0] * 14:
+            raise ValueError("CNPJ Inválido")
+
+        return cnpj
+
+    @field_validator("endereco")
+    @classmethod
+    def validar_endereco(cls, value: str):
+        endereco = value.strip()
+        if len(endereco) < 5 or len(endereco) > 80:
+            raise ValueError("Endereço Inválido")
+        return endereco
 
 
 class CondominioCreate(CondominioBase):
@@ -58,6 +89,47 @@ class CondominioUpdate(BaseModel):
     cnpj: str | None = None
     endereco: str | None = None
     tipoCond: TipoCondominio | None = None
+
+    @field_validator("nome")
+    @classmethod
+    def validar_nome(cls, value: str):
+        if value is None:
+            return value
+
+        nome = value.strip()
+
+        if len(nome) < 3 or len(nome) > 50:
+            raise ValueError("Digite um nome válido. Deve possuir de 3 à 50 Caracteres")
+
+        return nome
+
+    @field_validator("cnpj")
+    @classmethod
+    def validar_cnpj(cls, value: str):
+        if value is None:
+            return value
+
+        cnpj = re.sub(r"\D", "", value)
+
+        if len(cnpj) != 14:
+            raise ValueError("CNPJ deve ter 14 dígitos")
+        if cnpj == cnpj[0] * 14:
+            raise ValueError("CNPJ Inválido")
+
+        return cnpj
+
+    @field_validator("endereco")
+    @classmethod
+    def validar_endereco(cls, value: str):
+        if value is None:
+            return value
+
+        endereco = value.strip()
+
+        if len(endereco) < 5 or len(endereco) > 80:
+            raise ValueError("Endereço Inválido")
+
+        return endereco
 
 
 class CondominioResponse(CondominioBase):

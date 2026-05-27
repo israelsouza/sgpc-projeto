@@ -10,13 +10,16 @@ from prisma import Prisma
 class CondominioService:
     @staticmethod
     async def criar_condominio(dados: CondominioCreate, db: Prisma):
-        if dados.cnpj:
-            existente = await db.condominio.find_first(where={"cnpj": dados.cnpj})
+        if dados.cnpj or dados.endereco:
+            existente = await db.condominio.find_first(
+                where={"OR": [{"cnpj": dados.cnpj}, {"endereco": dados.endereco}]}
+            )
+
             if existente:
                 raise ValidationError(
                     nome="Condominio_Existente",
-                    mensagem="Já existe um condomínio com este CNPJ.",
-                    acao="Informe outro CNPJ.",
+                    mensagem="Já existe um condomínio com este CNPJ ou Endereço.",
+                    acao="Informe outro CNPJ ou Endereço.",
                 )
 
         return await db.condominio.create(data=dados.model_dump())

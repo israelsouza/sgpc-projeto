@@ -1,5 +1,6 @@
 from fastapi import status
 
+from app.modules.core.core_exception import ForbiddenError
 from app.modules.core.core_schema import StandardResponse
 from app.modules.morador.morador_model import MoradorModel
 from app.modules.morador.morador_schema import MoradorCreate
@@ -35,4 +36,21 @@ class MoradorController:
             return []
 
         moradores = await MoradorModel.listar_por_unidade(morador.unidade_id, db)
+        return [m.model_dump() for m in moradores]
+
+    @staticmethod
+    async def listar_moradores_condominio(usuario_id: int, db: Prisma):
+        # Buscar o funcionário vinculado ao usuário
+        usuario = await db.usuario.find_unique(
+            where={"id": usuario_id}, include={"funcionario": True}
+        )
+
+        if not usuario or not usuario.funcionario:
+            raise ForbiddenError(
+                "Acesso negado: Apenas funcionários podem ver todos os moradores."
+            )
+
+        moradores = await MoradorModel.listar_por_condominio(
+            usuario.funcionario.condominio_id, db
+        )
         return [m.model_dump() for m in moradores]

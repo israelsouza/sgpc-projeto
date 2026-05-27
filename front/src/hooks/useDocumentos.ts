@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import * as Linking from 'expo-linking';
 import { DocumentoService, IDocumento } from '../services/documentoService';
 
@@ -8,14 +8,13 @@ export function useDocumentos() {
   const [loading, setLoading] = useState(false);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
 
-  const fetchDocumentos = useCallback(async (categoria?: string, limit: number = 10, offset: number = 0) => {
+  const fetchDocumentos = useCallback(async (categoria?: string, limit: number = 20, offset: number = 0) => {
     setLoading(true);
     try {
       const response = await DocumentoService.listar(categoria, limit, offset);
       setDocumentos(response.items || []);
     } catch (error: any) {
-      const msg = error.response?.data?.mensagem || 'Erro ao buscar documentos';
-      Alert.alert('Erro', msg);
+      console.error('Erro ao buscar documentos da API:', error);
     } finally {
       setLoading(false);
     }
@@ -26,13 +25,16 @@ export function useDocumentos() {
     try {
       const url = await DocumentoService.obterDownloadUrl(documentoId);
       
-      // Abre a URL assinada no navegador interno de forma segura
-      // Abre a URL assinada no navegador do sistema de forma segura
-      await Linking.openURL(url);
+      if (Platform.OS === 'web') {
+          window.open(url, '_blank');
+      } else {
+          await Linking.openURL(url);
+      }
       
     } catch (error: any) {
-      const msg = error.response?.data?.mensagem || 'Erro ao tentar abrir o documento';
-      Alert.alert('Erro', msg);
+      const msg = error.response?.data?.mensagem || 'Erro ao tentar abrir o documento.';
+      if (Platform.OS === 'web') alert(msg);
+      else Alert.alert('Erro', msg);
     } finally {
       setDownloadingId(null);
     }
@@ -42,11 +44,30 @@ export function useDocumentos() {
     setLoading(true);
     try {
       await DocumentoService.criar(formData);
-      Alert.alert('Sucesso', 'Documento enviado com sucesso');
+      if (Platform.OS === 'web') alert('Documento enviado com sucesso!');
+      else Alert.alert('Sucesso', 'Documento enviado com sucesso!');
       return true;
     } catch (error: any) {
       const msg = error.response?.data?.mensagem || 'Erro ao enviar documento';
-      Alert.alert('Erro', msg);
+      if (Platform.OS === 'web') alert(msg);
+      else Alert.alert('Erro', msg);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const deleteDocumento = useCallback(async (documentoId: number) => {
+    setLoading(true);
+    try {
+      await DocumentoService.deletar(documentoId);
+      if (Platform.OS === 'web') alert('Documento removido com sucesso!');
+      else Alert.alert('Sucesso', 'Documento removido com sucesso!');
+      return true;
+    } catch (error: any) {
+      const msg = error.response?.data?.mensagem || 'Erro ao excluir documento';
+      if (Platform.OS === 'web') alert(msg);
+      else Alert.alert('Erro', msg);
       return false;
     } finally {
       setLoading(false);
@@ -60,5 +81,6 @@ export function useDocumentos() {
     fetchDocumentos,
     openDocumento,
     uploadDocumento,
+    deleteDocumento,
   };
 }

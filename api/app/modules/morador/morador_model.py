@@ -38,5 +38,19 @@ class MoradorModel:
         """Lista moradores de uma unidade específica."""
         return await db.morador.find_many(
             where={"unidade_id": unidade_id, "deletado_em": None},
+            include={"unidade": True},
+            order={"nome_completo": "asc"},
+        )
+
+    @staticmethod
+    async def listar_por_condominio(condominio_id: int, db: Prisma):
+        """Lista todos os moradores de um condomínio."""
+        return await db.morador.find_many(
+            where={
+                "unidade": {"condominio_id": condominio_id},
+                "deletado_em": None,
+                "status": "ATIVO",
+            },
+            include={"unidade": True},
             order={"nome_completo": "asc"},
         )

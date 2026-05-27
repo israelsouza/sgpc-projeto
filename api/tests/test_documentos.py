@@ -63,12 +63,9 @@ async def test_criar_documento_com_sucesso(
 
     # Verificações
     assert novo_doc.titulo == "Ata de Assembleia"
-    assert novo_doc.file_id.startswith("cloudinary_id_")
+    # Agora usamos prefixo db_ para armazenamento local
+    assert novo_doc.file_id.startswith("db_")
     assert novo_doc.filename_orig == "ata.pdf"
-
-    # Verificar se as interfaces foram chamadas corretamente
-    mock_pdf_service.compress_pdf.assert_called_once()
-    mock_storage_service.upload_private_file.assert_called_once()
 
 
 @pytest.mark.anyio
@@ -100,15 +97,10 @@ async def test_criar_documento_tipo_invalido(
 
 
 @pytest.mark.anyio
-async def test_gerar_url_download_com_flag_cloudinary(
+async def test_gerar_url_download_local_stream(
     db_client, mock_pdf_service, mock_storage_service, pdf_minimal
 ):
     service = DocumentoService(db_client, mock_pdf_service, mock_storage_service)
-
-    # Mockando a URL de retorno para ser uma do Cloudinary com a flag de download
-    mock_storage_service.generate_signed_url.return_value = (
-        "https://res.cloudinary.com/demo/image/upload/fl_attachment/private_id"
-    )
 
     # Criar um documento para testar o download
     novo_doc = await service.criar_documento(
@@ -121,8 +113,9 @@ async def test_gerar_url_download_com_flag_cloudinary(
 
     url = await service.gerar_url_download(novo_doc.id, 1, 1)
 
-    assert "fl_attachment" in url
-    assert "cloudinary" in url
+    # Agora a URL deve apontar para o endpoint de stream local
+    assert "/api/documentos/" in url
+    assert "/stream" in url
 
 
 @pytest.mark.anyio
@@ -143,10 +136,7 @@ async def test_deletar_documento(
     # Deletar
     await service.deletar_documento(novo_doc.id, 1, 1)
 
-    # Verificar se foi removido do storage e marcado no banco
-    mock_storage_service.delete_file.assert_called_once_with(novo_doc.file_id)
-
-    # Tentar buscar detalhes deve falhar agora
+    # Tentar buscar detalhes deve falhar agora (Soft delete)
     with pytest.raises(ValidationError) as exc:
         await service.obter_detalhes(novo_doc.id, 1)
     assert exc.value.nome == "documento_nao_encontrado"

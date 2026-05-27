@@ -1,8 +1,12 @@
 from datetime import UTC, datetime, timedelta
 
 import jwt
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 
 from app.config import settings
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 # Configurações do JWT (pegando do config.py)
 SECRET_KEY = settings.SECRET_KEY
@@ -31,3 +35,14 @@ def decode_access_token(token: str):
         return payload
     except jwt.PyJWTError:
         return None
+
+
+def get_current_user(token: str = Depends(oauth2_scheme)):
+    payload = decode_access_token(token)
+    if payload is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido ou expirado",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return payload

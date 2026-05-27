@@ -1,5 +1,4 @@
-import re
-from datetime import datetime
+from datetime import UTC, datetime
 
 from fastapi import HTTPException, status
 
@@ -27,7 +26,7 @@ class MoradorService:
                 acao="Peça ao síndico para gerar uma chave vinculada a uma unidade.",
             )
 
-        # 2. Verificar duplicidade via Models
+        # 2. Verificar duplicidade
         usuario_existente = await UsuarioModel.buscar_por_email(dados.email, db)
         if usuario_existente:
             raise ValidationError(
@@ -52,27 +51,22 @@ class MoradorService:
                 acao="Verifique se você já possui cadastro ou procure a administração.",
             )
 
-        # Validar formato DDMMAAAA estrito (apenas 8 dígitos numéricos)
-        if not re.match(r"^\d{8}$", dados.data_nascimento):
-            raise ValidationError(
-                nome="data_invalida",
-                mensagem="Data de nascimento inválida. Use o formato DDMMAAAA.",
-                acao="Corrija a data informada.",
-            )
-
+        # 3. Converter data para datetime com UTC (exigido pelo Prisma)
         try:
-            datetime.strptime(dados.data_nascimento, "%d%m%Y")
+            data_nascimento_dt = datetime.strptime(
+                dados.data_nascimento, "%d%m%Y"
+            ).replace(tzinfo=UTC)
         except ValueError:
             raise ValidationError(
                 nome="data_invalida",
-                mensagem="Data de nascimento inválida. Use o formato DDMMAAAA.",
-                acao="Corrija a data informada.",
+                mensagem="Data de nascimento inválida.",
+                acao="Use o formato DDMMAAAA.",
             )
 
-        # 3. Transação
+        # 4. Transação
         try:
             async with db.tx() as transaction:
-                # 3.1 Criar Usuário
+                # 4.1 Criar Usuário
                 novo_usuario = await UsuarioModel.criar(
                     data={
                         "email": dados.email,
@@ -83,14 +77,14 @@ class MoradorService:
                     db=transaction,
                 )
 
-                # 3.2 Criar Morador
+                # 4.2 Criar Morador
                 novo_morador = await MoradorModel.criar(
                     data={
                         "nome_completo": dados.nome_completo,
                         "celular": dados.celular,
                         "rg": dados.rg,
                         "cpf": dados.cpf,
-                        "data_nascimento": dados.data_nascimento,
+                        "data_nascimento": data_nascimento_dt,  # ← datetime com UTC
                         "status": "PENDENTE",
                         "usuario_id": novo_usuario.id,
                         "unidade_id": chave.unidade_id,
@@ -98,13 +92,17 @@ class MoradorService:
                     db=transaction,
                 )
 
-                # 3.3 Queimar Chave via transação
+                # 4.3 Queimar Chave
                 await ChaveService.marcar_como_usada(chave.id, transaction)
 
                 return novo_morador
+
+        except (ValidationError, HTTPException):
+            raise  # repassa erros já tratados sem encapsular
         except Exception as e:
             raise HTTPException(
-                status_code=500, detail=f"Erro no registro de morador: {str(e)}"
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Erro no registro de morador: {str(e)}",
             )
 
     @staticmethod
