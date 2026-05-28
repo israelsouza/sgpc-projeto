@@ -144,6 +144,11 @@ export default function LoginScreen() {
           <Text style={styles.termsLink}>termos de uso</Text> e{" "}
           <Text style={styles.termsLink}>política de privacidade</Text>
         </Text>
+
+
+      <View>
+          <Text style={styles.txtFAC}>Está com dúvidas sobre nosso sistema? {''} <Text style={styles.termsLink} onPress={() => router.push('/FAC')}>Clique aqui!</Text></Text>
+      </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

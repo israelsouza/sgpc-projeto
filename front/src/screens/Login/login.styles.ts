@@ -136,4 +136,11 @@ export const styles = StyleSheet.create({
     color: colors.primary,
     textDecorationLine: "underline",
   },
+
+  txtFAC :{
+    textAlign: "center",
+    color: colors.primary,
+    fontSize: 12,
+    lineHeight: 18,
+  },
 });
